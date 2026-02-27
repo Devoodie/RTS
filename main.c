@@ -2,28 +2,18 @@
 #include <raylib.h>
 
 #include "include/grid_utils.h"
+constexpr int grid_length = 7;
+constexpr int grid_height = 7;
 
 int main(void){
 	const int screenWidth = 800;
 	const int screenHeight = 450;
 	
-	struct grid_space grid[7][7];
+	HexSpace grid[7][7];
+
+	initialize_grid(grid_length, grid_height, grid);
 
 	//initialize gridspace
-	for(int i = 0; i < 7; ++i){
-		for(int j = 0; j < 7; j++){
-			grid[i][j] = default_hex;
-
-			//cannot traverse off of the map 
-			if(i == 0){
-			} else {
-			}
-			if(i == 6){
-			} else {
-			}
-
-		}
-	}
 
 	InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
 
