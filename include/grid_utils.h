@@ -30,9 +30,10 @@ void initialize_grid(int row, int col, HexSpace grid[row][col]){
 			
 			//cannot traverse off of the map 
 			if(j == 0){
-				*CurrentHex.neighbors[3] = NULL;
-				*CurrentHex.neighbors[4] = NULL;
-				*CurrentHex.neighbors[5] = NULL;
+				CurrentHex->neighbors[3] = NULL;
+				CurrentHex->neighbors[4] = NULL;
+				CurrentHex->neighbors[5] = NULL;
+
 			} else {
 				void;
 			}
