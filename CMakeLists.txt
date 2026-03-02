@@ -8,6 +8,7 @@ ADD_EXECUTABLE(main "./main.c")
 
 SET_PROPERTY(TARGET main PROPERTY C_STANDARD 23)
 
+
 include_directories("./include")
 TARGET_LINK_LIBRARIES(main raylib)
 
