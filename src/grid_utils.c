@@ -1,5 +1,10 @@
 # include "../include/grid_utils.h"
 
+HexSpace default_hex = {
+	.x = 0,
+	.y = 0,
+	.neighbors = {NULL, NULL, NULL, NULL, NULL, NULL},
+};
 
 void initialize_grid(int row, int col, HexSpace (*grid)[col]){
 	for(int i = 0; i < row; ++i){

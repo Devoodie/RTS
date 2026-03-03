@@ -7,12 +7,7 @@ typedef struct hex_space {
 	int y;
 } HexSpace;
 
-HexSpace default_hex = {
-	.x = 0,
-	.y = 0,
-	.neighbors = {NULL, NULL, NULL, NULL, NULL, NULL},
-};
-
+extern HexSpace default_hex; 
 enum cardinals {
 	NORTH_EAST = 0,
 	EAST = 1,
