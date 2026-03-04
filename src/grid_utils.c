@@ -15,7 +15,8 @@ void initialize_grid(int row, int col, HexSpace grid[row][col]){
 			*CurrentHex = default_hex;
 			
 			//cannot traverse off of the map 
-			//
+		
+
 			//remember, our hexagons are represented in a matrix
 			//the origin is the top left or first index
 			//therefore, north (or up) is -1 and south (down) is + 1 

@@ -17,6 +17,21 @@ int main(void){
 
 	InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
 
+	//quick check that addresses exist in each hex's neighbor
+	for(int i = 0; i < grid_height; ++i){
+		for(int j = 0; j < grid_length; ++j){
+
+			printf("X: %d, Y: %d\n", j, i); 
+			for(int n = 0; n < 6; ++n){
+				if(grid[i][j].neighbors[n] != NULL){
+					printf("   %d: %p\n", n, grid[i][j].neighbors[n]);
+				} else {
+					printf("   %d: NULL\n", n);
+				}
+			}
+		}
+	}
+
 	SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
 				    //
 	// Main game loop
