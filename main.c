@@ -2,14 +2,14 @@
 #include <raylib.h>
 
 #include "include/grid_utils.h"
-constexpr int grid_length = 7;
-constexpr int grid_height = 7;
+constexpr int grid_length = 8;
+constexpr int grid_height = 8;
 
 int main(void){
-	const int screenWidth = 800;
-	const int screenHeight = 450;
+	const int screenWidth = 1920;
+	const int screenHeight = 1080;
 	
-	HexSpace grid[7][7];
+	HexSpace grid[grid_length][grid_length];
 
 	initialize_grid(grid_length, grid_height, grid);
 
@@ -21,7 +21,8 @@ int main(void){
 	for(int i = 0; i < grid_height; ++i){
 		for(int j = 0; j < grid_length; ++j){
 
-			printf("X: %d, Y: %d\n", j, i); 
+			printf("X Index: %d, Y Index: %d\n", j, i); 
+			printf("X POS: %f, Y POS: %f\n", grid[i][j].x, grid[i][j].y);
 			for(int n = 0; n < 6; ++n){
 				if(grid[i][j].neighbors[n] != NULL){
 					printf("   %d: %p\n", n, grid[i][j].neighbors[n]);
@@ -41,7 +42,13 @@ int main(void){
 
 	    ClearBackground(RAYWHITE);
 
-	    DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
+
+	    for(int i = 0; i < grid_height; ++i){
+		    for(int j = 0; j < grid_length; ++j){
+			    HexSpace *CurrentHex = &grid[i][j];
+			    DrawCircle(CurrentHex->x, CurrentHex->y, 3.0, RED);
+		    }
+	    }
 
 	EndDrawing();
 	}

@@ -1,4 +1,5 @@
-# include "../include/grid_utils.h"
+#include "../include/grid_utils.h"
+#include <math.h>
 
 HexSpace default_hex = {
 	.x = 0,
@@ -6,10 +7,27 @@ HexSpace default_hex = {
 	.neighbors = {NULL, NULL, NULL, NULL, NULL, NULL},
 };
 
+int ScreenWidth = 1920;  
+int ScreenHeight = 1080;
+
 void initialize_grid(int row, int col, HexSpace grid[row][col]){
 	// i is our row (y) index
 	// j is our column (x) index
+	//
+	// decide wether positional values should be normalized or not 
+	const int radius = ScreenWidth / 16;
+	const float inradius = (radius * sqrtf(3.0)) / 2;
+
+	float x = inradius;
+	float y = radius * 2;
+	
+
 	for(int i = 0; i < row; ++i){
+		if (i % 2 == 0) {
+			x = inradius * 2;
+		} else {
+			x = inradius * 3;
+		}
 		for(int j = 0; j < col; j++){
 			HexSpace *CurrentHex = &grid[i][j];
 			*CurrentHex = default_hex;
@@ -38,9 +56,13 @@ void initialize_grid(int row, int col, HexSpace grid[row][col]){
 				if (i != 0) CurrentHex->neighbors[NORTH_EAST] = &grid[i - 1][j + 1];
 
 			}
-
+			CurrentHex->x = x;
+			CurrentHex->y = y;
+			x += inradius * 2;
 		}
+		y += radius * 2;
 	}
+
 
 }
 

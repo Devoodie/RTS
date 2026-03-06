@@ -3,8 +3,8 @@
 typedef struct hex_space {	
 	//neighbors list
 	struct hex_space *neighbors[6];
-	int x;
-	int y;
+	float x;
+	float y;
 } HexSpace;
 
 extern HexSpace default_hex; 
