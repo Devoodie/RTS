@@ -8,6 +8,9 @@ typedef struct hex_space {
 } HexSpace;
 
 extern HexSpace default_hex; 
+extern float radius;
+extern float inradius;
+
 enum cardinals {
 	NORTH_EAST = 0,
 	EAST = 1,
@@ -17,4 +20,6 @@ enum cardinals {
 	NORTH_WEST = 5,
 };
 
-void initialize_grid(int row, int col, HexSpace grid[row][col]);
+void initializeGrid(const int row, const int col, HexSpace grid[row][col]);
+
+void renderGrid(const int row, const int col, const HexSpace grid[row][col]);

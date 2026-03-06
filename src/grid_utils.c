@@ -1,6 +1,8 @@
 #include "../include/grid_utils.h"
 #include <math.h>
 
+#include<raylib.h>
+
 HexSpace default_hex = {
 	.x = 0,
 	.y = 0,
@@ -10,14 +12,18 @@ HexSpace default_hex = {
 int ScreenWidth = 1920;  
 int ScreenHeight = 1080;
 
-void initialize_grid(int row, int col, HexSpace grid[row][col]){
+float radius = 0;
+float inradius = 0;
+
+void initializeGrid(int row, int col, HexSpace grid[row][col]){
 	// i is our row (y) index
 	// j is our column (x) index
-	//
-	// decide wether positional values should be normalized or not 
-	const int radius = ScreenWidth / 16;
-	const float inradius = (radius * sqrtf(3.0)) / 2;
+	
+	//hexagon math
+	radius = ScreenWidth / 16;
+	inradius = (radius * sqrtf(3.0)) / 2;
 
+	// decide wether positional values should be normalized or not 
 	float x = inradius;
 	float y = radius * 2;
 	
@@ -62,7 +68,23 @@ void initialize_grid(int row, int col, HexSpace grid[row][col]){
 		}
 		y += radius * 2;
 	}
+}
 
+void renderGrid(const int row, const int col, const HexSpace grid[row][col]){
+	Rectangle drawing_rectangle = {
+		.x = 0,
+		.y = 0,
+		.height = radius * 2,
+		.width = inradius * 2,
+	};
+
+	for(int i = 0; i < row; ++i){
+	    for(int j = 0; j < col; ++j){
+		    const HexSpace *CurrentHex = &grid[i][j];
+		    DrawCircle(CurrentHex->x, CurrentHex->y, 3.0, RED);
+	//			    DrawTexturePro(Texture2D texture, Rectangle source, Rectangle dest, Vector2 origin, float rotation, Color tint);
+	    }
+	}
 
 }
 
