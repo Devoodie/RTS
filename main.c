@@ -2,6 +2,7 @@
 #include <raylib.h>
 
 #include "include/grid_utils.h"
+
 constexpr int grid_length = 8;
 constexpr int grid_height = 8;
 
@@ -11,6 +12,7 @@ int main(void){
 	
 	HexSpace grid[grid_length][grid_length];
 
+	initializeAssets();
 	initializeGrid(grid_length, grid_height, grid);
 
 	//initialize gridspace
@@ -23,12 +25,6 @@ int main(void){
 				    //
 	// Main game loop
 	//
-	Rectangle drawing_rectangle = {
-		.x = 0,
-		.y = 0,
-		.height = radius * 2,
-		.width = inradius * 2,
-	};
 
 	while (!WindowShouldClose())    // Detect window close button or ESC key
 	{
@@ -37,13 +33,6 @@ int main(void){
 	    ClearBackground(RAYWHITE);
 
 
-	    for(int i = 0; i < grid_height; ++i){
-		    for(int j = 0; j < grid_length; ++j){
-			    HexSpace *CurrentHex = &grid[i][j];
-			    DrawCircle(CurrentHex->x, CurrentHex->y, 3.0, RED);
-//			    DrawTexturePro(Texture2D texture, Rectangle source, Rectangle dest, Vector2 origin, float rotation, Color tint);
-		    }
-	    }
 
 	EndDrawing();
 	}

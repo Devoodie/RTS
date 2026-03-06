@@ -1,7 +1,10 @@
 #include "../include/grid_utils.h"
-#include <math.h>
 
-#include<raylib.h>
+#include <math.h>
+#include <raylib.h>
+
+#include "../include/assets.h"
+
 
 HexSpace default_hex = {
 	.x = 0,
@@ -14,6 +17,10 @@ int ScreenHeight = 1080;
 
 float radius = 0;
 float inradius = 0;
+
+void initializeAssets(){
+	grassHex = LoadTexture("../assets/Hex_Grass_Single.png");
+}
 
 void initializeGrid(int row, int col, HexSpace grid[row][col]){
 	// i is our row (y) index

@@ -1,15 +1,17 @@
 #include <stdio.h>
 
+#include <assets.h>
+
+
 typedef struct hex_space {	
 	//neighbors list
 	struct hex_space *neighbors[6];
 	float x;
 	float y;
+	//unit*
+	//structures[]
 } HexSpace;
 
-extern HexSpace default_hex; 
-extern float radius;
-extern float inradius;
 
 enum cardinals {
 	NORTH_EAST = 0,
@@ -20,6 +22,12 @@ enum cardinals {
 	NORTH_WEST = 5,
 };
 
+extern HexSpace default_hex; 
+extern float radius;
+extern float inradius;
+
 void initializeGrid(const int row, const int col, HexSpace grid[row][col]);
+
+void initializeAssets();
 
 void renderGrid(const int row, const int col, const HexSpace grid[row][col]);
