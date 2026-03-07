@@ -2,16 +2,13 @@
 
 #include <assets.h>
 
-
 typedef struct hex_space {	
-	//neighbors list
 	struct hex_space *neighbors[6];
 	float x;
 	float y;
 	//unit*
 	//structures[]
 } HexSpace;
-
 
 enum cardinals {
 	NORTH_EAST = 0,
@@ -31,3 +28,13 @@ void initializeGrid(const int row, const int col, HexSpace grid[row][col]);
 void initializeAssets();
 
 void renderGrid(const int row, const int col, const HexSpace grid[row][col]);
+
+typedef struct hashmap {
+	void *values;
+	int value_size;
+	int value_type;
+	void *(*get)(struct hashmap);
+} HashMap;
+
+void* get(struct hashmap hashmap);
+

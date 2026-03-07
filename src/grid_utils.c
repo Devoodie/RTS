@@ -36,11 +36,13 @@ void initializeGrid(int row, int col, HexSpace grid[row][col]){
 	
 
 	for(int i = 0; i < row; ++i){
+
 		if (i % 2 == 0) {
 			x = inradius * 2;
 		} else {
 			x = inradius * 3;
 		}
+		
 		for(int j = 0; j < col; j++){
 			HexSpace *CurrentHex = &grid[i][j];
 			*CurrentHex = default_hex;
@@ -58,8 +60,6 @@ void initializeGrid(int row, int col, HexSpace grid[row][col]){
 				CurrentHex->neighbors[WEST] = &grid[i][j - 1];
 				if (i != row - 1) CurrentHex->neighbors[SOUTH_WEST] = &grid[i + 1][j - 1];
  				if( i != 0) CurrentHex->neighbors[NORTH_WEST] = &grid [i - 1][j - 1];
- 
-			
 			} 
 			
 			//right
@@ -95,3 +95,23 @@ void renderGrid(const int row, const int col, const HexSpace grid[row][col]){
 
 }
 
+void* get(HashMap hashmap){
+	int prime = hashmap.value_size;
+
+	
+	//find the nearest prime number
+	while(prime > 1){
+		if(prime % 2 != 0 & prime % 3 != 0){
+		} else{
+			prime -= 1;
+		}
+	}
+	switch (hashmap.value_type) {
+		case 1:
+
+		default: 
+			return NULL;
+
+
+	}
+}

@@ -10,6 +10,7 @@ SET_PROPERTY(TARGET main PROPERTY C_STANDARD 23)
 
 ADD_LIBRARY(grid_utils STATIC "./src/grid_utils.c")
 
+SET_PROPERTY(TARGET grid_utils PROPERTY C_STANDARD 23)
 include_directories("./include")
 TARGET_LINK_LIBRARIES(main raylib)
 TARGET_LINK_LIBRARIES(main grid_utils)
