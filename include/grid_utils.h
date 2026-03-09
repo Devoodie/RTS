@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stddef.h>
 
 #include <assets.h>
 
@@ -31,10 +32,19 @@ void renderGrid(const int row, const int col, const HexSpace grid[row][col]);
 
 typedef struct hashmap {
 	void *values;
-	int value_size;
-	int value_type;
-	void *(*get)(struct hashmap);
+
+	size_t type_size;
+	int map_size;
+	int prime;
+	//int value_type;
+
+	void *(*getMapValue)(struct hashmap);
+	void (*putMapValue)(struct hashmap*);
 } HashMap;
 
-void* get(struct hashmap hashmap);
+//ALLOCATION
+HashMap InitializeHashmap(size_t type_size, int map_size);
 
+void* getMapValue(HashMap hashmap, int key);
+
+void putMapValue(HashMap *hashmap, int key, void* value);

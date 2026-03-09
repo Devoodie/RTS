@@ -2,6 +2,7 @@
 
 #include <math.h>
 #include <raylib.h>
+#include <stdlib.h>
 
 #include "../include/assets.h"
 
@@ -95,23 +96,38 @@ void renderGrid(const int row, const int col, const HexSpace grid[row][col]){
 
 }
 
-void* get(HashMap hashmap){
-	int prime = hashmap.value_size;
+//ALLOCATION
+HashMap InitializeHashmap(const size_t type_size, int map_size){
+	int prime = map_size;
 
-	
-	//find the nearest prime number
 	while(prime > 1){
 		if(prime % 2 != 0 & prime % 3 != 0){
-		} else{
+			break;
+		} else {
 			prime -= 1;
 		}
 	}
-	switch (hashmap.value_type) {
-		case 1:
 
-		default: 
-			return NULL;
+	HashMap NewMap = {
+		.type_size = type_size,
+		.map_size = map_size,
+		.values = malloc(type_size * map_size),
+		.prime = prime,
 
+	};
 
-	}
+	return NewMap;
 }
+
+void* getMapValue(HashMap hashmap, int key){
+	//find the nearest prime number
+	return &hashmap.values[key % hashmap.prime];
+	//hashing function
+}
+
+void putMapValue(HashMap *hashmap, int key, void value){
+	// THIS IS NOT CORRECT
+	hashmap->values[sizeof(hashmap->type_size) *(key % hashmap->prime)] = value;
+}
+
+
