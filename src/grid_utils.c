@@ -97,7 +97,7 @@ void renderGrid(const int row, const int col, const HexSpace grid[row][col]){
 }
 
 //ALLOCATION
-HashMap InitializeHashmap(const size_t type_size, int map_size){
+HashMap InitializeHashmap(int map_size){
 	int prime = map_size;
 
 	while(prime > 1){
@@ -109,25 +109,22 @@ HashMap InitializeHashmap(const size_t type_size, int map_size){
 	}
 
 	HashMap NewMap = {
-		.type_size = type_size,
 		.map_size = map_size,
-		.values = malloc(type_size * map_size),
+		.textures = malloc(sizeof(HashMap)* map_size),
 		.prime = prime,
-
 	};
 
 	return NewMap;
 }
 
-void* getMapValue(HashMap hashmap, int key){
+Texture2D* getMapValue(HashMap hashmap, int key){
 	//find the nearest prime number
 	return &hashmap.values[key % hashmap.prime];
 	//hashing function
 }
 
-void putMapValue(HashMap *hashmap, int key, void value){
-	// THIS IS NOT CORRECT
-	hashmap->values[sizeof(hashmap->type_size) *(key % hashmap->prime)] = value;
+void putMapValue(HashMap *hashmap, int key, Texture2D texture_value){
+	void;
 }
 
 
