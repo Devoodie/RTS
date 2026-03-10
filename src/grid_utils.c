@@ -70,7 +70,7 @@ void initializeGrid(int row, int col, HexSpace grid[row][col]){
 			CurrentHex->y = y;
 			x += inradius * 2;
 		}
-		y += (int)radius;
+		y += (int) (radius * 3) / 2;
 	}
 }
 
