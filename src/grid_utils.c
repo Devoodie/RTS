@@ -24,7 +24,7 @@ void initializeGrid(int row, int col, HexSpace grid[row][col]){
 	// j is our column (x) index
 	
 	//hexagon math
-	radius = ScreenWidth / 16;
+	radius = ScreenWidth / 24;
 	inradius = (radius * sqrtf(3.0)) / 2;
 
 	// decide wether positional values should be normalized or not 
@@ -70,7 +70,7 @@ void initializeGrid(int row, int col, HexSpace grid[row][col]){
 			CurrentHex->y = y;
 			x += inradius * 2;
 		}
-		y += radius * 2;
+		y += (int)radius;
 	}
 }
 
@@ -82,7 +82,7 @@ void renderGrid(HashMap textures, const int row, const int col, const HexSpace g
 		.x = 0,
 		.y = 0,
 		.height = radius * 2,
-		.width = inradius * 2,
+		.width = inradius * 2, 
 	};
 
 	Rectangle source_rectangle = {
@@ -92,19 +92,22 @@ void renderGrid(HashMap textures, const int row, const int col, const HexSpace g
 		.height = textures.getMapValue(textures, GRASS_HEX).height,
 	};
 
+	int y_offset = 0;
 	for(int i = 0; i < row; ++i){
-	    for(int j = 0; j < col; ++j){
+		for(int j = 0; j < col; ++j){
 		    const HexSpace *CurrentHex = &grid[i][j];
 		    drawing_rectangle.x = CurrentHex->x; 
-		    drawing_rectangle.y = CurrentHex->y; 
+		    drawing_rectangle.y = CurrentHex->y + y_offset; 
 
 		    Vector2 hex_pos = {
 			    .x = drawing_rectangle.width / 2,
 			    .y = drawing_rectangle.height / 2,
 		    };
-		    DrawCircle(CurrentHex->x, CurrentHex->y, 3.0, RED);
+
 		    DrawTexturePro(textures.getMapValue(textures, GRASS_HEX),source_rectangle , drawing_rectangle, hex_pos, 0, RAYWHITE);
-	    }
+		    DrawCircle(CurrentHex->x, CurrentHex->y, 3.0, RED);
+		    DrawRectangleLines(drawing_rectangle.x - inradius, drawing_rectangle.y - radius, drawing_rectangle.width, drawing_rectangle.height, RED);
+		}
 	}
 
 }
