@@ -1,9 +1,9 @@
-#include "../include/grid_utils.h"
-
 #include <math.h>
+#include <stdio.h>
 #include <raylib.h>
 #include <stdlib.h>
 
+#include "../include/grid_utils.h"
 #include "../include/assets.h"
 
 
@@ -18,10 +18,6 @@ int ScreenHeight = 1080;
 
 float radius = 0;
 float inradius = 0;
-
-void initializeAssets(){
-	grassHex = LoadTexture("../assets/Hex_Grass_Single.png");
-}
 
 void initializeGrid(int row, int col, HexSpace grid[row][col]){
 	// i is our row (y) index
@@ -78,7 +74,10 @@ void initializeGrid(int row, int col, HexSpace grid[row][col]){
 	}
 }
 
-void renderGrid(const int row, const int col, const HexSpace grid[row][col]){
+
+
+void renderGrid(HashMap textures, const int row, const int col, const HexSpace grid[row][col]){
+
 	Rectangle drawing_rectangle = {
 		.x = 0,
 		.y = 0,
@@ -86,14 +85,39 @@ void renderGrid(const int row, const int col, const HexSpace grid[row][col]){
 		.width = inradius * 2,
 	};
 
+	Rectangle source_rectangle = {
+		.x = 0,
+		.y = 0,
+		.width = textures.getMapValue(textures, GRASS_HEX).width,
+		.height = textures.getMapValue(textures, GRASS_HEX).height,
+	};
+
 	for(int i = 0; i < row; ++i){
 	    for(int j = 0; j < col; ++j){
 		    const HexSpace *CurrentHex = &grid[i][j];
+		    drawing_rectangle.x = CurrentHex->x; 
+		    drawing_rectangle.y = CurrentHex->y; 
+
+		    Vector2 hex_pos = {
+			    .x = drawing_rectangle.width / 2,
+			    .y = drawing_rectangle.height / 2,
+		    };
 		    DrawCircle(CurrentHex->x, CurrentHex->y, 3.0, RED);
-	//			    DrawTexturePro(Texture2D texture, Rectangle source, Rectangle dest, Vector2 origin, float rotation, Color tint);
+		    DrawTexturePro(textures.getMapValue(textures, GRASS_HEX),source_rectangle , drawing_rectangle, hex_pos, 0, RAYWHITE);
 	    }
 	}
 
+}
+
+void initializeAssets(HashMap *texture_map){
+
+	Texture2D texture_buffer = LoadTexture("../assets/Hex_Grass_Single.png");
+	printf("running\n");
+	texture_map->putMapValue(
+			texture_map, 
+			GRASS_HEX,
+			texture_buffer
+			);
 }
 
 //ALLOCATION
@@ -112,19 +136,19 @@ HashMap InitializeHashmap(int map_size){
 		.map_size = map_size,
 		.textures = malloc(sizeof(HashMap)* map_size),
 		.prime = prime,
+		.putMapValue = putMapValue, 
+		.getMapValue = getMapValue,
 	};
 
 	return NewMap;
 }
 
-Texture2D* getMapValue(HashMap hashmap, int key){
+Texture2D getMapValue(HashMap hashmap, int key){
 	//find the nearest prime number
-	return &hashmap.values[key % hashmap.prime];
+	return hashmap.textures[key % hashmap.prime];
 	//hashing function
 }
 
 void putMapValue(HashMap *hashmap, int key, Texture2D texture_value){
-	void;
+	hashmap->textures[key % hashmap->prime] = texture_value;
 }
-
-

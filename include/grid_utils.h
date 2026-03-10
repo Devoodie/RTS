@@ -24,11 +24,6 @@ extern HexSpace default_hex;
 extern float radius;
 extern float inradius;
 
-void initializeGrid(const int row, const int col, HexSpace grid[row][col]);
-
-void initializeAssets();
-
-void renderGrid(const int row, const int col, const HexSpace grid[row][col]);
 
 typedef struct hashmap {
 	Texture2D *textures;
@@ -38,14 +33,24 @@ typedef struct hashmap {
 
 	//size_t type_size;
 	//int value_type;
-
-	void *(*getMapValue)(struct hashmap);
-	void (*putMapValue)(struct hashmap*);
+	//
+	Texture2D (*getMapValue)(struct hashmap, int key);
+	void (*putMapValue)(struct hashmap*, int key, Texture2D);
 } HashMap;
+
+enum textures {
+	GRASS_HEX = 0,
+};
+
+void initializeGrid(const int row, const int col, HexSpace grid[row][col]);
+
+void renderGrid(HashMap textures, const int row, const int col, const HexSpace grid[row][col]);
+
+void initializeAssets(HashMap *texture_map);
 
 //ALLOCATION
 HashMap InitializeHashmap(int map_size);
 
-Texture2D* getMapValue(HashMap hashmap, int key);
+Texture2D getMapValue(HashMap hashmap, int key);
 
-void putMapValue(HashMap *hashmap, int key, void* value);
+void putMapValue(HashMap *hashmap, int key, Texture2D texture_value);

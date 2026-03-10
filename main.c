@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <raylib.h>
+#include <stdlib.h>
 
 #include "include/grid_utils.h"
 
@@ -12,12 +13,17 @@ int main(void){
 	
 	HexSpace grid[grid_length][grid_length];
 
-	initializeAssets();
+	//allocation
+	HashMap texture_map = InitializeHashmap(64);
+
+	InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
+
+	initializeAssets(&texture_map);
+	printf("initalize grid");
 	initializeGrid(grid_length, grid_height, grid);
 
 	//initialize gridspace
 
-	InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
 
 	//quick check that addresses exist in each hex's neighbor
 
@@ -31,12 +37,13 @@ int main(void){
 	BeginDrawing();
 
 	    ClearBackground(RAYWHITE);
-
-
+	    renderGrid(texture_map, grid_height, grid_length, grid);
 
 	EndDrawing();
 	}
 
 	CloseWindow();        // Close window and OpenGL context
+			      //
+	free(texture_map.textures);
 	return 0;
 }
