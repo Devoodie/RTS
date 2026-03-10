@@ -76,7 +76,7 @@ void initializeGrid(int row, int col, HexSpace grid[row][col]){
 
 
 
-void renderGrid(HashMap textures, const int row, const int col, const HexSpace grid[row][col]){
+void renderGrid(HashMap textures, const int row, const int col, const HexSpace grid[row][col], int debug){
 
 	Rectangle drawing_rectangle = {
 		.x = 0,
@@ -106,7 +106,7 @@ void renderGrid(HashMap textures, const int row, const int col, const HexSpace g
 
 		    DrawTexturePro(textures.getMapValue(textures, GRASS_HEX),source_rectangle , drawing_rectangle, hex_pos, 0, RAYWHITE);
 		    DrawCircle(CurrentHex->x, CurrentHex->y, 3.0, RED);
-		    DrawRectangleLines(drawing_rectangle.x - inradius, drawing_rectangle.y - radius, drawing_rectangle.width, drawing_rectangle.height, RED);
+		    if (debug) DrawRectangleLines(drawing_rectangle.x - inradius, drawing_rectangle.y - radius, drawing_rectangle.width, drawing_rectangle.height, RED);
 		}
 	}
 

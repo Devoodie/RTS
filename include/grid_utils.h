@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stddef.h>
 
-#include <assets.h>
+#include "./assets.h"
 
 typedef struct hex_space {	
 	struct hex_space *neighbors[6];
@@ -44,7 +44,7 @@ enum textures {
 
 void initializeGrid(const int row, const int col, HexSpace grid[row][col]);
 
-void renderGrid(HashMap textures, const int row, const int col, const HexSpace grid[row][col]);
+void renderGrid(HashMap textures, const int row, const int col, const HexSpace grid[row][col], int debug);
 
 void initializeAssets(HashMap *texture_map);
 
