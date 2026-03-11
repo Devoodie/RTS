@@ -16,9 +16,15 @@ int main(void){
 	//allocation
 	HashMap* texture_map = hashmap_init(64);
 
+	if (!texture_map)
+	{
+		printf("Failed to initialize hashmap\n");
+		return 1;
+	}
+
 	InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
 
-	initializeAssets(texture_map);
+	hashmap_initAssets(texture_map);
 	printf("initialize grid");
 	initializeGrid(grid_length, grid_height, grid);
 

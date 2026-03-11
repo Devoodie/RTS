@@ -34,7 +34,7 @@ typedef struct hashmap {
 	//size_t type_size;
 	//int value_type;
 	//
-	Texture2D (*getMapValue)(struct hashmap, int key);
+	Texture2D (*getMapValue)(struct hashmap*, int key);
 	void (*putMapValue)(struct hashmap*, int key, Texture2D);
 } HashMap;
 
@@ -46,11 +46,11 @@ void initializeGrid(const int row, const int col, HexSpace grid[row][col]);
 
 void renderGrid(HashMap textures, const int row, const int col, const HexSpace grid[row][col], int debug);
 
-void initializeAssets(HashMap *texture_map);
+void hashmap_initAssets(HashMap *texture_map);
 
 //ALLOCATION
 HashMap* hashmap_init(int map_size);
 
-Texture2D getMapValue(HashMap hashmap, int key);
+Texture2D getMapValue(HashMap* hashmap, int key);
 
 void putMapValue(HashMap *hashmap, int key, Texture2D texture_value);

@@ -27,7 +27,7 @@ void initializeGrid(int row, int col, HexSpace grid[row][col]){
 	radius = ScreenWidth / 24;
 	inradius = (radius * sqrtf(3.0)) / 2;
 
-	// decide wether positional values should be normalized or not 
+	// decide whether positional values should be normalized or not
 	float x = inradius;
 	float y = radius * 2;
 	
@@ -88,8 +88,8 @@ void renderGrid(HashMap textures, const int row, const int col, const HexSpace g
 	Rectangle source_rectangle = {
 		.x = 0,
 		.y = 0,
-		.width = textures.getMapValue(textures, GRASS_HEX).width,
-		.height = textures.getMapValue(textures, GRASS_HEX).height,
+		.width = textures.getMapValue(&textures, GRASS_HEX).width,
+		.height = textures.getMapValue(&textures, GRASS_HEX).height,
 	};
 
 	int y_offset = 0;
@@ -104,7 +104,7 @@ void renderGrid(HashMap textures, const int row, const int col, const HexSpace g
 			    .y = drawing_rectangle.height / 2,
 		    };
 
-		    DrawTexturePro(textures.getMapValue(textures, GRASS_HEX),source_rectangle , drawing_rectangle, hex_pos, 0, RAYWHITE);
+		    DrawTexturePro(textures.getMapValue(&textures, GRASS_HEX),source_rectangle , drawing_rectangle, hex_pos, 0, RAYWHITE);
 		    DrawCircle(CurrentHex->x, CurrentHex->y, 3.0, RED);
 		    if (debug) DrawRectangleLines(drawing_rectangle.x - inradius, drawing_rectangle.y - radius, drawing_rectangle.width, drawing_rectangle.height, RED);
 		}
@@ -112,10 +112,12 @@ void renderGrid(HashMap textures, const int row, const int col, const HexSpace g
 
 }
 
-void initializeAssets(HashMap *texture_map){
+void hashmap_initAssets(HashMap *texture_map){
 
-	Texture2D texture_buffer = LoadTexture("../assets/Hex_Grass_Single.png");
+	const Texture2D texture_buffer = LoadTexture("../assets/Hex_Grass_Single.png");
+
 	printf("running\n");
+
 	texture_map->putMapValue(
 			texture_map, 
 			GRASS_HEX,
@@ -148,12 +150,12 @@ HashMap* hashmap_init(const int map_size){
 	return newMap;
 }
 
-Texture2D getMapValue(HashMap hashmap, int key){
+Texture2D getMapValue(HashMap *hashmap, const int key){
 	//find the nearest prime number
-	return hashmap.textures[key % hashmap.prime];
+	return hashmap->textures[key % hashmap->prime];
 	//hashing function
 }
 
-void putMapValue(HashMap *hashmap, int key, Texture2D texture_value){
+void putMapValue(HashMap *hashmap, const int key, const Texture2D texture_value){
 	hashmap->textures[key % hashmap->prime] = texture_value;
 }
