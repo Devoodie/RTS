@@ -10,7 +10,7 @@
 HexSpace default_hex = {
 	.x = 0,
 	.y = 0,
-	.neighbors = {NULL, NULL, NULL, NULL, NULL, NULL},
+	.neighbors = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr},
 };
 
 int ScreenWidth = 1920;  
