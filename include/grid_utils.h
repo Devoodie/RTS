@@ -49,7 +49,7 @@ void renderGrid(HashMap textures, const int row, const int col, const HexSpace g
 void initializeAssets(HashMap *texture_map);
 
 //ALLOCATION
-HashMap InitializeHashmap(int map_size);
+HashMap* hashmap_init(int map_size);
 
 Texture2D getMapValue(HashMap hashmap, int key);
 

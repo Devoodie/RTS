@@ -124,26 +124,28 @@ void initializeAssets(HashMap *texture_map){
 }
 
 //ALLOCATION
-HashMap InitializeHashmap(int map_size){
+HashMap* hashmap_init(const int map_size){
 	int prime = map_size;
 
 	while(prime > 1){
 		if(prime % 2 != 0 & prime % 3 != 0){
 			break;
-		} else {
-			prime -= 1;
 		}
+
+		prime -= 1;
 	}
 
-	HashMap NewMap = {
-		.map_size = map_size,
-		.textures = malloc(sizeof(HashMap)* map_size),
-		.prime = prime,
-		.putMapValue = putMapValue, 
-		.getMapValue = getMapValue,
-	};
+	HashMap* newMap = malloc(sizeof(HashMap));
 
-	return NewMap;
+	if (newMap == nullptr) return newMap;
+
+	newMap->prime       = prime;
+	newMap->map_size    = map_size;
+	newMap->textures    = malloc(sizeof(HashMap)* map_size);
+	newMap->putMapValue = putMapValue;
+	newMap->getMapValue = getMapValue;
+
+	return newMap;
 }
 
 Texture2D getMapValue(HashMap hashmap, int key){
