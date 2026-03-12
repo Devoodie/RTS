@@ -76,7 +76,7 @@ void initializeGrid(int row, int col, HexSpace grid[row][col]){
 
 
 
-void renderGrid(HashMap textures, const int row, const int col, const HexSpace grid[row][col], int debug){
+void renderGrid(const HashMap textures, const int row, const int col, HexSpace grid[row][col], const int debug){
 
 	Rectangle drawing_rectangle = {
 		.x = 0,
@@ -152,7 +152,7 @@ HashMap HashmapInit(const int map_size){
 	return newMap;
 }
 
-Texture2D getMapValue(const HashMap *hashmap, const int key){
+Texture2D GetMapValue(const HashMap *hashmap, const int key){
 	//find the nearest prime number
 	return hashmap->textures[key % hashmap->prime];
 	//hashing function
