@@ -14,12 +14,12 @@ int main(void){
 	HexSpace grid[grid_length][grid_length];
 
 	//allocation
-	HashMap texture_map = InitializeHashmap(64);
+	HashMap texture_map = HashmapInit(64);
 
 	InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
 
-	initializeAssets(&texture_map);
-	printf("initalize grid");
+	hashmapInitAssets(&texture_map);
+	printf("initialize grid");
 	initializeGrid(grid_length, grid_height, grid);
 
 	//initialize gridspace

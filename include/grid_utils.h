@@ -34,23 +34,23 @@ typedef struct hashmap {
 	//size_t type_size;
 	//int value_type;
 	//
-	Texture2D (*getMapValue)(struct hashmap, int key);
-	void (*putMapValue)(struct hashmap*, int key, Texture2D);
+	Texture2D (*getMapValue)(const struct hashmap*, int key);
+	void (*putMapValue)(const struct hashmap*, int key, Texture2D);
 } HashMap;
 
 enum textures {
 	GRASS_HEX = 0,
 };
 
-void initializeGrid(const int row, const int col, HexSpace grid[row][col]);
+void initializeGrid(int row, int col, HexSpace grid[row][col]);
 
-void renderGrid(HashMap textures, const int row, const int col, const HexSpace grid[row][col], int debug);
+void renderGrid(HashMap textures, int row, int col, HexSpace grid[row][col], int debug);
 
-void initializeAssets(HashMap *texture_map);
+void hashmapInitAssets(HashMap *texture_map);
 
 //ALLOCATION
-HashMap InitializeHashmap(int map_size);
+HashMap HashmapInit(int map_size);
 
-Texture2D getMapValue(HashMap hashmap, int key);
+Texture2D GetMapValue(const HashMap* hashmap, int key);
 
-void putMapValue(HashMap *hashmap, int key, Texture2D texture_value);
+void putMapValue(const HashMap *hashmap, int key, Texture2D texture_value);
