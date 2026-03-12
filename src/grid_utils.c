@@ -81,7 +81,7 @@ void renderGrid(const HashMap textures, const int row, const int col, HexSpace g
 	Rectangle drawing_rectangle = {
 		.x = 0,
 		.y = 0,
-		.height = radius * 2,
+		.height = radius * 2 + 25,
 		.width = inradius * 2, 
 	};
 
@@ -105,8 +105,10 @@ void renderGrid(const HashMap textures, const int row, const int col, HexSpace g
 		    };
 
 		    DrawTexturePro(textures.getMapValue(&textures, GRASS_HEX),source_rectangle , drawing_rectangle, hex_pos, 0, RAYWHITE);
-		    DrawCircle(CurrentHex->x, CurrentHex->y, 3.0, RED);
-		    if (debug) DrawRectangleLines(drawing_rectangle.x - inradius, drawing_rectangle.y - radius, drawing_rectangle.width, drawing_rectangle.height, RED);
+		    if (debug){ 
+			    DrawRectangleLines(drawing_rectangle.x - inradius, drawing_rectangle.y - radius, drawing_rectangle.width, drawing_rectangle.height, RED);
+			    DrawCircle(CurrentHex->x, CurrentHex->y, 3.0, RED);
+		    }
 		}
 	}
 
