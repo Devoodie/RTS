@@ -35,7 +35,7 @@ typedef struct hashmap {
 	//int value_type;
 	//
 	Texture2D (*getMapValue)(const struct hashmap*, int key);
-	void (*putMapValue)(const struct hashmap*, int key, Texture2D);
+	void (*putMapValue)(struct hashmap*, int key, Texture2D);
 } HashMap;
 
 enum textures {
@@ -53,4 +53,4 @@ HashMap HashmapInit(int map_size);
 
 Texture2D GetMapValue(const HashMap* hashmap, int key);
 
-void putMapValue(const HashMap *hashmap, int key, Texture2D texture_value);
+void putMapValue(HashMap *hashmap, int key, Texture2D texture_value);

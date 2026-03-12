@@ -158,6 +158,6 @@ Texture2D GetMapValue(const HashMap *hashmap, const int key){
 	//hashing function
 }
 
-void putMapValue(const HashMap *hashmap, const int key, const Texture2D texture_value){
+void putMapValue(HashMap *hashmap, const int key, const Texture2D texture_value){
 	hashmap->textures[key % hashmap->prime] = texture_value;
 }
