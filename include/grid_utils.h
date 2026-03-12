@@ -42,15 +42,15 @@ enum textures {
 	GRASS_HEX = 0,
 };
 
-void initializeGrid(const int row, const int col, HexSpace grid[row][col]);
+void initializeGrid(int row, int col, HexSpace grid[row][col]);
 
-void renderGrid(HashMap textures, const int row, const int col, const HexSpace grid[row][col], int debug);
+void renderGrid(HashMap textures, int row, int col, HexSpace grid[row][col], int debug);
 
-void hashmap_initAssets(HashMap *texture_map);
+void hashmapInitAssets(HashMap *texture_map);
 
 //ALLOCATION
-HashMap* hashmap_init(int map_size);
+HashMap HashmapInit(int map_size);
 
-Texture2D getMapValue(HashMap* hashmap, int key);
+Texture2D GetMapValue(HashMap* hashmap, int key);
 
-void putMapValue(HashMap *hashmap, int key, Texture2D texture_value);
+void putMapValue(const HashMap *hashmap, int key, Texture2D texture_value);

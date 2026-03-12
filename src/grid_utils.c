@@ -112,7 +112,12 @@ void renderGrid(HashMap textures, const int row, const int col, const HexSpace g
 
 }
 
-void hashmap_initAssets(HashMap *texture_map){
+void hashmapInitAssets(HashMap *texture_map){
+
+	if (!texture_map) {
+		printf("texture_map is NULL");
+		return;
+	}
 
 	const Texture2D texture_buffer = LoadTexture("../assets/Hex_Grass_Single.png");
 
@@ -126,7 +131,7 @@ void hashmap_initAssets(HashMap *texture_map){
 }
 
 //ALLOCATION
-HashMap* hashmap_init(const int map_size){
+HashMap HashmapInit(const int map_size){
 	int prime = map_size;
 
 	while(prime > 1){
@@ -137,25 +142,22 @@ HashMap* hashmap_init(const int map_size){
 		prime -= 1;
 	}
 
-	HashMap* newMap = malloc(sizeof(HashMap));
-
-	if (newMap == nullptr) return newMap;
-
-	newMap->prime       = prime;
-	newMap->map_size    = map_size;
-	newMap->textures    = malloc(sizeof(HashMap)* map_size);
-	newMap->putMapValue = putMapValue;
-	newMap->getMapValue = getMapValue;
+	HashMap newMap;
+	newMap.prime       = prime;
+	newMap.map_size    = map_size;
+	newMap.textures    = malloc(sizeof(HashMap)* map_size);
+	newMap.putMapValue = putMapValue;
+	newMap.getMapValue = GetMapValue;
 
 	return newMap;
 }
 
-Texture2D getMapValue(HashMap *hashmap, const int key){
+Texture2D getMapValue(const HashMap *hashmap, const int key){
 	//find the nearest prime number
 	return hashmap->textures[key % hashmap->prime];
 	//hashing function
 }
 
-void putMapValue(HashMap *hashmap, const int key, const Texture2D texture_value){
+void putMapValue(const HashMap *hashmap, const int key, const Texture2D texture_value){
 	hashmap->textures[key % hashmap->prime] = texture_value;
 }

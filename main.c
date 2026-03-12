@@ -14,17 +14,11 @@ int main(void){
 	HexSpace grid[grid_length][grid_length];
 
 	//allocation
-	HashMap* texture_map = hashmap_init(64);
-
-	if (!texture_map)
-	{
-		printf("Failed to initialize hashmap\n");
-		return 1;
-	}
+	HashMap texture_map = HashmapInit(64);
 
 	InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
 
-	hashmap_initAssets(texture_map);
+	hashmapInitAssets(&texture_map);
 	printf("initialize grid");
 	initializeGrid(grid_length, grid_height, grid);
 
@@ -43,13 +37,13 @@ int main(void){
 	BeginDrawing();
 
 	    ClearBackground(RAYWHITE);
-	    renderGrid(*texture_map, grid_height, grid_length, grid, 1);
+	    renderGrid(texture_map, grid_height, grid_length, grid, 1);
 
 	EndDrawing();
 	}
 
 	CloseWindow();        // Close window and OpenGL context
 			      //
-	free(texture_map->textures);
+	free(texture_map.textures);
 	return 0;
 }
