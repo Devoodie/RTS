@@ -1,6 +1,5 @@
 #include <assert.h>
 #include <stdio.h>
-#include <string.h>
 
 #include "arraylist.h"
 
@@ -26,13 +25,13 @@ static void testAddSingleInt(void)
     ArrayList* list = ArrayListInit(sizeof(int));
     assert(list != NULL);
 
-    int value = 42;
+    const int value = 42;
     arrayListAdd(list, &value);
 
     assert(list->length == 1);
     assert(list->elements != NULL);
 
-    int* elements = (int*)list->elements;
+    const int* elements = (int*)list->elements;
     assert(elements[0] == 42);
 
     arrayListDestroy(list);

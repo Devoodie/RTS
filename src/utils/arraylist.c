@@ -25,11 +25,7 @@ ArrayList* ArrayListInit(const size_t elementSize) {
 void arrayListDestroy(ArrayList* arrayList) {
     if (arrayList == nullptr) return;
 
-    if (arrayList->length > 0 && arrayList->elements != nullptr) {
-        for (int i = 0; i < arrayList->length; i++) {
-            free(&arrayList->elements[i]);
-        }
-
+    if (arrayList->elements != nullptr) {
         free(arrayList->elements);
     }
 
@@ -37,15 +33,21 @@ void arrayListDestroy(ArrayList* arrayList) {
 }
 
 void arrayListAdd(ArrayList* arrayList, const void* element) {
-    if (arrayList == nullptr || sizeof(element) != arrayList->elementSize)
+    if (arrayList == nullptr ||
+        element == nullptr)
         return;
 
     void* newElements =
-        malloc(sizeof(arrayList->elementSize) * (arrayList->length + 1));
+        malloc(arrayList->elementSize * (arrayList->length + 1));
     if (newElements == nullptr) return;
 
-    memcpy(newElements, arrayList->elements, sizeof(arrayList->elementSize) * (arrayList->length));
-    memcpy(newElements + arrayList->length, element, sizeof(element));
+    memcpy(newElements,
+        arrayList->elements,
+        arrayList->elementSize * (arrayList->length));
+
+    memcpy(newElements + arrayList->elementSize * arrayList->length,
+        element,
+        arrayList->elementSize);
 
     replaceElements(arrayList, newElements);
 }
@@ -56,17 +58,18 @@ void arrayListRemoveAt(ArrayList* arrayList, const int index) {
         arrayList->elements == nullptr)
         return;
 
-    free(&arrayList->elements[index]);
-
     void* newElements =
-        malloc(sizeof(arrayList->elementSize) * (arrayList->length + 1));
+        malloc(arrayList->elementSize * (arrayList->length + 1));
     if (newElements == nullptr) return;
 
     int curIndex = 0;
     for (int i = 0; i < arrayList->length; i++) {
         if (i == index) continue;
 
-        memcpy(newElements, &arrayList->elements[curIndex], sizeof(arrayList->elementSize));
+        memcpy(newElements + arrayList->elementSize * i,
+            &arrayList->elements[curIndex],
+            arrayList->elementSize);
+
         curIndex++;
     }
 
