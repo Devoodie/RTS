@@ -3,7 +3,9 @@
 
 #include <stddef.h>
 
-// Dynamic array - initialize with ArrayListInit
+// Dynamic array, initialize with ArrayListInit
+// Stores elements in contiguous heap memory
+// Frees elements upon destruction by arrayListDestroy
 // length        - amount of elements in array
 // elementSize   - size_t of one element
 // elements      - pointer to an array of stored elements
@@ -18,14 +20,13 @@ typedef struct ArrayList {
 // elementSize - the size of a single element in the array
 ArrayList* ArrayListInit(size_t elementSize);
 
-// Safely destroys the provided ArrayList
-// Will not free elements of the ArrayList
+// Safely frees the provided ArrayList and its elements
 void arrayListDestroy(ArrayList* arrayList);
 
-// Adds an element to an arraylist
+// Adds an element to an ArrayList by copying and heap allocating
 void arrayListAdd(ArrayList* arrayList, void* element);
 
-// Removes an element from an arraylist, if it is present
-void arrayListRemove(ArrayList* arrayList, void* element);
+// Removes an element from an arraylist, if it is present at the provided index
+void arrayListRemoveAt(ArrayList* arrayList, int index);
 
 #endif
