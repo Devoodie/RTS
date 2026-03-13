@@ -17,14 +17,13 @@ typedef struct ArrayList {
 
 // Returns an initialized ArrayList
 // Returns nullptr on error
-// elementSize - the size of a single element in the array
 ArrayList* ArrayListInit(size_t elementSize);
 
 // Safely frees the provided ArrayList and its elements
 void arrayListDestroy(ArrayList* arrayList);
 
 // Adds an element to an ArrayList by copying and heap allocating
-void arrayListAdd(ArrayList* arrayList, void* element);
+void arrayListAdd(ArrayList* arrayList, const void* element);
 
 // Removes an element from an arraylist, if it is present at the provided index
 void arrayListRemoveAt(ArrayList* arrayList, int index);
