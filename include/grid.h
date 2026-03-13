@@ -1,5 +1,6 @@
-#include <stdio.h>
-#include <stddef.h>
+#ifndef RTS_GRID_H
+#define RTS_GRID_H
+#endif
 
 #include "./assets.h"
 
