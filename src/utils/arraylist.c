@@ -11,7 +11,7 @@ void replaceElements(ArrayList* arrayList, void* newElements, int newLength) {
 }
 
 ArrayList* ArrayListInit(const size_t elementSize) {
-    ArrayList* arrayList = (ArrayList*)malloc(sizeof(ArrayList));
+    ArrayList* arrayList = malloc(sizeof(ArrayList));
 
     if (arrayList == nullptr) return nullptr;
 
