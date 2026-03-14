@@ -1,132 +1,104 @@
+#include "arraylist.h"
+
 #include <assert.h>
 #include <stdio.h>
 
-#include "arraylist.h"
-
-typedef struct TestStruct
-{
+typedef struct TestStruct {
     int id;
     double value;
 } TestStruct;
 
-static void testInit(void)
-{
+static void testInit(void) {
     ArrayList* list = ArrayListInit(sizeof(int));
-    assert(list != NULL);
+
+    assert(list != nullptr);
     assert(list->length == 0);
     assert(list->elementSize == sizeof(int));
-    assert(list->elements == NULL);
+    assert(list->elements == nullptr);
 
     arrayListDestroy(list);
 }
 
-static void testAddSingleInt(void)
-{
+static void testGetOnEmptyListReturnsNull(void) {
     ArrayList* list = ArrayListInit(sizeof(int));
-    assert(list != NULL);
 
-    const int value = 42;
+    assert(list != nullptr);
+    assert(arrayListGet(list, 0) == nullptr);
+    assert(arrayListGet(list, -1) == nullptr);
+
+    arrayListDestroy(list);
+}
+
+static void testAddSingleInt(void) {
+    ArrayList* list = ArrayListInit(sizeof(int));
+    assert(list != nullptr);
+
+    int value = 42;
     arrayListAdd(list, &value);
 
     assert(list->length == 1);
-    assert(list->elements != NULL);
 
-    const int* elements = (int*)list->elements;
-    assert(elements[0] == 42);
+    int* storedValue = (int*)arrayListGet(list, 0);
+    assert(storedValue != nullptr);
+    assert(*storedValue == 42);
 
     arrayListDestroy(list);
 }
 
-static void testAddMultipleInts(void)
-{
+static void testAddMultipleInts(void) {
     ArrayList* list = ArrayListInit(sizeof(int));
-    assert(list != NULL);
+    assert(list != nullptr);
 
-    for (int i = 0; i < 10; i++)
-    {
+    for (int i = 0; i < 10; i++) {
         arrayListAdd(list, &i);
     }
 
     assert(list->length == 10);
 
-    int* elements = (int*)list->elements;
-    for (int i = 0; i < 10; i++)
-    {
-        assert(elements[i] == i);
+    for (int i = 0; i < 10; i++) {
+        int* storedValue = (int*)arrayListGet(list, i);
+        assert(storedValue != nullptr);
+        assert(*storedValue == i);
     }
 
     arrayListDestroy(list);
 }
 
-static void testAddCopiesValue(void)
-{
+static void testAddCopiesValue(void) {
     ArrayList* list = ArrayListInit(sizeof(int));
-    assert(list != NULL);
+    assert(list != nullptr);
 
     int value = 5;
     arrayListAdd(list, &value);
 
     value = 999;
 
-    int* elements = (int*)list->elements;
-    assert(list->length == 1);
-    assert(elements[0] == 5);
+    int* storedValue = (int*)arrayListGet(list, 0);
+    assert(storedValue != nullptr);
+    assert(*storedValue == 5);
 
     arrayListDestroy(list);
 }
 
-static void testAddStructs(void)
-{
-    ArrayList* list = ArrayListInit(sizeof(TestStruct));
-    assert(list != NULL);
+static void testGetBadIndexesReturnNull(void) {
+    ArrayList* list = ArrayListInit(sizeof(int));
+    assert(list != nullptr);
 
-    TestStruct a = { .id = 1, .value = 1.5 };
-    TestStruct b = { .id = 2, .value = 3.25 };
-    TestStruct c = { .id = 3, .value = 9.75 };
-
+    int a = 10;
+    int b = 20;
     arrayListAdd(list, &a);
     arrayListAdd(list, &b);
-    arrayListAdd(list, &c);
 
-    assert(list->length == 3);
-
-    TestStruct* elements = (TestStruct*)list->elements;
-
-    assert(elements[0].id == 1);
-    assert(elements[0].value == 1.5);
-
-    assert(elements[1].id == 2);
-    assert(elements[1].value == 3.25);
-
-    assert(elements[2].id == 3);
-    assert(elements[2].value == 9.75);
+    assert(arrayListGet(list, -1) == nullptr);
+    assert(arrayListGet(list, 2) == nullptr);
+    assert(arrayListGet(list, 999) == nullptr);
 
     arrayListDestroy(list);
 }
 
-static void testStructCopyIsIndependent(void)
-{
-    ArrayList* list = ArrayListInit(sizeof(TestStruct));
-    assert(list != NULL);
-
-    TestStruct item = { .id = 10, .value = 2.0 };
-    arrayListAdd(list, &item);
-
-    item.id = 999;
-    item.value = 123.456;
-
-    TestStruct* elements = (TestStruct*)list->elements;
-    assert(list->length == 1);
-    assert(elements[0].id == 10);
-    assert(elements[0].value == 2.0);
-
-    arrayListDestroy(list);
-}
-
-static void testContiguousStorage(void)
-{
+static void testRemoveFirstElement(void) {
     ArrayList* list = ArrayListInit(sizeof(int));
-    assert(list != NULL);
+    assert(list != nullptr);
 
     int a = 11;
     int b = 22;
@@ -136,29 +108,191 @@ static void testContiguousStorage(void)
     arrayListAdd(list, &b);
     arrayListAdd(list, &c);
 
-    assert(list->length == 3);
+    arrayListRemoveAt(list, 0);
 
-    char* base = (char*)list->elements;
-    int first = *(int*)(base + (0 * sizeof(int)));
-    int second = *(int*)(base + (1 * sizeof(int)));
-    int third = *(int*)(base + (2 * sizeof(int)));
+    assert(list->length == 2);
 
-    assert(first == 11);
-    assert(second == 22);
-    assert(third == 33);
+    int* first = (int*)arrayListGet(list, 0);
+    int* second = (int*)arrayListGet(list, 1);
+
+    assert(first != nullptr);
+    assert(second != nullptr);
+    assert(*first == 22);
+    assert(*second == 33);
 
     arrayListDestroy(list);
 }
 
-int main(void)
-{
+static void testRemoveMiddleElement(void) {
+    ArrayList* list = ArrayListInit(sizeof(int));
+    assert(list != nullptr);
+
+    int a = 11;
+    int b = 22;
+    int c = 33;
+    int d = 44;
+
+    arrayListAdd(list, &a);
+    arrayListAdd(list, &b);
+    arrayListAdd(list, &c);
+    arrayListAdd(list, &d);
+
+    arrayListRemoveAt(list, 2);
+
+    assert(list->length == 3);
+
+    int* first = (int*)arrayListGet(list, 0);
+    int* second = (int*)arrayListGet(list, 1);
+    int* third = (int*)arrayListGet(list, 2);
+
+    assert(first != nullptr);
+    assert(second != nullptr);
+    assert(third != nullptr);
+
+    assert(*first == 11);
+    assert(*second == 22);
+    assert(*third == 44);
+
+    arrayListDestroy(list);
+}
+
+static void testRemoveLastElement(void) {
+    ArrayList* list = ArrayListInit(sizeof(int));
+    assert(list != nullptr);
+
+    int a = 11;
+    int b = 22;
+    int c = 33;
+
+    arrayListAdd(list, &a);
+    arrayListAdd(list, &b);
+    arrayListAdd(list, &c);
+
+    arrayListRemoveAt(list, 2);
+
+    assert(list->length == 2);
+
+    int* first = (int*)arrayListGet(list, 0);
+    int* second = (int*)arrayListGet(list, 1);
+
+    assert(first != nullptr);
+    assert(second != nullptr);
+    assert(*first == 11);
+    assert(*second == 22);
+
+    arrayListDestroy(list);
+}
+
+static void testRemoveOnlyElement(void) {
+    ArrayList* list = ArrayListInit(sizeof(int));
+    assert(list != nullptr);
+
+    int value = 77;
+    arrayListAdd(list, &value);
+
+    arrayListRemoveAt(list, 0);
+
+    assert(list->length == 0);
+    assert(list->elements == nullptr);
+    assert(arrayListGet(list, 0) == nullptr);
+
+    arrayListDestroy(list);
+}
+
+static void testRemoveBadIndexesDoNothing(void) {
+    ArrayList* list = ArrayListInit(sizeof(int));
+    assert(list != nullptr);
+
+    int a = 1;
+    int b = 2;
+
+    arrayListAdd(list, &a);
+    arrayListAdd(list, &b);
+
+    arrayListRemoveAt(list, -1);
+    assert(list->length == 2);
+    assert(*(int*)arrayListGet(list, 0) == 1);
+    assert(*(int*)arrayListGet(list, 1) == 2);
+
+    arrayListRemoveAt(list, 2);
+    assert(list->length == 2);
+    assert(*(int*)arrayListGet(list, 0) == 1);
+    assert(*(int*)arrayListGet(list, 1) == 2);
+
+    arrayListRemoveAt(list, 999);
+    assert(list->length == 2);
+    assert(*(int*)arrayListGet(list, 0) == 1);
+    assert(*(int*)arrayListGet(list, 1) == 2);
+
+    arrayListDestroy(list);
+}
+
+static void testAddStructs(void) {
+    ArrayList* list = ArrayListInit(sizeof(TestStruct));
+    assert(list != nullptr);
+
+    TestStruct a = {1, 1.5};
+    TestStruct b = {2, 3.25};
+    TestStruct c = {3, 9.75};
+
+    arrayListAdd(list, &a);
+    arrayListAdd(list, &b);
+    arrayListAdd(list, &c);
+
+    assert(list->length == 3);
+
+    TestStruct* first = (TestStruct*)arrayListGet(list, 0);
+    TestStruct* second = (TestStruct*)arrayListGet(list, 1);
+    TestStruct* third = (TestStruct*)arrayListGet(list, 2);
+
+    assert(first != nullptr);
+    assert(second != nullptr);
+    assert(third != nullptr);
+
+    assert(first->id == 1);
+    assert(first->value == 1.5);
+
+    assert(second->id == 2);
+    assert(second->value == 3.25);
+
+    assert(third->id == 3);
+    assert(third->value == 9.75);
+
+    arrayListDestroy(list);
+}
+
+static void testStructCopyIsIndependent(void) {
+    ArrayList* list = ArrayListInit(sizeof(TestStruct));
+    assert(list != nullptr);
+
+    TestStruct item = {10, 2.0};
+    arrayListAdd(list, &item);
+
+    item.id = 999;
+    item.value = 123.456;
+
+    TestStruct* stored = (TestStruct*)arrayListGet(list, 0);
+    assert(stored != nullptr);
+    assert(stored->id == 10);
+    assert(stored->value == 2.0);
+
+    arrayListDestroy(list);
+}
+
+int main(void) {
     testInit();
+    testGetOnEmptyListReturnsNull();
     testAddSingleInt();
     testAddMultipleInts();
     testAddCopiesValue();
+    testGetBadIndexesReturnNull();
+    testRemoveFirstElement();
+    testRemoveMiddleElement();
+    testRemoveLastElement();
+    testRemoveOnlyElement();
+    testRemoveBadIndexesDoNothing();
     testAddStructs();
     testStructCopyIsIndependent();
-    testContiguousStorage();
 
     printf("All ArrayList tests passed.\n");
     return 0;
