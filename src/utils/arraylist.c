@@ -3,15 +3,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-void replaceElements(ArrayList* arrayList, void* newElements) {
+void replaceElements(ArrayList* arrayList, void* newElements, int newLength) {
     void* oldElements = arrayList->elements;
     arrayList->elements = newElements;
-    arrayList->length++;
+    arrayList->length = newLength;
     free(oldElements);
 }
 
 ArrayList* ArrayListInit(const size_t elementSize) {
-    const auto arrayList = (ArrayList*)malloc(sizeof(ArrayList));
+    ArrayList* arrayList = (ArrayList*)malloc(sizeof(ArrayList));
 
     if (arrayList == nullptr) return nullptr;
 
@@ -45,33 +45,46 @@ void arrayListAdd(ArrayList* arrayList, const void* element) {
         arrayList->elements,
         arrayList->elementSize * (arrayList->length));
 
-    memcpy(newElements + arrayList->elementSize * arrayList->length,
+    memcpy((char*)newElements + arrayList->elementSize * arrayList->length,
         element,
         arrayList->elementSize);
 
-    replaceElements(arrayList, newElements);
+    replaceElements(arrayList, newElements, arrayList->length + 1);
 }
 
 void arrayListRemoveAt(ArrayList* arrayList, const int index) {
     if (arrayList == nullptr ||
         index > arrayList->length - 1 ||
+        index < 0 ||
         arrayList->elements == nullptr)
         return;
 
-    void* newElements =
-        malloc(arrayList->elementSize * (arrayList->length + 1));
-    if (newElements == nullptr) return;
+    void* newElements = nullptr;
+
+    if (arrayList->length - 1 > 0) {
+        newElements = malloc(arrayList->elementSize * (arrayList->length - 1));
+        if (newElements == nullptr) return;
+    }
 
     int curIndex = 0;
     for (int i = 0; i < arrayList->length; i++) {
         if (i == index) continue;
 
-        memcpy(newElements + arrayList->elementSize * i,
-            &arrayList->elements[curIndex],
+        memcpy((char*)newElements + arrayList->elementSize * curIndex,
+            arrayListGet(arrayList, i),
             arrayList->elementSize);
 
         curIndex++;
     }
 
-    replaceElements(arrayList, newElements);
+    replaceElements(arrayList, newElements, arrayList->length - 1);
+}
+
+void* arrayListGet(const ArrayList* arrayList, const int index) {
+    if (arrayList == nullptr ||
+        arrayList->elements == nullptr ||
+        index > arrayList->length - 1 ||
+        index < 0) return nullptr;
+
+    return (char*)arrayList->elements + index * arrayList->elementSize;
 }
