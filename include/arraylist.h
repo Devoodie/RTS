@@ -9,17 +9,21 @@
 // Free with arrayListDestroy
 //
 // length        - amount of elements in array
+// capacity      - amount of elements that the buffer can store before resize
 // elementSize   - size_t of one element
 // elements      - pointer to an array of stored elements
 typedef struct ArrayList {
-    int    length;
-    size_t elementSize;
-    void*  elements;
+    int          length;
+    unsigned int capacity;
+    size_t       elementSize;
+    void*        elements;
 } ArrayList;
 
 // Returns an initialized ArrayList
 // Returns nullptr on error
-ArrayList* ArrayListInit(size_t elementSize);
+// elementSize - size_t of one element
+// capacity    - initial size of array
+ArrayList* ArrayListInit(size_t elementSize, unsigned int capacity);
 
 // Frees the provided ArrayList and its elements
 void arrayListDestroy(ArrayList* arrayList);
