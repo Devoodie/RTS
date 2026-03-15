@@ -5,37 +5,63 @@
 
 // Dynamic array that stores copies of provided elements in contiguous memory
 //
-// Initialize with ArrayListInit
-// Free with arrayListDestroy
+// METHODS -
+// ArrayListInit
+// arrayListFree
+// arrayListAppend
+// arrayListPop
+// arrayListClear
 //
-// length        - amount of elements in array
-// capacity      - amount of elements that the buffer can store before resize
-// elementSize   - size_t of one element
-// elements      - pointer to an array of stored elements
-typedef struct ArrayList {
-    int          length;
-    unsigned int capacity;
-    size_t       elementSize;
-    void*        elements;
-} ArrayList;
+// GETTERS -
+// ArrayListGetLength
+// ArrayListGetCapacity
+// ArrayListGetElementSize
+// ArrayListAt
+typedef struct ArrayList ArrayList;
+
 
 // Returns an initialized ArrayList
 // Returns nullptr on error
+//
 // elementSize - size_t of one element
 // capacity    - initial size of array
 ArrayList* ArrayListInit(size_t elementSize, unsigned int capacity);
 
-// Frees the provided ArrayList and its elements
-void arrayListDestroy(ArrayList* arrayList);
+// Frees the provided ArrayList and its internal buffer
+void arrayListFree(ArrayList* arrayList);
 
-// Adds an element by copying elementSize bytes into the list
-void arrayListAdd(ArrayList* arrayList, const void* element);
+// Adds an element to an ArrayList
+//
+// arrayList - ArrayList to perform the operation on
+// element   - element to add to arrayList
+void arrayListAppend(ArrayList* arrayList, const void* element);
 
-// Removes an element from an ArrayList if the index is valid
-void arrayListRemoveAt(ArrayList* arrayList, int index);
+// Removes the last appended element of arrayList
+void arrayListPop(ArrayList* arrayList);
+
+// Re-initializes the arrayList internal buffer to capacity
+//
+// arrayList - ArrayList to perform the operation on
+// capacity  - The new capacity to assign to the ArrayList
+void arrayListClear(ArrayList* arrayList, unsigned int capacity);
+
+// Returns the current length of arrayList
+// Returns -1 on error
+int ArrayListGetLength(const ArrayList* arrayList);
+
+// Returns the capacity of arrayList
+// Returns 0 on error
+unsigned int ArrayListGetCapacity(const ArrayList* arrayList);
+
+// Returns the elementSize of arrayList
+// Returns 0 on error
+size_t ArrayListGetElementSize(const ArrayList* arrayList);
 
 // Returns a pointer to the element stored in the list at index
 // Returns a nullptr if the index or arrayList is invalid
-void* arrayListGet(const ArrayList* arrayList, int index);
+//
+// arrayList - The ArrayList to perform the operation on
+// index     - The index to return a pointer to
+void* ArrayListAt(const ArrayList* arrayList, int index);
 
 #endif

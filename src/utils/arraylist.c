@@ -1,16 +1,38 @@
-#include "arraylist.h"
+#include "../../include/utils/arraylist.h"
 
 #include <stdlib.h>
 #include <string.h>
 
-void replaceElements(ArrayList* arrayList, void* newElements, int newLength) {
-    void* oldElements = arrayList->elements;
-    arrayList->elements = newElements;
-    arrayList->length = newLength;
-    free(oldElements);
+typedef struct ArrayList {
+    // Number of elements current in the ArrayList
+    int          length;
+    // Number of elements that can be stored in the current buffer
+    unsigned int capacity;
+    // size_t of one element
+    size_t       elementSize;
+    // Pointer to the current buffer
+    void*        elements;
+} ArrayList;
+
+void addElement(ArrayList* arrayList, const void* element) {
+    memcpy(
+        (char*)arrayList->elements +
+        arrayList->elementSize *
+        arrayList->length,
+
+            element,
+
+            arrayList->elementSize
+            );
+
+    arrayList->length++;
 }
 
-ArrayList* ArrayListInit(const size_t elementSize, const unsigned int capacity) {
+ArrayList* ArrayListInit(const size_t elementSize,
+    const unsigned int capacity)
+{
+    if (elementSize <= 0 || capacity <= 0) return nullptr;
+
     ArrayList* arrayList = malloc(sizeof(ArrayList));
 
     if (arrayList == nullptr) return nullptr;
@@ -28,7 +50,7 @@ ArrayList* ArrayListInit(const size_t elementSize, const unsigned int capacity) 
     return arrayList;
 }
 
-void arrayListDestroy(ArrayList* arrayList) {
+void arrayListFree(ArrayList* arrayList) {
     if (arrayList == nullptr) return;
 
     if (arrayList->elements != nullptr) {
@@ -38,55 +60,68 @@ void arrayListDestroy(ArrayList* arrayList) {
     free(arrayList);
 }
 
-void arrayListAdd(ArrayList* arrayList, const void* element) {
+void arrayListAppend(ArrayList* arrayList, const void* element) {
     if (arrayList == nullptr ||
         element == nullptr)
         return;
 
-    void* newElements =
-        malloc(arrayList->elementSize * (arrayList->length + 1));
+    // Capacity not reached, no realloc required
+    if (arrayList->capacity >= arrayList->length + 1) {
+        addElement(arrayList, element);
+        return;
+    }
+
+    // Double the capacity before adding new elements
+    void* newElements = realloc(
+            arrayList->elements,
+            arrayList->capacity * 2 * arrayList->elementSize
+            );
+
     if (newElements == nullptr) return;
 
-    memcpy(newElements,
-        arrayList->elements,
-        arrayList->elementSize * (arrayList->length));
+    arrayList->elements = newElements;
+    arrayList->capacity *= 2;
 
-    memcpy((char*)newElements + arrayList->elementSize * arrayList->length,
-        element,
-        arrayList->elementSize);
-
-    replaceElements(arrayList, newElements, arrayList->length + 1);
+    addElement(arrayList, element);
 }
 
-void arrayListRemoveAt(ArrayList* arrayList, const int index) {
+void arrayListPop(ArrayList* arrayList) {
     if (arrayList == nullptr ||
-        index > arrayList->length - 1 ||
-        index < 0 ||
-        arrayList->elements == nullptr)
+        arrayList->elements == nullptr ||
+        arrayList->length == 0)
         return;
 
-    void* newElements = nullptr;
-
-    if (arrayList->length - 1 > 0) {
-        newElements = malloc(arrayList->elementSize * (arrayList->length - 1));
-        if (newElements == nullptr) return;
-    }
-
-    int curIndex = 0;
-    for (int i = 0; i < arrayList->length; i++) {
-        if (i == index) continue;
-
-        memcpy((char*)newElements + arrayList->elementSize * curIndex,
-            arrayListGet(arrayList, i),
-            arrayList->elementSize);
-
-        curIndex++;
-    }
-
-    replaceElements(arrayList, newElements, arrayList->length - 1);
+    arrayList->length--;
 }
 
-void* arrayListGet(const ArrayList* arrayList, const int index) {
+void arrayListClear(ArrayList* arrayList, const unsigned int capacity) {
+    if (arrayList == nullptr) return;
+
+    if (arrayList->elements != nullptr) {
+        free(arrayList->elements);
+    }
+
+    arrayList->length      = 0;
+    arrayList->capacity    = capacity;
+    arrayList->elements    = calloc(capacity, arrayList->elementSize);
+}
+
+int ArrayListGetLength(const ArrayList* arrayList) {
+    if (arrayList == nullptr) return -1;
+    return arrayList->length;
+}
+
+unsigned int ArrayListGetCapacity(const ArrayList* arrayList) {
+    if (arrayList == nullptr) return 0;
+    return arrayList->capacity;
+}
+
+size_t ArrayListGetElementSize(const ArrayList* arrayList) {
+    if (arrayList == nullptr) return 0;
+    return arrayList->elementSize;
+}
+
+void* ArrayListAt(const ArrayList* arrayList, const int index) {
     if (arrayList == nullptr ||
         arrayList->elements == nullptr ||
         index > arrayList->length - 1 ||
