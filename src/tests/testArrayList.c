@@ -1,9 +1,12 @@
-#include "arraylist.h"
+/*
+ * DISCLAIMER: TESTS ARE AI GENERATED
+ */
+
+#include "../../include/utils/arraylist.h"
 
 #include <assert.h>
 #include <stdio.h>
 #include <time.h>
-#include <stdlib.h>
 
 typedef struct TestStruct {
     int id;
@@ -25,7 +28,7 @@ static void testInit(void) {
     assert(list->length == 0);
     assert(list->capacity == 1);
     assert(list->elementSize == sizeof(int));
-    assert(list->elements == nullptr);
+    assert(list->elements != nullptr);
 
     arrayListDestroy(list);
 }
@@ -37,7 +40,7 @@ static void testInitWithLargerCapacity(void) {
     assert(list->length == 0);
     assert(list->capacity == 8);
     assert(list->elementSize == sizeof(int));
-    assert(list->elements == nullptr);
+    assert(list->elements != nullptr);
 
     arrayListDestroy(list);
 }

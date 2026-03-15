@@ -3,7 +3,7 @@
 #include <raylib.h>
 #include <stdlib.h>
 
-#include "../../include/grid.h"
+#include "../../include/utils/grid.h"
 #include "../../include/assets.h"
 
 

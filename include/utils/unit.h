@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stddef.h>
 
-#include <grid_utils.h>
+#include "grid.h"
 
 typedef struct unit {
 	int atk_range;

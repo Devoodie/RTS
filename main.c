@@ -2,7 +2,7 @@
 #include <raylib.h>
 #include <stdlib.h>
 
-#include "grid.h"
+#include "include/utils/grid.h"
 
 constexpr int grid_length = 8;
 constexpr int grid_height = 8;

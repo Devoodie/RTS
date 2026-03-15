@@ -32,7 +32,7 @@ TARGET_INCLUDE_DIRECTORIES(grid PRIVATE "./include")
 
 # Arraylist library
 ADD_LIBRARY(arraylist STATIC "src/utils/arraylist.c"
-        include/arraylist.h)
+        include/utils/arraylist.h)
 SET_PROPERTY(TARGET arraylist PROPERTY C_STANDARD 23)
 TARGET_INCLUDE_DIRECTORIES(arraylist PRIVATE "./include")
 

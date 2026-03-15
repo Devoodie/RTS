@@ -1,7 +1,7 @@
 #ifndef RTS_GRID_H
 #define RTS_GRID_H
 
-#include "./assets.h"
+#include "../assets.h"
 
 typedef struct hex_space {	
 	struct hex_space *neighbors[6];
