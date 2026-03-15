@@ -10,14 +10,20 @@ void replaceElements(ArrayList* arrayList, void* newElements, int newLength) {
     free(oldElements);
 }
 
-ArrayList* ArrayListInit(const size_t elementSize) {
+ArrayList* ArrayListInit(const size_t elementSize, const unsigned int capacity) {
     ArrayList* arrayList = malloc(sizeof(ArrayList));
 
     if (arrayList == nullptr) return nullptr;
 
     arrayList->length      = 0;
+    arrayList->capacity    = capacity;
     arrayList->elementSize = elementSize;
-    arrayList->elements    = nullptr;
+    arrayList->elements    = calloc(capacity, elementSize);
+
+    if (arrayList->elements == nullptr) {
+        free(arrayList);
+        return nullptr;
+    }
 
     return arrayList;
 }
