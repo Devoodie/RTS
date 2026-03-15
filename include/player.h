@@ -1,6 +1,13 @@
+#ifndef RTS_PLAYER_H
+#define RTS_PLAYER_H
+
+#include "arraylist.h"
 
 typedef struct player  {
-	//units Aidan ARRRAYLIST
-	//structures Aidan ARRAYLIST
+	ArrayList *units; 
+	ArrayList *structures; 
 	//resources
+	//init 
 } Player;
+
+#endif

@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include "grid.h"
+#include "player.h"
 
 constexpr int grid_length = 8;
 constexpr int grid_height = 8;
@@ -18,12 +19,13 @@ int main(void){
 
 	InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
 
+
+	//initialize gridspace and Assets
 	hashmapInitAssets(&texture_map);
 	printf("initialize grid");
 	initializeGrid(grid_length, grid_height, grid);
 
-	//initialize gridspace
-
+	Player *players;
 
 	//quick check that addresses exist in each hex's neighbor
 
