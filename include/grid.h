@@ -1,5 +1,5 @@
-#include <stdio.h>
-#include <stddef.h>
+#ifndef RTS_GRID_H
+#define RTS_GRID_H
 
 #include "./assets.h"
 
@@ -54,3 +54,5 @@ HashMap HashmapInit(int map_size);
 Texture2D GetMapValue(const HashMap* hashmap, int key);
 
 void putMapValue(HashMap *hashmap, int key, Texture2D texture_value);
+
+#endif
