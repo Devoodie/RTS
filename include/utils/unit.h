@@ -1,16 +1,28 @@
+#ifndef RTS_UNIT_H
+#define RTS_UNIT_H
+
 #include <stdio.h>
 #include <stddef.h>
 
-#include "grid.h"
+#include <grid.h>
+
+enum unit_type {
+	LAND,
+	VEHICLE,
+	AIR,
+};
+>>>>>>> player:include/unit_utils.h
 
 typedef struct unit {
-	int atk_range;
-	int move_range;
-	HexSpace* current_hex;
 	char* owner;
+	int mv_speed;
+	int atk_range;
+	enum unit_type type;
+	HexSpace* current_hex;
 	bool can_fly;
 } Unit;
 
 
-
 extern Unit default_unit;
+
+#endif

@@ -4,8 +4,6 @@
 #include <stdlib.h>
 
 #include "../../include/utils/grid.h"
-#include "../../include/assets.h"
-
 
 HexSpace default_hex = {
 	.x = 0,

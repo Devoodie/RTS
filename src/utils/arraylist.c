@@ -1,9 +1,8 @@
-#include "../../include/utils/arraylist.h"
-
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
+#include <arraylist.h>
 typedef struct ArrayList {
     // Number of elements current in the ArrayList
     int          length;
