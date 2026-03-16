@@ -3,8 +3,8 @@
 #include <raylib.h>
 #include <stdlib.h>
 
-#include "../include/grid_utils.h"
-#include "../include/assets.h"
+#include "../../include/utils/grid.h"
+#include "../../include/assets.h"
 
 
 HexSpace default_hex = {
