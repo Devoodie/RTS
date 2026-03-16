@@ -27,25 +27,20 @@ int main(void){
 
 	Player *players;
 
-	//quick check that addresses exist in each hex's neighbor
 
 	SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
-				    //
-	// Main game loop
-	//
 
-	while (!WindowShouldClose())    // Detect window close button or ESC key
-	{
-	BeginDrawing();
+	while (!WindowShouldClose()){
 
-	    ClearBackground(RAYWHITE);
-	    renderGrid(texture_map, grid_height, grid_length, grid, 1);
-
-	EndDrawing();
+		//versusMode
+		BeginDrawing();
+		ClearBackground(RAYWHITE);
+		renderGrid(texture_map, grid_height, grid_length, grid, 1);
+		EndDrawing();
 	}
 
 	CloseWindow();        // Close window and OpenGL context
-			      //
+	
 	free(texture_map.textures);
 	return 0;
 }

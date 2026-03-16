@@ -10,4 +10,6 @@ typedef struct player  {
 	//init 
 } Player;
 
+Player* initPlayer();
+
 #endif
