@@ -49,14 +49,14 @@ static void testInitWithLargerCapacity(void) {
     arrayListFree(list);
 }
 
-static void testGettersOnNull(void) {
+static void testGettersOnnullptr(void) {
     assert(ArrayListGetLength(nullptr) == -1);
     assert(ArrayListGetCapacity(nullptr) == 0);
     assert(ArrayListGetElementSize(nullptr) == 0);
     assert(ArrayListAt(nullptr, 0) == nullptr);
 }
 
-static void testGetOnEmptyListReturnsNull(void) {
+static void testGetOnEmptyListReturnsnullptr(void) {
     ArrayList* list = ArrayListInit(sizeof(int), 1);
 
     assert(list != nullptr);
@@ -158,7 +158,7 @@ static void testAppendCopiesValue(void) {
     arrayListFree(list);
 }
 
-static void testAtBadIndexesReturnNull(void) {
+static void testAtBadIndexesReturnnullptr(void) {
     ArrayList* list = ArrayListInit(sizeof(int), 1);
     assert(list != nullptr);
 
@@ -259,6 +259,125 @@ static void testPopPreservesEarlierValues(void) {
     arrayListFree(list);
 }
 
+static void testRemoveAtFromMiddle(void) {
+    ArrayList* list = ArrayListInit(sizeof(int), 4);
+    assert(list != nullptr);
+
+    int a = 10;
+    int b = 20;
+    int c = 30;
+    int d = 40;
+
+    arrayListAppend(list, &a);
+    arrayListAppend(list, &b);
+    arrayListAppend(list, &c);
+    arrayListAppend(list, &d);
+
+    arrayListRemoveAt(list, 1);
+
+    assert(ArrayListGetLength(list) == 3);
+    assert(*(int*)ArrayListAt(list, 0) == 10);
+    assert(*(int*)ArrayListAt(list, 1) == 30);
+    assert(*(int*)ArrayListAt(list, 2) == 40);
+    assert(ArrayListAt(list, 3) == nullptr);
+
+    arrayListFree(list);
+}
+
+static void testRemoveAtFirstElement(void) {
+    ArrayList* list = ArrayListInit(sizeof(int), 4);
+    assert(list != nullptr);
+
+    int a = 10;
+    int b = 20;
+    int c = 30;
+
+    arrayListAppend(list, &a);
+    arrayListAppend(list, &b);
+    arrayListAppend(list, &c);
+
+    arrayListRemoveAt(list, 0);
+
+    assert(ArrayListGetLength(list) == 2);
+    assert(*(int*)ArrayListAt(list, 0) == 20);
+    assert(*(int*)ArrayListAt(list, 1) == 30);
+    assert(ArrayListAt(list, 2) == nullptr);
+
+    arrayListFree(list);
+}
+
+static void testRemoveAtLastElement(void) {
+    ArrayList* list = ArrayListInit(sizeof(int), 4);
+    assert(list != nullptr);
+
+    int a = 10;
+    int b = 20;
+    int c = 30;
+
+    arrayListAppend(list, &a);
+    arrayListAppend(list, &b);
+    arrayListAppend(list, &c);
+
+    arrayListRemoveAt(list, 2);
+
+    assert(ArrayListGetLength(list) == 2);
+    assert(*(int*)ArrayListAt(list, 0) == 10);
+    assert(*(int*)ArrayListAt(list, 1) == 20);
+    assert(ArrayListAt(list, 2) == nullptr);
+
+    arrayListFree(list);
+}
+
+static void testRemoveAtOnlyElement(void) {
+    ArrayList* list = ArrayListInit(sizeof(int), 1);
+    assert(list != nullptr);
+
+    int value = 55;
+    arrayListAppend(list, &value);
+
+    arrayListRemoveAt(list, 0);
+
+    assert(ArrayListGetLength(list) == 0);
+    assert(ArrayListAt(list, 0) == nullptr);
+
+    arrayListFree(list);
+}
+
+static void testRemoveAtInvalidIndexDoesNothing(void) {
+    ArrayList* list = ArrayListInit(sizeof(int), 3);
+    assert(list != nullptr);
+
+    int a = 1;
+    int b = 2;
+
+    arrayListAppend(list, &a);
+    arrayListAppend(list, &b);
+
+    arrayListRemoveAt(list, 2);
+    assert(ArrayListGetLength(list) == 2);
+    assert(*(int*)ArrayListAt(list, 0) == 1);
+    assert(*(int*)ArrayListAt(list, 1) == 2);
+
+    arrayListRemoveAt(list, 999);
+    assert(ArrayListGetLength(list) == 2);
+    assert(*(int*)ArrayListAt(list, 0) == 1);
+    assert(*(int*)ArrayListAt(list, 1) == 2);
+
+    arrayListFree(list);
+}
+
+static void testRemoveAtOnEmptyDoesNothing(void) {
+    ArrayList* list = ArrayListInit(sizeof(int), 2);
+    assert(list != nullptr);
+
+    arrayListRemoveAt(list, 0);
+
+    assert(ArrayListGetLength(list) == 0);
+    assert(ArrayListAt(list, 0) == nullptr);
+
+    arrayListFree(list);
+}
+
 static void testAppendStructs(void) {
     ArrayList* list = ArrayListInit(sizeof(TestStruct), 1);
     assert(list != nullptr);
@@ -308,6 +427,36 @@ static void testStructCopyIsIndependent(void) {
     assert(stored != nullptr);
     assert(stored->id == 10);
     assert(stored->value == 2.0);
+
+    arrayListFree(list);
+}
+
+static void testRemoveStructAt(void) {
+    ArrayList* list = ArrayListInit(sizeof(TestStruct), 3);
+    assert(list != nullptr);
+
+    TestStruct a = {1, 1.1};
+    TestStruct b = {2, 2.2};
+    TestStruct c = {3, 3.3};
+
+    arrayListAppend(list, &a);
+    arrayListAppend(list, &b);
+    arrayListAppend(list, &c);
+
+    arrayListRemoveAt(list, 1);
+
+    assert(ArrayListGetLength(list) == 2);
+
+    TestStruct* first = (TestStruct*)ArrayListAt(list, 0);
+    TestStruct* second = (TestStruct*)ArrayListAt(list, 1);
+
+    assert(first != nullptr);
+    assert(second != nullptr);
+
+    assert(first->id == 1);
+    assert(first->value == 1.1);
+    assert(second->id == 3);
+    assert(second->value == 3.3);
 
     arrayListFree(list);
 }
@@ -446,6 +595,29 @@ static void testPerformancePop(size_t count) {
     arrayListFree(list);
 }
 
+static void testPerformanceRemoveAtFront(size_t count) {
+    ArrayList* list = ArrayListInit(sizeof(int), (unsigned int)count);
+    assert(list != nullptr);
+
+    for (size_t i = 0; i < count; i++) {
+        int value = (int)i;
+        arrayListAppend(list, &value);
+    }
+
+    double start = nowSeconds();
+
+    while (ArrayListGetLength(list) > 0) {
+        arrayListRemoveAt(list, 0);
+    }
+
+    double end = nowSeconds();
+
+    assert(ArrayListGetLength(list) == 0);
+    printTiming("Performance - removeAt(0)", end - start);
+
+    arrayListFree(list);
+}
+
 static void testPerformanceClear(size_t count) {
     ArrayList* list = ArrayListInit(sizeof(int), 1);
     assert(list != nullptr);
@@ -470,19 +642,31 @@ static void testPerformanceClear(size_t count) {
 int main(void) {
     testInit();
     testInitWithLargerCapacity();
-    testGettersOnNull();
-    testGetOnEmptyListReturnsNull();
+    testGettersOnnullptr();
+    testGetOnEmptyListReturnsnullptr();
+
     testAppendSingleInt();
     testAppendMultipleInts();
     testCapacityGrowsWhenNeeded();
     testAppendCopiesValue();
-    testAtBadIndexesReturnNull();
+    testAtBadIndexesReturnnullptr();
+
     testPopOnEmptyDoesNothing();
     testPopSingleElement();
     testPopMultipleElements();
     testPopPreservesEarlierValues();
+
+    testRemoveAtFromMiddle();
+    testRemoveAtFirstElement();
+    testRemoveAtLastElement();
+    testRemoveAtOnlyElement();
+    testRemoveAtInvalidIndexDoesNothing();
+    testRemoveAtOnEmptyDoesNothing();
+
     testAppendStructs();
     testStructCopyIsIndependent();
+    testRemoveStructAt();
+
     testClearResetsLengthAndCapacity();
     testClearThenAppendAgain();
     testClearEmptyList();
@@ -492,6 +676,7 @@ int main(void) {
     testPerformanceAppend(100000);
     testPerformanceAt(100000);
     testPerformancePop(100000);
+    testPerformanceRemoveAtFront(25000);
     testPerformanceClear(100000);
 
     return 0;

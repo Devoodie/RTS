@@ -19,7 +19,6 @@
 // ArrayListAt
 typedef struct ArrayList ArrayList;
 
-
 // Returns an initialized ArrayList
 // Returns nullptr on error
 //

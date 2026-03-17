@@ -96,6 +96,22 @@ void arrayListPop(ArrayList* arrayList) {
     arrayList->length--;
 }
 
+void arrayListRemoveAt(ArrayList* arrayList, const unsigned int index)
+{
+    if (!arrayList || !arrayList->elements || index >= arrayList->length)
+        return;
+
+    const auto elements = (char*)arrayList->elements;
+
+    memmove(
+        elements + index * arrayList->elementSize,
+        elements + (index + 1) * arrayList->elementSize,
+        (arrayList->length - index - 1) * arrayList->elementSize
+    );
+
+    arrayList->length--;
+}
+
 void arrayListClear(ArrayList* arrayList, const unsigned int capacity) {
     if (arrayList == nullptr || capacity == 0) return;
     if (capacity > SIZE_MAX / arrayList->elementSize) return;
