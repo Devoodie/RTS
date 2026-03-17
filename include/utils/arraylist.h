@@ -39,6 +39,9 @@ void arrayListAppend(ArrayList* arrayList, const void* element);
 // Removes the last appended element of arrayList
 void arrayListPop(ArrayList* arrayList);
 
+// Removes the element of arrayList at index
+void arrayListRemoveAt(ArrayList* arrayList, unsigned int index);
+
 // Re-initializes the arrayList internal buffer to capacity
 //
 // arrayList - ArrayList to perform the operation on
