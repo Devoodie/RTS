@@ -5,6 +5,7 @@
 #include <raylib.h>
 
 #include "include/utils/grid.hpp"
+#include <engine/entities.hpp>
 
 constexpr int grid_length = 8;
 constexpr int grid_height = 8;
@@ -27,10 +28,11 @@ int main(void){
 
 	grid::initGrid(grid_height, grid_length, grid_space);
 
+	Unit testUnit(&grid_space[0][0], INFANTRY);
+
+	grid_space[0][0].occupier = &testUnit;
+
 	SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
-				    //
-	// Main game loop
-	//
 
 	while (!WindowShouldClose())    // Detect window close button or ESC key
 	{

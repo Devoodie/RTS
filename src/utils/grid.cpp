@@ -7,6 +7,7 @@
 HexSpace::HexSpace (){
 	x = 0;
 	y = 0;
+	occupier = nullptr;
 };
 
 namespace grid {
@@ -113,6 +114,7 @@ void renderGrid(
 		y_offset = 5 * i;
 
 		for(int j = 0; j < grid_space[i].size(); ++j){
+			//draw hex
 			source_rectangle.width = float(texture_map[GRASS_HEX].width);
 			source_rectangle.height = float(texture_map[GRASS_HEX].height);
 
@@ -128,6 +130,17 @@ void renderGrid(
 
 			DrawTexturePro(texture_map[GRASS_HEX], source_rectangle , hexagon_rectangle, hex_pos, 0, RAYWHITE);
 
+			//draw unit
+			if(CurrentHex->occupier != nullptr){
+				source_rectangle.width = float(texture_map[DARK_SOLIDER].width);
+				source_rectangle.height = float(texture_map[DARK_SOLIDER].height);
+
+				DrawTexturePro(texture_map[DARK_SOLIDER], source_rectangle , hexagon_rectangle, hex_pos, 0, RAYWHITE);
+
+			}
+
+
+			//draw border
 			if(j == 0 or j == grid_space[i].size() - 1 or i == grid_space.size() - 1){
 
 				border_rectangle.x = hexagon_rectangle.x + inradius - (std::sqrt(3) / 2)  * radius;
@@ -139,6 +152,7 @@ void renderGrid(
 				DrawTexturePro(texture_map[GRASS_BORDER], source_rectangle , border_rectangle, hex_pos, 0, RAYWHITE);
 
 			}
+
 			if (debug){ 
 			    DrawRectangleLines(
 					    hexagon_rectangle.x - inradius, 
@@ -158,9 +172,11 @@ void initAssets(std::unordered_map<int, Texture2D> &texture_map){
 
 	const Texture2D hex_grass = LoadTexture("../assets/Hex_Grass_Single.png");
 	const Texture2D grass_border = LoadTexture("../assets/Hex_Grass_Offset.png");
+	const Texture2D dark_solider = LoadTexture("../assets/Dark_Solider.png");
  
 
 	texture_map[grid::GRASS_HEX] = hex_grass;
 	texture_map[grid::GRASS_BORDER] = grass_border;
+	texture_map[grid::DARK_SOLIDER] = dark_solider;
 }
 }
