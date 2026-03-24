@@ -13,29 +13,23 @@ ENDIF()
 FIND_PACKAGE(raylib CONFIG REQUIRED)
 
 # Main executable
-ADD_EXECUTABLE(main "./main.c")
-SET_PROPERTY(TARGET main PROPERTY C_STANDARD 23)
+ADD_EXECUTABLE(main "./main.cpp")
+SET_PROPERTY(TARGET main PROPERTY CXX_STANDARD 23)
 TARGET_INCLUDE_DIRECTORIES(main PRIVATE "./include")
 
 # Test executable
 IF(RTS_BUILD_TESTS)
     ADD_EXECUTABLE(testArrayList "src/tests/testArrayList.c")
-    SET_PROPERTY(TARGET testArrayList PROPERTY C_STANDARD 23)
+    SET_PROPERTY(TARGET testArrayList PROPERTY CXX_STANDARD 23)
     TARGET_INCLUDE_DIRECTORIES(testArrayList PRIVATE "./include")
     TARGET_LINK_LIBRARIES(testArrayList PRIVATE arraylist)
 ENDIF()
 
 # Grid library
-ADD_LIBRARY(grid STATIC "src/utils/grid.c")
-SET_PROPERTY(TARGET grid PROPERTY C_STANDARD 23)
+ADD_LIBRARY(grid STATIC "src/utils/grid.cpp")
+SET_PROPERTY(TARGET grid PROPERTY CXX_STANDARD 23)
 TARGET_INCLUDE_DIRECTORIES(grid PRIVATE "./include")
-
-# Arraylist library
-ADD_LIBRARY(arraylist STATIC "src/utils/arraylist.c"
-        include/utils/arraylist.h)
-SET_PROPERTY(TARGET arraylist PROPERTY C_STANDARD 23)
-TARGET_INCLUDE_DIRECTORIES(arraylist PRIVATE "./include")
 
 # Link libraries
 TARGET_LINK_LIBRARIES(grid PUBLIC raylib)
-TARGET_LINK_LIBRARIES(main PRIVATE grid arraylist)
+TARGET_LINK_LIBRARIES(main PRIVATE grid)
