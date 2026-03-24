@@ -3,7 +3,6 @@
 #include <iostream>
 
 #include "../../include/utils/grid.hpp"
-#include "../../include/assets.h"
 
 HexSpace::HexSpace (){
 	x = 0;
@@ -82,45 +81,70 @@ void renderGrid(
 		const int debug
 		){
 
-	Rectangle drawing_rectangle = {
+	const float draw_width = inradius * 2;
+	const float draw_height = radius * 2;
+
+	Rectangle hexagon_rectangle = {
 		.x = 0,
 		.y = 0,
-		.width = inradius * 2, 
-		.height = radius * 2,
+		.width = draw_width, 
+		.height = draw_height,
 	};
+
+	Rectangle border_rectangle = {
+		.x = 0,
+		.y = 0,
+		.width = draw_width, 
+		.height = float(draw_height / 2.461538),
+	};
+	
 
 	//TEMPORARY
 
+	int y_offset = 5;
 	Rectangle source_rectangle = {
 		.x = 0,
 		.y = 0,
-		.width = float(texture_map[GRASS_HEX].width),
-		.height = float(texture_map[GRASS_HEX].height),
+		.width = 0.0,
+		.height = 0.0,
 	};
 
-	int y_offset = 0;
-
-
 	for(int i = 0; i < grid_space.size(); ++i){
+		y_offset = 5 * i;
 
 		for(int j = 0; j < grid_space[i].size(); ++j){
+			source_rectangle.width = float(texture_map[GRASS_HEX].width);
+			source_rectangle.height = float(texture_map[GRASS_HEX].height);
 
 			const HexSpace *CurrentHex = &grid_space[i][j];
-			drawing_rectangle.x = CurrentHex->x; 
-			drawing_rectangle.y = CurrentHex->y; 
+			hexagon_rectangle.x = CurrentHex->x; 
+			hexagon_rectangle.y = CurrentHex->y - y_offset; 
 
 			Vector2 hex_pos = {
-			    .x = drawing_rectangle.width / 2,
-			    .y = drawing_rectangle.height / 2,
+			    .x = hexagon_rectangle.width / 2,
+			    .y = hexagon_rectangle.height / 2,
 			};
 
-			DrawTexturePro(texture_map[GRASS_HEX], source_rectangle , drawing_rectangle, hex_pos, 0, RAYWHITE);
+
+			DrawTexturePro(texture_map[GRASS_HEX], source_rectangle , hexagon_rectangle, hex_pos, 0, RAYWHITE);
+
+			if(j == 0 or j == grid_space[i].size() - 1 or i == grid_space.size() - 1){
+
+				border_rectangle.x = hexagon_rectangle.x + inradius - (std::sqrt(3) / 2)  * radius;
+				border_rectangle.y = hexagon_rectangle.y + radius + radius / 2;
+
+				source_rectangle.width = float(texture_map[GRASS_BORDER].width);
+				source_rectangle.height = float(texture_map[GRASS_BORDER].height);
+
+				DrawTexturePro(texture_map[GRASS_BORDER], source_rectangle , border_rectangle, hex_pos, 0, RAYWHITE);
+
+			}
 			if (debug){ 
 			    DrawRectangleLines(
-					    drawing_rectangle.x - inradius, 
-					    drawing_rectangle.y - radius, 
-					    drawing_rectangle.width, 
-					    drawing_rectangle.height, 
+					    hexagon_rectangle.x - inradius, 
+					    hexagon_rectangle.y - radius, 
+					    hexagon_rectangle.width, 
+					    hexagon_rectangle.height, 
 					    RED
 					    );
 			    DrawCircle(CurrentHex->x, CurrentHex->y, 3.0, RED);
@@ -133,7 +157,10 @@ void renderGrid(
 void initAssets(std::unordered_map<int, Texture2D> &texture_map){
 
 	const Texture2D hex_grass = LoadTexture("../assets/Hex_Grass_Single.png");
+	const Texture2D grass_border = LoadTexture("../assets/Hex_Grass_Offset.png");
+ 
 
 	texture_map[grid::GRASS_HEX] = hex_grass;
+	texture_map[grid::GRASS_BORDER] = grass_border;
 }
 }

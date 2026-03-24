@@ -37,7 +37,7 @@ int main(void){
 	BeginDrawing();
 
 	    ClearBackground(RAYWHITE);
-	    grid::renderGrid(texture_map, grid_space, 1);
+	    grid::renderGrid(texture_map, grid_space, 0);
 
 	EndDrawing();
 	}
