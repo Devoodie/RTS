@@ -131,8 +131,8 @@ void renderGrid(
 			hexagon_rectangle.y = CurrentHex->y - radius - y_offset; 
 
 			Vector2 hex_pos = {
-			    .x = hexagon_rectangle.width / 2,
-			    .y = hexagon_rectangle.height / 2,
+			    .x = 0,
+			    .y = 0,
 			};
 
 
