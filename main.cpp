@@ -6,6 +6,7 @@
 
 #include "include/utils/grid.hpp"
 #include <engine/entities.hpp>
+#include <engine/engine.hpp>
 
 constexpr int grid_length = 8;
 constexpr int grid_height = 8;
@@ -20,17 +21,18 @@ int main(void){
 	std::unordered_map <int, Texture2D> texture_map;
 	grid::initAssets(texture_map);
 
-
 	//initialize gridspace
 	
 	std::cout << "initialize grid" << std::endl;
-	std::vector<std::vector<HexSpace>> grid_space(grid_height, std::vector<HexSpace>(grid_length));
 
+	std::vector<std::vector<HexSpace>> grid_space(grid_height, std::vector<HexSpace>(grid_length));
 	grid::initGrid(grid_height, grid_length, grid_space);
 
 	Unit testUnit(&grid_space[0][0], INFANTRY);
-
 	grid_space[0][0].occupier = &testUnit;
+
+	std::vector<Player> players;
+	int player_index = 0;
 
 	SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
 
@@ -39,7 +41,7 @@ int main(void){
 	BeginDrawing();
 
 	    ClearBackground(RAYWHITE);
-	    grid::renderGrid(texture_map, grid_space, 0);
+	    grid::renderGrid(texture_map, grid_space, 1);
 
 	EndDrawing();
 	}

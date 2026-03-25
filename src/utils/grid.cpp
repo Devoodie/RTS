@@ -51,8 +51,8 @@ void initGrid(const int row, const int col, std::vector<std::vector<HexSpace>> &
 			//the origin is the top left or first index
 			//therefore, north (or up) is -1 and south (down) is + 1 
 		
-			
 			//left
+
 			if(j != 0){
 				CurrentHex->neighbors[WEST] = &grid_space[i][j - 1];
 				if (i != row - 1) CurrentHex->neighbors[SOUTH_WEST] = &grid_space[i + 1][j - 1];
@@ -66,8 +66,10 @@ void initGrid(const int row, const int col, std::vector<std::vector<HexSpace>> &
 				if (i != 0) CurrentHex->neighbors[NORTH_EAST] = &grid_space[i - 1][j + 1];
 
 			}
+
 			CurrentHex->x = x;
 			CurrentHex->y = y;
+
 			x += inradius * 2;
 		}
 		y += (int) (radius * 3) / 2;
@@ -98,11 +100,17 @@ void renderGrid(
 		.width = draw_width, 
 		.height = float(draw_height / 2.461538),
 	};
-	
+
+	Rectangle unit_rectangle= {
+		.x = 0,
+		.y = 0,
+		.width = draw_width / 2, 
+		.height = draw_height / 2,
+	};
 
 	//TEMPORARY
 
-	int y_offset = 5;
+	int y_offset = 0;
 	Rectangle source_rectangle = {
 		.x = 0,
 		.y = 0,
@@ -111,7 +119,7 @@ void renderGrid(
 	};
 
 	for(int i = 0; i < grid_space.size(); ++i){
-		y_offset = 5 * i;
+		y_offset = 0 * i;
 
 		for(int j = 0; j < grid_space[i].size(); ++j){
 			//draw hex
@@ -119,8 +127,8 @@ void renderGrid(
 			source_rectangle.height = float(texture_map[GRASS_HEX].height);
 
 			const HexSpace *CurrentHex = &grid_space[i][j];
-			hexagon_rectangle.x = CurrentHex->x; 
-			hexagon_rectangle.y = CurrentHex->y - y_offset; 
+			hexagon_rectangle.x = CurrentHex->x - inradius; 
+			hexagon_rectangle.y = CurrentHex->y - radius - y_offset; 
 
 			Vector2 hex_pos = {
 			    .x = hexagon_rectangle.width / 2,
@@ -155,8 +163,8 @@ void renderGrid(
 
 			if (debug){ 
 			    DrawRectangleLines(
-					    hexagon_rectangle.x - inradius, 
-					    hexagon_rectangle.y - radius, 
+					    hexagon_rectangle.x, 
+					    hexagon_rectangle.y, 
 					    hexagon_rectangle.width, 
 					    hexagon_rectangle.height, 
 					    RED

@@ -17,6 +17,7 @@ class HexSpace {
 		float y;
 		Unit *occupier;
 
+		Vector2 *points[6];
 	HexSpace();
 };
 
