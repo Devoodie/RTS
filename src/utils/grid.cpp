@@ -70,6 +70,39 @@ void initGrid(const int row, const int col, std::vector<std::vector<HexSpace>> &
 			CurrentHex->x = x;
 			CurrentHex->y = y;
 
+			float x_offset = (sqrt(3) / 2) * radius;
+			float y_offset = radius / 2;
+
+			CurrentHex->vertices[0] = { 
+				.x = CurrentHex->x + x_offset, 
+				.y = CurrentHex->y + -y_offset,
+			};
+
+			CurrentHex->vertices[1] = { 
+				.x = CurrentHex->x,
+				.y = CurrentHex->y -(radius),
+			};
+
+			CurrentHex->vertices[2] = { 
+				.x = CurrentHex->x -x_offset,
+				.y = CurrentHex->y + -(y_offset),
+			};
+
+			CurrentHex->vertices[3] = { 
+				.x = CurrentHex->x + -x_offset,
+				.y = CurrentHex->y + y_offset,
+			};
+
+			CurrentHex->vertices[4] = { 
+				.x = CurrentHex->x,
+				.y = CurrentHex->y + radius,
+			};
+
+			CurrentHex->vertices[5] = { 
+				.x = CurrentHex->x + x_offset,
+				.y = CurrentHex->y + y_offset,
+			};
+	
 			x += inradius * 2;
 		}
 		y += (int) (radius * 3) / 2;
@@ -170,6 +203,10 @@ void renderGrid(
 					    RED
 					    );
 			    DrawCircle(CurrentHex->x, CurrentHex->y, 3.0, RED);
+
+			    for(int i = 0; i < 6; ++i){
+				    DrawCircle(CurrentHex->vertices[i].x, CurrentHex->vertices[i].y, 3.0, RED);
+			    }
 			}
 		}
 	}
