@@ -140,7 +140,6 @@ void renderGrid(
 		.width = draw_width / 2, 
 		.height = draw_height / 2,
 	};
-
 	//TEMPORARY
 
 	int y_offset = 0;
@@ -179,7 +178,6 @@ void renderGrid(
 				DrawTexturePro(texture_map[DARK_SOLIDER], source_rectangle , hexagon_rectangle, hex_pos, 0, RAYWHITE);
 
 			}
-
 
 			//draw border
 			if(j == 0 or j == grid_space[i].size() - 1 or i == grid_space.size() - 1){

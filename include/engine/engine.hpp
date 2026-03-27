@@ -19,7 +19,7 @@ void playerInit(std::vector<Player> &player, int playerCount);
 
 bool collisionCheck(std::vector<std::vector<HexSpace>> grid_space);
 
-void versus(std::vector<Player> &player, int currentPlayer, std::vector<std::vector<HexSpace>> grid_space);
+void versus(std::vector<Player> &player, int currentPlayer, int player_count, std::vector<std::vector<HexSpace>> grid_space);
 }
 
 //class Collider {};

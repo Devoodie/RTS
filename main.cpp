@@ -15,7 +15,7 @@ int main(void){
 	const int screenWidth = 1920;
 	const int screenHeight = 1080;
 	
-	InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
+	InitWindow(screenWidth, screenHeight, "RTS");
 
 	//ASSETS
 	std::unordered_map <int, Texture2D> texture_map;
@@ -34,16 +34,27 @@ int main(void){
 	std::vector<Player> players;
 	int player_index = 0;
 
+	Rectangle textRect = {
+		.x = screenWidth * 7 / 8,
+		.y = screenHeight / 5,
+		.width = screenHeight / 16,
+		.height = screenWidth / 10,
+	};
+
 	SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
 
 	while (!WindowShouldClose())    // Detect window close button or ESC key
 	{
-	BeginDrawing();
 
-	    ClearBackground(RAYWHITE);
-	    grid::renderGrid(texture_map, grid_space, 1);
 
-	EndDrawing();
+		engine::versus(players, player_index, 2, grid_space);
+		BeginDrawing();
+
+		ClearBackground(RAYWHITE);
+		grid::renderGrid(texture_map, grid_space, 1);
+		DrawText("END TURN", textRect.x, textRect.y, 15, RED);
+
+		EndDrawing();
 	}
 
 	CloseWindow();        // Close window and OpenGL context
