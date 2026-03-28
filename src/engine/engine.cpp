@@ -46,9 +46,10 @@ namespace engine {
 		Player current_player = players[playerIndex];
 
 		//check collisions
+		//uichecks
+
 		bool chng_state = collisionCheck(grid_space);
 
-		//uichecks
 
 		//check_hexagon
 	}

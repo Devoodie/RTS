@@ -46,7 +46,6 @@ int main(void){
 	while (!WindowShouldClose())    // Detect window close button or ESC key
 	{
 
-
 		engine::versus(players, player_index, 2, grid_space);
 		BeginDrawing();
 
