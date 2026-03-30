@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "../../include/utils/grid.hpp"
+#include <engine/entities.hpp>
 
 HexSpace::HexSpace (){
 	x = 0;
@@ -175,7 +176,7 @@ void renderGrid(
 				source_rectangle.width = float(texture_map[DARK_SOLIDER].width);
 				source_rectangle.height = float(texture_map[DARK_SOLIDER].height);
 
-				DrawTexturePro(texture_map[DARK_SOLIDER], source_rectangle , hexagon_rectangle, hex_pos, 0, RAYWHITE);
+				DrawTexturePro(texture_map[DARK_SOLIDER], source_rectangle , CurrentHex->occupier->collision_rec, hex_pos, 0, RAYWHITE);
 
 			}
 
