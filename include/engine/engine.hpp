@@ -15,11 +15,25 @@ class Player {
 
 namespace engine {
 
-void playerInit(std::vector<Player> &player, int playerCount);
+class Game{
+	public:
+		std::vector<Player> players;
+		int player_index;
+		int player_count;
+		std::vector<std::vector<HexSpace>> grid_space;
+		std::vector<Rectangle> ui_elements;
 
-bool collisionCheck(std::vector<std::vector<HexSpace>> grid_space);
+		void playerInit(int playerCount);
+		bool uiCollisionCheck();
+		bool collisionCheck();
+		void versus();
 
-void versus(std::vector<Player> &player, int currentPlayer, int player_count, std::vector<std::vector<HexSpace>> grid_space);
+		Game();
+};
+
+void handleCollision(HexSpace collided_hex);
+
+
 }
 
 //class Collider {};

@@ -21,18 +21,21 @@ int main(void){
 	std::unordered_map <int, Texture2D> texture_map;
 	grid::initAssets(texture_map);
 
+
+	//init game class
+	engine::Game game;
+
 	//initialize gridspace
 	
 	std::cout << "initialize grid" << std::endl;
+	grid::initGrid(grid_height, grid_length, game.grid_space);
 
-	std::vector<std::vector<HexSpace>> grid_space(grid_height, std::vector<HexSpace>(grid_length));
-	grid::initGrid(grid_height, grid_length, grid_space);
+	Unit testUnit(&game.grid_space[0][0], INFANTRY);
+	game.grid_space[0][0].occupier = &testUnit;
 
-	Unit testUnit(&grid_space[0][0], INFANTRY);
-	grid_space[0][0].occupier = &testUnit;
-
-	std::vector<Player> players;
 	int player_index = 0;
+
+	game.playerInit(2);
 
 	Rectangle textRect = {
 		.x = screenWidth * 7 / 8,
@@ -41,16 +44,17 @@ int main(void){
 		.height = screenWidth / 10,
 	};
 
+	game.ui_elements.push_back(textRect);
+
 	SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
 
 	while (!WindowShouldClose())    // Detect window close button or ESC key
 	{
-
-		engine::versus(players, player_index, 2, grid_space);
+		game.versus();
 		BeginDrawing();
 
 		ClearBackground(RAYWHITE);
-		grid::renderGrid(texture_map, grid_space, 1);
+		grid::renderGrid(texture_map, game.grid_space, 1);
 		DrawText("END TURN", textRect.x, textRect.y, 15, RED);
 
 		EndDrawing();
