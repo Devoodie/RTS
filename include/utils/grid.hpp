@@ -8,11 +8,16 @@ extern "C" {
 #include"raylib.h"
 }
 
+class Unit;
+
 class HexSpace {	
 	public:
 		HexSpace *neighbors[6] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 		float x;
 		float y;
+		Unit *occupier;
+
+		Vector2 vertices[6];
 	HexSpace();
 };
 
@@ -34,6 +39,8 @@ extern float inradius;
 
 enum textures {
 	GRASS_HEX = 0,
+	GRASS_BORDER,
+	DARK_SOLIDER,
 };
 
 void initGrid(const int row, const int col, std::vector<std::vector<HexSpace>> &grid);
