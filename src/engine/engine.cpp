@@ -28,17 +28,6 @@ namespace engine {
 		}
 	}
 
-	void handleCollision(HexSpace collided_hex, Vector2 mouse_point){
-		if(collided_hex.occupier != nullptr){
-			if (CheckCollisionPointRec(mouse_point, collided_hex.occupier->collision_rec)) {
-				//do unit stuff
-			}
-			else {
-				//highlight hex?
-			}
-		} 
-	}
-
 	bool Game::uiCollisionCheck(){
 		Vector2 mouse_point = GetMousePosition();
 		for(int i = 0; i < ui_elements.size(); ++i){
@@ -57,6 +46,20 @@ namespace engine {
 		}
 		return false;
 	}
+
+
+	void handleCollision(HexSpace collided_hex, Vector2 mouse_point){
+		if(collided_hex.occupier != nullptr){
+			if (CheckCollisionPointRec(mouse_point, collided_hex.occupier->collision_rec)) {
+				//do unit stuff
+				std::cout << "Unit Collision Detected" << std::endl;
+			}
+			else {
+				//highlight hex?
+			}
+		} 
+	}
+
 
 	//aidan optimize search (I THINK BINARY SEARCH WILL SHINE HERE)
 	bool Game::collisionCheck(){
