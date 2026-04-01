@@ -31,7 +31,7 @@ namespace engine {
 	void Game::endTurn(){
 		std::cout << "End Turn!" << std::endl;
 		player_index = (player_index + 1) % player_count;
-		state = TURNEND;
+		//state transition
 
 		return;
 	}

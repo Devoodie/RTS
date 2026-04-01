@@ -36,6 +36,8 @@ class Game{
 
 		states state;
 
+		void stateTransition(inputAlphabet input);
+
 		void playerInit(int playerCount);
 		void endTurn();
 		bool uiCollisionCheck();
