@@ -14,16 +14,30 @@ class Player {
 };
 
 namespace engine {
+	enum inputAlphabet {
+		TURNEND,
+		UNIT,
+		HEX,
+	};
+
+	enum states {
+		IDLE,
+		UNIT1,
+		OPTIONS,
+	};
 
 class Game{
 	public:
-		std::vector<Player> players;
 		int player_index;
 		int player_count;
+		std::vector<Player> players;
 		std::vector<std::vector<HexSpace>> grid_space;
 		std::vector<Rectangle> ui_elements;
 
+		states state;
+
 		void playerInit(int playerCount);
+		void endTurn();
 		bool uiCollisionCheck();
 		bool collisionCheck();
 		void versus();

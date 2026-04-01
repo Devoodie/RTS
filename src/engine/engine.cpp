@@ -28,6 +28,14 @@ namespace engine {
 		}
 	}
 
+	void Game::endTurn(){
+		std::cout << "End Turn!" << std::endl;
+		player_index = (player_index + 1) % player_count;
+		state = TURNEND;
+
+		return;
+	}
+
 	bool Game::uiCollisionCheck(){
 		Vector2 mouse_point = GetMousePosition();
 		for(int i = 0; i < ui_elements.size(); ++i){
@@ -35,7 +43,6 @@ namespace engine {
 				//end turn
 				case 0:
 					if(CheckCollisionPointRec(mouse_point, ui_elements[0]) and IsMouseButtonDown(0)){
-						std::cout << "UI Collision Detected!" << std::endl;
 						return true;
 					}
 				default:
