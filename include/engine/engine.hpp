@@ -40,6 +40,7 @@ class Game{
 		HexSpace *selected_hex2;
 		states state;
 
+		Vector2 MousePosition;
 
 		void playerInit(int playerCount);
 		void endTurn();
@@ -53,12 +54,11 @@ class Game{
 		bool collisionCheck();
 		void versus();
 
-
+		void renderOptions();
 
 		Game();
 		
 };
-
 
 
 }

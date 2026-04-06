@@ -55,6 +55,9 @@ int main(void){
 
 		ClearBackground(RAYWHITE);
 		grid::renderGrid(texture_map, game.grid_space, 1);
+
+		//render options
+		game.renderOptions();
 		DrawText("END TURN", textRect.x, textRect.y, 15, RED);
 
 		EndDrawing();

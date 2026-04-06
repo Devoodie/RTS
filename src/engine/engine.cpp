@@ -13,9 +13,10 @@ namespace engine {
 
 	Game::Game(){
 		players = std::vector<Player>();
-		player_count = 0;
+		player_count = 2;
 		player_index = 0;
 		grid_space = std::vector<std::vector<HexSpace>>(8, std::vector<HexSpace>(8));
+		state = IDLE;
 	}
 
 	void Game::playerInit(int playerCount){
@@ -28,6 +29,7 @@ namespace engine {
 		}
 	}
 
+	//ADD STATE CHANGES
 	void Game::endTurn(){
 		std::cout << "End Turn!" << std::endl;
 		player_index = (player_index + 1) % player_count;
@@ -43,6 +45,8 @@ namespace engine {
 				//end turn
 				case 0:
 					if(CheckCollisionPointRec(mouse_point, ui_elements[0]) and IsMouseButtonDown(0)){
+						std::cout << "ENDTURN" << std::endl;
+						this->endTurn();
 						return true;
 					}
 				default:
@@ -61,10 +65,13 @@ namespace engine {
 				Unit *unit_ptr = (Unit*)selection;
 				this->selected_unit = unit_ptr;
 				this->selected_hex = unit_ptr->current_hex;
+				this->state = UNIT1;
 				break;
 				   }
 			case HEX:
 				this->selected_hex = (HexSpace*)selection;
+				this->state = OPTIONS;
+				this->MousePosition = GetMousePosition();
 				break;
 			default:
 				std::cerr << "ERR: INPUT NOT FOUND (idleTransition)" << std::endl;
@@ -90,6 +97,7 @@ namespace engine {
 
 	void Game::handleCollision(HexSpace *collided_hex, Vector2 mouse_point){
 		if(collided_hex->occupier != nullptr){
+			//CHANGE ALL TO RELEASED OR DOWN (THEY MUST ALL BE THE SAME)
 			if (CheckCollisionPointRec(mouse_point, collided_hex->occupier->collision_rec) and IsMouseButtonReleased(0)) {
 				//do unit stuff
 				std::cout << "Unit Collision Detected" << std::endl;
@@ -112,7 +120,7 @@ namespace engine {
 				HexSpace *CurrentHex = &grid_space[i][j];
 
 				//Hexagon Hover (NO HOVER)
-				if(CheckCollisionPointPoly(mouse_point, CurrentHex->vertices, 6) and IsMouseButtonDown(0)) {
+				if(CheckCollisionPointPoly(mouse_point, CurrentHex->vertices, 6) and IsMouseButtonReleased(0)) {
 					std::cout << "Collision Hex " << j << ", " << i <<std::endl;
 
 					this->handleCollision(CurrentHex, mouse_point);
@@ -136,5 +144,13 @@ namespace engine {
 
 
 		//check_hexagon
+	}
+	
+	void Game::renderOptions(){
+		if(this->state != OPTIONS){
+			return;
+		} else {
+			
+		}
 	}
 }
