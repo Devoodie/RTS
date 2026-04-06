@@ -48,23 +48,59 @@ namespace engine {
 				default:
 					//std::cerr << "UI element " << i << " Not Recognized" << std::endl;
 					return false;
-
 			};
 		}
 		return false;
 	}
 
+	void Game::idleTransition(inputAlphabet input, void *selection){
+		switch(input){
+			case TURNEND:
+				break;
+			case UNIT: {
+				Unit *unit_ptr = (Unit*)selection;
+				this->selected_unit = unit_ptr;
+				this->selected_hex = unit_ptr->current_hex;
+				break;
+				   }
+			case HEX:
+				this->selected_hex = (HexSpace*)selection;
+				break;
+			default:
+				std::cerr << "ERR: INPUT NOT FOUND (idleTransition)" << std::endl;
+				return;
 
-	void handleCollision(HexSpace collided_hex, Vector2 mouse_point){
-		if(collided_hex.occupier != nullptr){
-			if (CheckCollisionPointRec(mouse_point, collided_hex.occupier->collision_rec)) {
+		}
+	}
+
+	void Game::transitionState(inputAlphabet input, void *selection){
+		switch(this->state){
+			case IDLE:
+				idleTransition(input, selection);
+				break;
+			case UNIT1:
+				break;
+			case OPTIONS:
+				break;
+			default:
+				std::cerr << "ERR: INPUT NOT FOUND (stateTransition)" << std::endl;
+				return;
+		}
+	}
+
+	void Game::handleCollision(HexSpace *collided_hex, Vector2 mouse_point){
+		if(collided_hex->occupier != nullptr){
+			if (CheckCollisionPointRec(mouse_point, collided_hex->occupier->collision_rec) and IsMouseButtonReleased(0)) {
 				//do unit stuff
 				std::cout << "Unit Collision Detected" << std::endl;
+				this->transitionState(UNIT, collided_hex->occupier);
 			}
-			else {
-				//highlight hex?
+			else if(IsMouseButtonReleased(0)) {
+				this->transitionState(HEX, collided_hex);
 			}
-		} 
+		} else {
+			if (IsMouseButtonReleased(0)) this->transitionState(HEX, collided_hex);
+		}
 	}
 
 
@@ -73,19 +109,19 @@ namespace engine {
 		Vector2 mouse_point = GetMousePosition();
 		for(int i = 0; i < grid_space.size(); ++i){
 			for(int j = 0; j < grid_space[i].size(); ++j){
-				HexSpace &CurrentHex = grid_space[i][j];
+				HexSpace *CurrentHex = &grid_space[i][j];
 
-				//Hexagon Collision
-				if(CheckCollisionPointPoly(mouse_point, CurrentHex.vertices, 6)) {
+				//Hexagon Hover (NO HOVER)
+				if(CheckCollisionPointPoly(mouse_point, CurrentHex->vertices, 6) and IsMouseButtonDown(0)) {
 					std::cout << "Collision Hex " << j << ", " << i <<std::endl;
-					handleCollision(CurrentHex, mouse_point);
+
+					this->handleCollision(CurrentHex, mouse_point);
 					return true;
 				}
 			}
 		}
 		return false;
 	}
-	
 
 	void Game::versus(){
 		if(players.size() == 0) playerInit(player_count);

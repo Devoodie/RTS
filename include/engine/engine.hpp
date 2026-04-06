@@ -33,21 +33,32 @@ class Game{
 		std::vector<Player> players;
 		std::vector<std::vector<HexSpace>> grid_space;
 		std::vector<Rectangle> ui_elements;
+		Unit *selected_unit;
+		Unit *selected_unit2;
 
+		HexSpace *selected_hex;
+		HexSpace *selected_hex2;
 		states state;
 
-		void stateTransition(inputAlphabet input);
 
 		void playerInit(int playerCount);
 		void endTurn();
+
+		void idleTransition(inputAlphabet input, void *selection);
+		void transitionState(inputAlphabet input, void *selection);
+
 		bool uiCollisionCheck();
+
+		void handleCollision(HexSpace *collided_hex, Vector2 mouse_point);
 		bool collisionCheck();
 		void versus();
 
+
+
 		Game();
+		
 };
 
-void handleCollision(HexSpace collided_hex);
 
 
 }
