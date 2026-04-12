@@ -3,7 +3,6 @@
 #include <engine/engine.hpp>
 #include <engine/entities.hpp>
 
-
 Player::Player(){
 	units = std::vector<Unit>();
 	units.reserve(12);
@@ -72,11 +71,35 @@ namespace engine {
 				this->selected_hex = (HexSpace*)selection;
 				this->state = OPTIONS;
 				this->MousePosition = GetMousePosition();
+				this->optionTransition(input, selection);
 				break;
 			default:
 				std::cerr << "ERR: INPUT NOT FOUND (idleTransition)" << std::endl;
 				return;
 
+		}
+	}
+
+	void Game::optionTransition(inputAlphabet input, void *selection){
+//		switch(input){
+//			case UNIT:
+				//astar or something
+//				break;
+//			case HEX:
+//				break;
+//			default:
+//				return;
+//		}
+	}
+
+	void Game::unitTransition(inputAlphabet input, void *selection){
+		switch(input){
+			case UNIT:
+				break;
+			case HEX:
+				break;
+			default:
+				return;
 		}
 	}
 
@@ -110,7 +133,6 @@ namespace engine {
 			if (IsMouseButtonReleased(0)) this->transitionState(HEX, collided_hex);
 		}
 	}
-
 
 	//aidan optimize search (I THINK BINARY SEARCH WILL SHINE HERE)
 	bool Game::collisionCheck(){
@@ -150,7 +172,14 @@ namespace engine {
 		if(this->state != OPTIONS){
 			return;
 		} else {
-			
+			Rectangle options = {
+				.x = this->MousePosition.x + grid::inradius / 2,
+				.y = this->MousePosition.y + grid::radius / 2,
+				.width = grid::inradius / 2,
+				.height = grid::radius / 2,
+			};
+
+			DrawRectangle(options.x, options.y, options.width, options.height, RED);
 		}
 	}
 }

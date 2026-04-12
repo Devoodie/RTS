@@ -41,6 +41,8 @@ enum textures {
 	GRASS_HEX = 0,
 	GRASS_BORDER,
 	DARK_SOLIDER,
+	FIRE_BUTTON,
+	MOVE_BUTTON,
 };
 
 void initGrid(const int row, const int col, std::vector<std::vector<HexSpace>> &grid);

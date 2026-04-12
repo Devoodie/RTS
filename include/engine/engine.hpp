@@ -18,6 +18,7 @@ namespace engine {
 		TURNEND,
 		UNIT,
 		HEX,
+		MOVE,
 	};
 
 	enum states {
@@ -46,6 +47,8 @@ class Game{
 		void endTurn();
 
 		void idleTransition(inputAlphabet input, void *selection);
+		void optionTransition(inputAlphabet input, void *selection);
+		void unitTransition(inputAlphabet input, void *selection);
 		void transitionState(inputAlphabet input, void *selection);
 
 		bool uiCollisionCheck();
