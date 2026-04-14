@@ -25,6 +25,7 @@ namespace engine {
 		IDLE,
 		UNIT1,
 		OPTIONS,
+		INFO,
 	};
 
 class Game{
@@ -32,8 +33,11 @@ class Game{
 		int player_index;
 		int player_count;
 		std::vector<Player> players;
+		std::vector<Unit*> units;
+
 		std::vector<std::vector<HexSpace>> grid_space;
 		std::vector<Rectangle> ui_elements;
+
 		Unit *selected_unit;
 		Unit *selected_unit2;
 

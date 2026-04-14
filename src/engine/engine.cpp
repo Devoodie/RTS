@@ -46,17 +46,26 @@ namespace engine {
 		this->selected_hex = nullptr;
 		this->selected_hex2 = nullptr;
 
+		this->ui_elements.erase(ui_elements.begin() + 1);
 	}
 
 	bool Game::uiCollisionCheck(){
 		Vector2 mouse_point = GetMousePosition();
+		//0 endturn button, 1 Others(????), 
+		//may need to change the way this works to switch on states instead of ui elements
 		for(int i = 0; i < ui_elements.size(); ++i){
 			switch(i){
 				//end turn
 				case 0:
-					if(CheckCollisionPointRec(mouse_point, ui_elements[0]) and IsMouseButtonDown(0)){
+					if(CheckCollisionPointRec(mouse_point, ui_elements[0]) and IsMouseButtonReleased(0)){
 						std::cout << "ENDTURN" << std::endl;
 						this->endTurn();
+						return true;
+					}
+				case 1:
+					if(this->ui_elements.size() < 2) continue;
+					if(CheckCollisionPointRec(mouse_point, ui_elements[1]) and IsMouseButtonReleased(0)){
+						std::cout << "MOVE!" << std::endl;
 						return true;
 					}
 				default:
@@ -82,7 +91,7 @@ namespace engine {
 			case HEX:
 				this->selected_hex = (HexSpace*)selection;
 				this->MousePosition = GetMousePosition();
-				this->state = OPTIONS;
+				this->state = INFO;
 				break;
 			default:
 				std::cerr << "ERR: INPUT NOT FOUND (idleTransition)" << std::endl;
@@ -95,16 +104,6 @@ namespace engine {
 	void Game::optionTransition(inputAlphabet input, void *selection){
 		switch(input){
 			case UNIT:
-				if(this->state == IDLE){
-					std::cout << "Unit Selected" << std::endl;
-					Unit *unit_ptr = (Unit*)selection;
-					this->selected_unit = unit_ptr;
-					this->selected_hex = unit_ptr->current_hex;
-					this->state = UNIT1;
-				} else {
-					//move towards
-
-				}
 				break;
 			case HEX:
 				//WRONG WORK HERE
@@ -128,6 +127,14 @@ namespace engine {
 				this->MousePosition = GetMousePosition();
 				this->selected_hex2 = (HexSpace*) selection;
 				this->state = OPTIONS;
+
+				//create the rectangle for options
+				this->ui_elements.emplace_back((Rectangle){
+					.x = this->MousePosition.x + grid::inradius / 4,
+					.y = this->MousePosition.y,
+					.width = grid::inradius,
+					.height = grid::radius / 2,
+					});
 				break;
 			default:
 				return;
@@ -194,9 +201,9 @@ namespace engine {
 		//uichecks
 		//
 		if(IsKeyPressed(KEY_ESCAPE)) this->escape();
-		bool ui_state = this->uiCollisionCheck();
-		bool chng_state = this->collisionCheck();
+		bool ui_collision = this->uiCollisionCheck();
 
+		if(!ui_collision) bool chng_state = this->collisionCheck();
 
 		//check_hexagon
 	}
@@ -207,14 +214,8 @@ namespace engine {
 		if(this->state != OPTIONS){
 			return;
 		} else {
-			Rectangle options = {
-				.x = this->MousePosition.x + grid::inradius / 4,
-				.y = this->MousePosition.y,
-				.width = grid::inradius ,
-				.height = grid::radius / 2,
-			};
+			Texture2D &move_button = texture_map[grid::MOVE_BUTTON];
 
-			Texture2D move_button = texture_map[grid::MOVE_BUTTON];
 			Rectangle texture_rect = {
 				.x = 0,
 				.y = 0,
@@ -222,7 +223,7 @@ namespace engine {
 				.height = (float)move_button.height,
 			};
 
-
+			Rectangle options = this->ui_elements[1];
 			DrawTexturePro(move_button, texture_rect, options, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
 		}
 	}

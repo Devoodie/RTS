@@ -33,13 +33,15 @@ int main(void){
 	grid::initGrid(grid_height, grid_length, game.grid_space);
 
 	Unit testUnit(&game.grid_space[0][0], INFANTRY);
+
+	game.units.push_back(&testUnit);
 	game.grid_space[0][0].occupier = &testUnit;
 
 	int player_index = 0;
 
 	game.playerInit(2);
 
-
+	//Should this be in the constructor?
 	Rectangle textRect = {
 		.x = screenWidth * 7 / 8,
 		.y = screenHeight / 5,
@@ -57,8 +59,8 @@ int main(void){
 		BeginDrawing();
 
 		ClearBackground(RAYWHITE);
-		grid::renderGrid(texture_map, game.grid_space, 1);
-
+		grid::renderGrid(texture_map, game.grid_space, false);
+		grid::renderUnits(texture_map, game.units);
 		//render options
 		game.renderOptions(texture_map);
 		DrawText("END TURN", textRect.x, textRect.y, 15, RED);

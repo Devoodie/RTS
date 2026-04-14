@@ -4,6 +4,7 @@
 
 #include "../../include/utils/grid.hpp"
 #include <engine/entities.hpp>
+#include <raylib.h>
 
 HexSpace::HexSpace (){
 	x = 0;
@@ -110,12 +111,43 @@ void initGrid(const int row, const int col, std::vector<std::vector<HexSpace>> &
 	}
 }
 
+//add visibility rules
+void renderUnits(std::unordered_map<int, Texture2D> texture_map, std::vector<Unit *> units){
+	const float draw_width = inradius * 2;
+	const float draw_height = radius * 2;
 
+	const Texture2D solider_texture = texture_map[DARK_SOLIDER]; 
+
+	Rectangle unit_rectangle = {
+		.x = 0,
+		.y = 0,
+		.width = draw_width / 2, 
+		.height = draw_height / 2,
+	};
+
+	Rectangle source_rectangle = {
+		.x = 0,
+		.y = 0,
+		.width = (float)solider_texture.width,
+		.height = (float)solider_texture.height,
+	};
+
+	for(int i = 0; i < units.size(); ++i){
+		Unit* CurrentUnit = units[i];
+		unit_rectangle.x = CurrentUnit->collision_rec.x;
+		unit_rectangle.y = CurrentUnit->collision_rec.y;
+
+		source_rectangle.width = float(texture_map[DARK_SOLIDER].width);
+		source_rectangle.height = float(texture_map[DARK_SOLIDER].height);
+
+		DrawTexturePro(solider_texture, source_rectangle, unit_rectangle, {.x = 0, .y = 0}, 0, RAYWHITE);
+	}
+};
 
 void renderGrid(
 		std::unordered_map<int, Texture2D> texture_map, 
 		std::vector<std::vector<HexSpace>> grid_space, 
-		const int debug
+		const bool debug
 		){
 
 	const float draw_width = inradius * 2;
@@ -135,12 +167,6 @@ void renderGrid(
 		.height = float(draw_height / 2.461538),
 	};
 
-	Rectangle unit_rectangle= {
-		.x = 0,
-		.y = 0,
-		.width = draw_width / 2, 
-		.height = draw_height / 2,
-	};
 	//TEMPORARY
 
 	int y_offset = 0;
@@ -149,6 +175,12 @@ void renderGrid(
 		.y = 0,
 		.width = 0.0,
 		.height = 0.0,
+	};
+
+
+	Vector2 hex_pos = {
+	    .x = 0,
+	    .y = 0,
 	};
 
 	for(int i = 0; i < grid_space.size(); ++i){
@@ -163,22 +195,7 @@ void renderGrid(
 			hexagon_rectangle.x = CurrentHex->x - inradius; 
 			hexagon_rectangle.y = CurrentHex->y - radius - y_offset; 
 
-			Vector2 hex_pos = {
-			    .x = 0,
-			    .y = 0,
-			};
-
-
 			DrawTexturePro(texture_map[GRASS_HEX], source_rectangle , hexagon_rectangle, hex_pos, 0, RAYWHITE);
-
-			//draw unit
-			if(CurrentHex->occupier != nullptr){
-				source_rectangle.width = float(texture_map[DARK_SOLIDER].width);
-				source_rectangle.height = float(texture_map[DARK_SOLIDER].height);
-
-				DrawTexturePro(texture_map[DARK_SOLIDER], source_rectangle , CurrentHex->occupier->collision_rec, hex_pos, 0, RAYWHITE);
-
-			}
 
 			//draw border
 			if(j == 0 or j == grid_space[i].size() - 1 or i == grid_space.size() - 1){
