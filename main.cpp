@@ -17,6 +17,8 @@ int main(void){
 	
 	InitWindow(screenWidth, screenHeight, "RTS");
 
+	SetExitKey(KEY_NULL);
+
 	//ASSETS
 	std::unordered_map <int, Texture2D> texture_map;
 	grid::initAssets(texture_map);
@@ -36,6 +38,7 @@ int main(void){
 	int player_index = 0;
 
 	game.playerInit(2);
+
 
 	Rectangle textRect = {
 		.x = screenWidth * 7 / 8,
@@ -57,7 +60,7 @@ int main(void){
 		grid::renderGrid(texture_map, game.grid_space, 1);
 
 		//render options
-		game.renderOptions();
+		game.renderOptions(texture_map);
 		DrawText("END TURN", textRect.x, textRect.y, 15, RED);
 
 		EndDrawing();
