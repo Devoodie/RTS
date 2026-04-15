@@ -26,6 +26,7 @@ namespace engine {
 		UNIT1,
 		OPTIONS,
 		INFO,
+		MOVING,
 	};
 
 class Game{
@@ -74,6 +75,8 @@ class Game{
 
 		//checks for collisions with hexagons then calls handle collision
 		bool collisionCheck();
+
+		void Move();
 
 		//main game loop
 		void versus();

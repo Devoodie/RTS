@@ -65,7 +65,10 @@ namespace engine {
 				case 1:
 					if(this->ui_elements.size() < 2) continue;
 					if(CheckCollisionPointRec(mouse_point, ui_elements[1]) and IsMouseButtonReleased(0)){
+
+						//WORK HERE 
 						std::cout << "MOVE!" << std::endl;
+						
 						return true;
 					}
 				default:
@@ -193,6 +196,9 @@ namespace engine {
 		return false;
 	}
 
+	//WORK HERE
+	void Game::Move(){}
+
 	void Game::versus(){
 		if(players.size() == 0) playerInit(player_count);
 
@@ -204,11 +210,15 @@ namespace engine {
 		if(IsKeyPressed(KEY_ESCAPE)) this->escape();
 		bool ui_collision = this->uiCollisionCheck();
 
-		if(!ui_collision) bool chng_state = this->collisionCheck();
+		if(this->state == MOVING){
+
+			//dothis
+		}else if(!ui_collision) {
+			bool chng_state = this->collisionCheck();
+		}
 
 		//check_hexagon
 	}
-
 
 	//CHECK NULL POINTERS TO DETERMINE WHICH RECTANGLES SHOULD BE RENDERED
 	void Game::renderOptions(std::unordered_map<int, Texture2D> texture_map){

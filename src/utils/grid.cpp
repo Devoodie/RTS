@@ -216,8 +216,7 @@ void renderGrid(
 					    hexagon_rectangle.y, 
 					    hexagon_rectangle.width, 
 					    hexagon_rectangle.height, 
-					    RED
-					    );
+					    RED);
 			    DrawCircle(CurrentHex->x, CurrentHex->y, 3.0, RED);
 
 			    for(int i = 0; i < 6; ++i){
