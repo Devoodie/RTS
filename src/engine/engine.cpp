@@ -91,7 +91,7 @@ namespace engine {
 			case HEX:
 				this->selected_hex = (HexSpace*)selection;
 				this->MousePosition = GetMousePosition();
-				this->state = INFO;
+//				this->state = INFO;
 				break;
 			default:
 				std::cerr << "ERR: INPUT NOT FOUND (idleTransition)" << std::endl;
@@ -107,11 +107,11 @@ namespace engine {
 				break;
 			case HEX:
 				//WRONG WORK HERE
-				if(this->state == OPTIONS){
-					this->selected_hex = (HexSpace*)selection;
-					this->MousePosition = GetMousePosition();
-					this->state = OPTIONS;
-				}
+				this->selected_hex = (HexSpace*)selection;
+				this->MousePosition = GetMousePosition();
+
+				this->ui_elements[1].x = MousePosition.x + grid::inradius / 4;
+				this->ui_elements[1].y = MousePosition.y;
 				break;
 			default:
 				return;
@@ -150,6 +150,7 @@ namespace engine {
 				unitTransition(input, selection);
 				break;
 			case OPTIONS:
+				optionTransition(input, selection);
 				break;
 			default:
 				std::cerr << "ERR: INPUT NOT FOUND (stateTransition)" << std::endl;
@@ -199,7 +200,7 @@ namespace engine {
 
 		//check collisions
 		//uichecks
-		//
+
 		if(IsKeyPressed(KEY_ESCAPE)) this->escape();
 		bool ui_collision = this->uiCollisionCheck();
 
