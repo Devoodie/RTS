@@ -164,7 +164,7 @@ void renderGrid(
 		.x = 0,
 		.y = 0,
 		.width = draw_width, 
-		.height = float(draw_height / 2.461538),
+		.height = float(draw_height / 2.8461538), // the qoutient of the hexagon textures height divided by the borders height
 	};
 
 	//TEMPORARY

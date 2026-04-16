@@ -50,36 +50,6 @@ namespace engine {
 		if(this->ui_elements.size() > 1) this->ui_elements.erase(ui_elements.begin() + 1);
 	}
 
-	bool Game::uiCollisionCheck(){
-		Vector2 mouse_point = GetMousePosition();
-		//0 endturn button, 1 Others(????), 
-		//may need to change the way this works to switch on states instead of ui elements
-		for(int i = 0; i < ui_elements.size(); ++i){
-			switch(i){
-				//end turn
-				case 0:
-					if(CheckCollisionPointRec(mouse_point, ui_elements[0]) and IsMouseButtonReleased(0)){
-						std::cout << "ENDTURN" << std::endl;
-						this->endTurn();
-						return true;
-					}
-				case 1:
-					if(this->ui_elements.size() < 2) continue;
-					if(CheckCollisionPointRec(mouse_point, ui_elements[1]) and IsMouseButtonReleased(0)){
-						selected_unit->position.x = selected_hex2->x;
-						selected_unit->position.y = selected_hex2->y;
-						this->state = MOVING;
-						std::cout << "MOVE!" << std::endl;
-						return true;
-					}
-				default:
-					//std::cerr << "UI element " << i << " Not Recognized" << std::endl;
-					return false;
-			};
-		}
-		return false;
-	}
-
 	void Game::idleTransition(inputAlphabet input, void *selection){
 		switch(input){
 			case TURNEND:
@@ -104,7 +74,6 @@ namespace engine {
 		}
 	}
 
-	//CHECK PREVIOUS STATE TO DETERMINE WHAT TO DO IN CASES
 	void Game::optionTransition(inputAlphabet input, void *selection){
 		switch(input){
 			case UNIT:
@@ -122,6 +91,7 @@ namespace engine {
 		}
 	}
 
+	
 	void Game::unitTransition(inputAlphabet input, void *selection){
 		switch(input){
 			case UNIT:
@@ -132,7 +102,7 @@ namespace engine {
 				this->selected_hex2 = (HexSpace*) selection;
 				this->state = OPTIONS;
 
-				//create the rectangle for options
+				//create ui element for options
 				this->ui_elements.emplace_back((Rectangle){
 					.x = this->MousePosition.x + grid::inradius / 4,
 					.y = this->MousePosition.y,
@@ -197,7 +167,37 @@ namespace engine {
 		return false;
 	}
 
-	//WORK HERE
+	bool Game::uiCollisionCheck(){
+		Vector2 mouse_point = GetMousePosition();
+		//0 endturn button, 1 Others(????), 
+		//may need to change the way this works to switch on states instead of ui elements
+		for(int i = 0; i < ui_elements.size(); ++i){
+			switch(i){
+				//end turn
+				case 0:
+					if(CheckCollisionPointRec(mouse_point, ui_elements[0]) and IsMouseButtonReleased(0)){
+						std::cout << "ENDTURN" << std::endl;
+						this->endTurn();
+						return true;
+					}
+				case 1:
+					if(this->ui_elements.size() < 2) continue;
+					if(CheckCollisionPointRec(mouse_point, ui_elements[1]) and IsMouseButtonReleased(0)){
+						selected_unit->position.x = selected_hex2->x;
+						selected_unit->position.y = selected_hex2->y;
+						this->state = MOVING;
+						std::cout << "MOVE!" << std::endl;
+						return true;
+					}
+				default:
+					//std::cerr << "UI element " << i << " Not Recognized" << std::endl;
+					return false;
+			};
+		}
+		return false;
+	}
+
+	//moves units
 	void Game::Move(){
 		Unit *unit = this->selected_unit;
 
@@ -208,7 +208,7 @@ namespace engine {
 
 		if(destRect.x != unit->render_rect.x or destRect.y != unit->render_rect.y){
 
-			std::cout << "Position: (" << unit->render_rect.x << "," << unit->render_rect.y << ")\n" <<"Desired Position: (" << destRect.x << " ," << destRect.y << ")" << std::endl;
+//			std::cout << "Position: (" << unit->render_rect.x << "," << unit->render_rect.y << ")\n" <<"Desired Position: (" << destRect.x << " ," << destRect.y << ")" << std::endl;
 			Vector2 renderRect = {
 				.x = unit->render_rect.x, 
 				.y = unit->render_rect.y
@@ -253,6 +253,7 @@ namespace engine {
 		//check_hexagon
 	}
 
+	//THIS SHOULD BE CHANGED FROM RENDER OPTIONS TO RENDER UI
 	//CHECK NULL POINTERS TO DETERMINE WHICH RECTANGLES SHOULD BE RENDERED
 	void Game::renderOptions(std::unordered_map<int, Texture2D> texture_map){
 		if(this->state != OPTIONS){

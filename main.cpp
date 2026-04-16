@@ -23,7 +23,6 @@ int main(void){
 	std::unordered_map <int, Texture2D> texture_map;
 	grid::initAssets(texture_map);
 
-
 	//init game class
 	engine::Game game;
 

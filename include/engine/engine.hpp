@@ -46,6 +46,7 @@ class Game{
 		HexSpace *selected_hex2;
 		states state;
 
+		//REDUNDANT PROPERTY
 		Vector2 MousePosition;
 
 		void playerInit(int playerCount);
@@ -68,13 +69,14 @@ class Game{
 		//transitions to idle state or calls menu
 		void escape();
 
-		bool uiCollisionCheck();
 
 		//searches for collisions with properties of a hexagon and potentially transitions state
 		void handleCollision(HexSpace *collided_hex, Vector2 mouse_point);
 
 		//checks for collisions with hexagons then calls handle collision
 		bool collisionCheck();
+
+		bool uiCollisionCheck();
 
 		void Move();
 
