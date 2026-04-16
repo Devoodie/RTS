@@ -134,8 +134,8 @@ void renderUnits(std::unordered_map<int, Texture2D> texture_map, std::vector<Uni
 
 	for(int i = 0; i < units.size(); ++i){
 		Unit* CurrentUnit = units[i];
-		unit_rectangle.x = CurrentUnit->collision_rec.x;
-		unit_rectangle.y = CurrentUnit->collision_rec.y;
+		unit_rectangle.x = CurrentUnit->render_rect.x;
+		unit_rectangle.y = CurrentUnit->render_rect.y;
 
 		source_rectangle.width = float(texture_map[DARK_SOLIDER].width);
 		source_rectangle.height = float(texture_map[DARK_SOLIDER].height);

@@ -17,7 +17,7 @@ class Unit {
 		int move_speed;
 		HexSpace *current_hex;
 		Vector2 position;
-		Rectangle collision_rec;
+		Rectangle render_rect;
 
 		Unit(HexSpace *hex, UnitType type);
 };

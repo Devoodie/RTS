@@ -1,5 +1,6 @@
 #include <iostream>
 #include <raylib.h>
+#include <raymath.h>
 #include <engine/engine.hpp>
 #include <engine/entities.hpp>
 #include <unordered_map>
@@ -65,8 +66,9 @@ namespace engine {
 				case 1:
 					if(this->ui_elements.size() < 2) continue;
 					if(CheckCollisionPointRec(mouse_point, ui_elements[1]) and IsMouseButtonReleased(0)){
-
-						//WORK HERE 
+						selected_unit->position.x = selected_hex2->x;
+						selected_unit->position.y = selected_hex2->y;
+						this->state = MOVING;
 						std::cout << "MOVE!" << std::endl;
 						
 						return true;
@@ -164,7 +166,7 @@ namespace engine {
 	void Game::handleCollision(HexSpace *collided_hex, Vector2 mouse_point){
 		if(collided_hex->occupier != nullptr){
 			//CHANGE ALL TO RELEASED OR DOWN (THEY MUST ALL BE THE SAME)
-			if (CheckCollisionPointRec(mouse_point, collided_hex->occupier->collision_rec) and IsMouseButtonReleased(0)) {
+			if (CheckCollisionPointRec(mouse_point, collided_hex->occupier->render_rect) and IsMouseButtonReleased(0)) {
 				//do unit stuff
 				std::cout << "Unit Collision Detected" << std::endl;
 				this->transitionState(UNIT, collided_hex->occupier);
@@ -197,7 +199,33 @@ namespace engine {
 	}
 
 	//WORK HERE
-	void Game::Move(){}
+	void Game::Move(){
+		Unit *unit = this->selected_unit;
+
+		Vector2 destRect = {
+			.x = unit->position.x - grid::inradius / 2,
+			.y = unit->position.y - grid::radius  / 2,
+		};
+
+		if(destRect.x != unit->render_rect.x and destRect.y != unit->render_rect.y){
+
+			std::cout << "Position: (" << unit->render_rect.x << "," << unit->render_rect.y << ")\n" <<"Desired Position: (" << destRect.x << " ," << destRect.y << ")" << std::endl;
+			Vector2 renderRect = {
+				.x = unit->render_rect.x, 
+				.y = unit->render_rect.y
+			};
+
+			float max_dist = GetFrameTime() * 240;
+			Vector2 new_pos = Vector2MoveTowards(renderRect, destRect, max_dist);
+
+			unit->render_rect.x = new_pos.x;
+			unit->render_rect.y = new_pos.y;
+		} else {
+			selected_hex->occupier = NULL;
+			selected_hex2->occupier = unit;
+			escape();
+		}
+	}
 
 	void Game::versus(){
 		if(players.size() == 0) playerInit(player_count);
@@ -211,7 +239,7 @@ namespace engine {
 		bool ui_collision = this->uiCollisionCheck();
 
 		if(this->state == MOVING){
-
+			this->Move();
 			//dothis
 		}else if(!ui_collision) {
 			bool chng_state = this->collisionCheck();
