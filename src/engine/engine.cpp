@@ -94,8 +94,11 @@ namespace engine {
 	
 	void Game::unitTransition(inputAlphabet input, void *selection){
 		switch(input){
-			case UNIT:
+			case UNIT:{
+				Unit *new_unit = (Unit*)selection;
+				if(new_unit == selected_unit) this->escape();
 				break;
+				  }
 			case HEX:
 				std::cout << "Hex 2 Selected" << std::endl;
 				this->MousePosition = GetMousePosition();
