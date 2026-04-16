@@ -47,7 +47,7 @@ namespace engine {
 		this->selected_hex = nullptr;
 		this->selected_hex2 = nullptr;
 
-		this->ui_elements.erase(ui_elements.begin() + 1);
+		if(this->ui_elements.size() > 1) this->ui_elements.erase(ui_elements.begin() + 1);
 	}
 
 	bool Game::uiCollisionCheck(){
@@ -70,7 +70,6 @@ namespace engine {
 						selected_unit->position.y = selected_hex2->y;
 						this->state = MOVING;
 						std::cout << "MOVE!" << std::endl;
-						
 						return true;
 					}
 				default:
@@ -95,7 +94,7 @@ namespace engine {
 				   }
 			case HEX:
 				this->selected_hex = (HexSpace*)selection;
-				this->MousePosition = GetMousePosition();
+//				this->MousePosition = GetMousePosition();
 //				this->state = INFO;
 				break;
 			default:
@@ -128,7 +127,7 @@ namespace engine {
 			case UNIT:
 				break;
 			case HEX:
-				std::cout << "Hex Selected" << std::endl;
+				std::cout << "Hex 2 Selected" << std::endl;
 				this->MousePosition = GetMousePosition();
 				this->selected_hex2 = (HexSpace*) selection;
 				this->state = OPTIONS;
@@ -207,7 +206,7 @@ namespace engine {
 			.y = unit->position.y - grid::radius  / 2,
 		};
 
-		if(destRect.x != unit->render_rect.x and destRect.y != unit->render_rect.y){
+		if(destRect.x != unit->render_rect.x or destRect.y != unit->render_rect.y){
 
 			std::cout << "Position: (" << unit->render_rect.x << "," << unit->render_rect.y << ")\n" <<"Desired Position: (" << destRect.x << " ," << destRect.y << ")" << std::endl;
 			Vector2 renderRect = {
@@ -235,13 +234,19 @@ namespace engine {
 		//check collisions
 		//uichecks
 
-		if(IsKeyPressed(KEY_ESCAPE)) this->escape();
-		bool ui_collision = this->uiCollisionCheck();
+		if(IsKeyPressed(KEY_ESCAPE)) {
+			this->escape();
+			return;
+		}
 
 		if(this->state == MOVING){
 			this->Move();
+			return;
 			//dothis
-		}else if(!ui_collision) {
+		}
+		bool ui_collision = this->uiCollisionCheck();
+		
+		if(!ui_collision) {
 			bool chng_state = this->collisionCheck();
 		}
 
