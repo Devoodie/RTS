@@ -235,11 +235,15 @@ void initAssets(std::unordered_map<int, Texture2D> &texture_map){
 	const Texture2D dark_solider = LoadTexture("../assets/Dark_Solider.png");
 	const Texture2D fire_button = LoadTexture("../assets/Fire1.png");
 	const Texture2D move_button = LoadTexture("../assets/Move1.png");
+	const Texture2D info_rectangle = LoadTexture("../assets/Info_Rectangle.png");
  
 	texture_map[grid::GRASS_HEX] = hex_grass;
 	texture_map[grid::GRASS_BORDER] = grass_border;
 	texture_map[grid::DARK_SOLIDER] = dark_solider;
 	texture_map[grid::FIRE_BUTTON] = fire_button;
 	texture_map[grid::MOVE_BUTTON] = move_button;
+	texture_map[grid::INFO_RECT] = info_rectangle;
+
+
 }
 }

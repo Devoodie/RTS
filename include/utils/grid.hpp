@@ -32,10 +32,10 @@ enum cardinals {
 	NORTH_WEST = 5,
 };
 
+extern int ScreenWidth;
+extern int ScreenHeight;
 extern float radius;
 extern float inradius;
-
-
 
 enum textures {
 	GRASS_HEX = 0,
@@ -43,6 +43,7 @@ enum textures {
 	DARK_SOLIDER,
 	FIRE_BUTTON,
 	MOVE_BUTTON,
+	INFO_RECT,
 };
 
 void initGrid(const int row, const int col, std::vector<std::vector<HexSpace>> &grid);

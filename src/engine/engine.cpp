@@ -50,6 +50,30 @@ namespace engine {
 		if(this->ui_elements.size() > 1) this->ui_elements.erase(ui_elements.begin() + 1);
 	}
 
+	void Game::hexInfoTransition(inputAlphabet input, void *selection){
+		switch(input){
+			case HEX:{
+				HexSpace* hex_ptr = (HexSpace*)selection;
+				if(this->selected_hex == hex_ptr) {
+					this->escape();
+					return;
+				}
+				this->selected_hex = (HexSpace*)selection;
+				break;
+				 }
+			case UNIT:
+				std::cout << "Unit Selected" << std::endl;
+				Unit *unit_ptr = (Unit*)selection;
+				this->selected_unit = unit_ptr;
+				this->selected_hex = unit_ptr->current_hex;
+				this->state = UNIT1;
+				if(this->ui_elements.size() > 1) this->ui_elements.erase(ui_elements.begin() + 1);
+				break;
+			defaut:
+				std::cerr << "STATE " << input << " NOT HANDLED (hexInfoTransition)" << std::endl;
+		}
+	}
+
 	void Game::idleTransition(inputAlphabet input, void *selection){
 		switch(input){
 			case TURNEND:
@@ -64,8 +88,14 @@ namespace engine {
 				   }
 			case HEX:
 				this->selected_hex = (HexSpace*)selection;
-//				this->MousePosition = GetMousePosition();
-//				this->state = INFO;
+				this->state = HEX_INFO;
+				this->ui_elements.emplace_back((Rectangle){
+					.x = float((grid::ScreenWidth * 3) / 4 ),
+					.y = 0,
+					.width = float(grid::ScreenWidth / 4),
+					.height = float(grid::ScreenHeight),
+					});
+
 				break;
 			default:
 				std::cerr << "ERR: INPUT NOT FOUND (idleTransition)" << std::endl;
@@ -91,7 +121,33 @@ namespace engine {
 		}
 	}
 
-	
+	void Game::unitInfoTransition(inputAlphabet input, void *selection){
+		switch(input){
+			case UNIT:{
+				Unit *unit_ptr = (Unit*)selection;
+				if(unit_ptr == this->selected_unit){
+					this->escape();
+					return;
+				}
+				this->selected_unit2 = unit_ptr;
+				  }
+			case HEX:
+				std::cout << "Hex 2 Selected" << std::endl;
+				this->MousePosition = GetMousePosition();
+				this->selected_hex2 = (HexSpace*) selection;
+				this->state = OPTIONS;
+
+				if(this->ui_elements.size() > 1) this->ui_elements.erase(ui_elements.begin() + 1);
+				this->ui_elements.emplace_back((Rectangle){
+					.x = this->MousePosition.x + grid::inradius / 4,
+					.y = this->MousePosition.y,
+					.width = grid::inradius,
+					.height = grid::radius / 2,
+					});
+				break;
+
+		}
+	}
 	void Game::unitTransition(inputAlphabet input, void *selection){
 		switch(input){
 			case UNIT:{
@@ -129,8 +185,14 @@ namespace engine {
 			case OPTIONS:
 				optionTransition(input, selection);
 				break;
+			case HEX_INFO:
+				hexInfoTransition(input, selection);
+				break;
+			case UNIT_INFO:
+				unitInfoTransition(input, selection);
+				break;
 			default:
-				std::cerr << "ERR: INPUT NOT FOUND (stateTransition)" << std::endl;
+				std::cerr << "ERR STATE " << input << " NOT FOUND (transitionState)" << std::endl;
 				return;
 		}
 	}
@@ -259,20 +321,37 @@ namespace engine {
 	//THIS SHOULD BE CHANGED FROM RENDER OPTIONS TO RENDER UI
 	//CHECK NULL POINTERS TO DETERMINE WHICH RECTANGLES SHOULD BE RENDERED
 	void Game::renderOptions(std::unordered_map<int, Texture2D> texture_map){
-		if(this->state != OPTIONS){
-			return;
-		} else {
-			Texture2D &move_button = texture_map[grid::MOVE_BUTTON];
+		switch(this->state){
+			case OPTIONS:{
+				Texture2D &move_button = texture_map[grid::MOVE_BUTTON];
 
-			Rectangle texture_rect = {
-				.x = 0,
-				.y = 0,
-				.width = (float)move_button.width,
-				.height = (float)move_button.height,
-			};
+				Rectangle texture_rect = {
+				     .x = 0,
+				     .y = 0,
+				     .width = (float)move_button.width,
+				     .height = (float)move_button.height,
+				};
 
-			Rectangle options = this->ui_elements[1];
-			DrawTexturePro(move_button, texture_rect, options, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
+			        Rectangle options = this->ui_elements[1];
+			        DrawTexturePro(move_button, texture_rect, options, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
+				break;
+				}
+			case HEX_INFO:{
+				Texture2D &info_rect= texture_map[grid::INFO_RECT];
+
+				Rectangle texture_rect = {
+				     .x = 0,
+				     .y = 0,
+				     .width = (float)info_rect.width,
+				     .height = (float)info_rect.height,
+				};
+
+			        Rectangle options = this->ui_elements[1];
+			        DrawTexturePro(info_rect, texture_rect, options, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
+				}
+				break;
+			default:
+				break;
 		}
 	}
 }

@@ -25,7 +25,8 @@ namespace engine {
 		IDLE,
 		UNIT1,
 		OPTIONS,
-		INFO,
+		HEX_INFO,
+		UNIT_INFO,
 		MOVING,
 	};
 
@@ -54,12 +55,14 @@ class Game{
 
 		//All Transition functions change state and state should only be changed in transition functions
 		
+		void hexInfoTransition(inputAlphabet input, void *selection);
 		//transitions fsm from idle to another state
 		void idleTransition(inputAlphabet input, void *selection);
 
 		//transitions fsm from option to another state
 		void optionTransition(inputAlphabet input, void *selection);
 
+		void unitInfoTransition(inputAlphabet input, void *selection);
 		//transitions fsm from unit to another state
 		void unitTransition(inputAlphabet input, void *selection);
 
@@ -68,7 +71,6 @@ class Game{
 
 		//transitions to idle state or calls menu
 		void escape();
-
 
 		//searches for collisions with properties of a hexagon and potentially transitions state
 		void handleCollision(HexSpace *collided_hex, Vector2 mouse_point);
