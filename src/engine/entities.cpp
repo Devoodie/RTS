@@ -8,7 +8,7 @@ Unit::Unit(HexSpace *hex, UnitType type) {
 	};
 
 	//add half of the width and height to the x and y (respectively)
-	collision_rec = {
+	render_rect = {
 		.x = hex->x - grid::inradius / 2,
 		.y = hex ->y - grid::radius / 2,
 		.width = grid::inradius,

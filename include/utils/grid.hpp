@@ -41,11 +41,15 @@ enum textures {
 	GRASS_HEX = 0,
 	GRASS_BORDER,
 	DARK_SOLIDER,
+	FIRE_BUTTON,
+	MOVE_BUTTON,
 };
 
 void initGrid(const int row, const int col, std::vector<std::vector<HexSpace>> &grid);
 
-void renderGrid(std::unordered_map<int, Texture2D> textures, std::vector<std::vector<HexSpace>> grid, int debug);
+void renderUnits(std::unordered_map<int, Texture2D> texture_map, std::vector<Unit*> units);
+
+void renderGrid(std::unordered_map<int, Texture2D> textures, std::vector<std::vector<HexSpace>> grid,const bool debug);
 
 void initAssets(std::unordered_map<int , Texture2D> &texture_map);
 
