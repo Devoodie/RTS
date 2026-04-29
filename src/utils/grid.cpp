@@ -86,12 +86,12 @@ void initGrid(const int row, const int col, std::vector<std::vector<HexSpace>> &
 			};
 
 			CurrentHex->vertices[2] = { 
-				.x = CurrentHex->x -x_offset,
-				.y = CurrentHex->y + -(y_offset),
+				.x = CurrentHex->x - x_offset,
+				.y = CurrentHex->y + - (y_offset),
 			};
 
 			CurrentHex->vertices[3] = { 
-				.x = CurrentHex->x + -x_offset,
+				.x = CurrentHex->x + - x_offset,
 				.y = CurrentHex->y + y_offset,
 			};
 

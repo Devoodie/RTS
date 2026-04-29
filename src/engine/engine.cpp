@@ -6,7 +6,7 @@
 #include <unordered_map>
 
 Player::Player(){
-	units = std::vector<Unit>();
+	units = std::vector<Unit*>();
 	units.reserve(12);
 }
 

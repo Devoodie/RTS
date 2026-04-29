@@ -6,7 +6,7 @@
 
 class Player {
 	public:
-		std::vector<Unit> units;
+		std::vector<Unit*> units;
 	//structures Aidan ARRAYLIST
 	//resources
 
