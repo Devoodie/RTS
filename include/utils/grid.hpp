@@ -16,6 +16,7 @@ class HexSpace {
 		float x;
 		float y;
 		Unit *occupier;
+		int move_cost;
 
 		Vector2 vertices[6];
 	HexSpace();
@@ -44,6 +45,9 @@ enum textures {
 	FIRE_BUTTON,
 	MOVE_BUTTON,
 };
+
+//return a path that the unit should take from source to destination
+std::vector<HexSpace> astar(HexSpace source, HexSpace destination, std::vector<std::vector<HexSpace>> &grid);
 
 void initGrid(const int row, const int col, std::vector<std::vector<HexSpace>> &grid);
 
