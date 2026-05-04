@@ -81,10 +81,25 @@ namespace engine {
 			case UNIT: {
 				std::cout << "Unit Selected" << std::endl;
 				Unit *unit_ptr = (Unit*)selection;
-				this->selected_unit = unit_ptr;
-				this->selected_hex = unit_ptr->current_hex;
-				this->state = UNIT1;
-				break;
+
+				bool unit_owned = false;
+				for(int i = 0; i < this->players[player_index].units.size(); ++i){
+					Unit *current_ptr = players[player_index].units[this->player_index];
+					if(current_ptr == unit_ptr){
+						unit_owned = true;
+						break;
+					}
+				}
+
+				if(unit_owned){
+					this->selected_unit = unit_ptr;
+					this->selected_hex = unit_ptr->current_hex;
+					this->state = UNIT1;
+					break;
+				} else {
+					//WORK HERE
+					this->state = UNIT_INFO;
+				}
 				   }
 			case HEX:
 				this->selected_hex = (HexSpace*)selection;
