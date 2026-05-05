@@ -33,7 +33,9 @@ namespace engine {
 	//ADD STATE CHANGES
 	void Game::endTurn(){
 		std::cout << "End Turn!" << std::endl;
+		this->escape();
 		player_index = (player_index + 1) % player_count;
+		std::cout << "Player Index: " << player_index;
 		//state transition
 
 		return;
@@ -84,7 +86,7 @@ namespace engine {
 
 				bool unit_owned = false;
 				for(int i = 0; i < this->players[player_index].units.size(); ++i){
-					Unit *current_ptr = players[player_index].units[this->player_index];
+					Unit *current_ptr = players[player_index].units[i];
 					if(current_ptr == unit_ptr){
 						unit_owned = true;
 						break;
@@ -97,6 +99,7 @@ namespace engine {
 					this->state = UNIT1;
 					break;
 				} else {
+					//SHOW COMPARISON
 					//WORK HERE
 					this->state = UNIT_INFO;
 				}
@@ -351,6 +354,7 @@ namespace engine {
 			        DrawTexturePro(move_button, texture_rect, options, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
 				break;
 				}
+			case UNIT_INFO:
 			case HEX_INFO:{
 				Texture2D &info_rect= texture_map[grid::INFO_RECT];
 
