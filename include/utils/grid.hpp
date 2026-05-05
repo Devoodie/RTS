@@ -46,8 +46,15 @@ enum textures {
 	MOVE_BUTTON,
 };
 
-//return a path that the unit should take from source to destination
-std::vector<HexSpace> astar(HexSpace source, HexSpace destination, std::vector<std::vector<HexSpace>> &grid);
+/// Calculates the shortest past from source to destination
+/// @param source The source HexSpace
+/// @param destination The destination HexSpace
+/// @param grid The grid containing the source and destination HexSpace
+/// @return The path from source to destination, will only contain source on error
+std::vector<HexSpace> astar(
+	const HexSpace &source,
+	const HexSpace &destination,
+	const std::vector<std::vector<HexSpace>> &grid);
 
 void initGrid(const int row, const int col, std::vector<std::vector<HexSpace>> &grid);
 
