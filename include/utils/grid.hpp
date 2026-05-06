@@ -19,6 +19,10 @@ class HexSpace {
 		int move_cost;
 
 		Vector2 vertices[6];
+		bool operator==(const HexSpace& other) const {
+			return x == other.x && y == other.y;
+		}
+
 	HexSpace();
 };
 
@@ -52,8 +56,8 @@ enum textures {
 /// @param grid The grid containing the source and destination HexSpace
 /// @return The path from source to destination, will only contain source on error
 std::vector<HexSpace> astar(
-	const HexSpace &source,
-	const HexSpace &destination,
+	HexSpace &source,
+	HexSpace &destination,
 	const std::vector<std::vector<HexSpace>> &grid);
 
 void initGrid(const int row, const int col, std::vector<std::vector<HexSpace>> &grid);
