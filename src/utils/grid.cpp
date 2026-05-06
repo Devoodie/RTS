@@ -5,7 +5,7 @@
 #include "../../include/utils/grid.hpp"
 #include <engine/entities.hpp>
 #include <raylib.h>
-#include <cmath>
+#include <memory>
 
 HexSpace::HexSpace (){
 	x = 0;
@@ -37,12 +37,18 @@ namespace grid {
 	}
 
 	// Returns a path reconstruction where path[0] is currentNode
-	std::vector<HexSpace> reconstructPath(const std::vector<Node> &nodeList, const Node *currentNode) {
+	std::vector<HexSpace> reconstructPath(const Node *currentNode) {
+		std::vector<HexSpace> wPath;
 		std::vector<HexSpace> path;
 
 		while (currentNode != nullptr) {
-			path.push_back(currentNode->space);
+			wPath.push_back(currentNode->space);
 			currentNode = currentNode->parent;
+		}
+
+		while (!wPath.empty()) {
+			path.push_back(wPath.back());
+			wPath.pop_back();
 		}
 
 		return path;
@@ -53,35 +59,36 @@ namespace grid {
 		HexSpace &destination,
 		const std::vector<std::vector<HexSpace>> &grid)
 	{
-		auto closedList = std::vector<Node>();
-		auto openList   = std::vector<Node>();
+		auto closedList = std::vector<Node*>();
+		auto openList   = std::vector<Node*>();
 
-		Node startNode = {
+		auto startNode = std::make_unique<Node>(Node{
 			source,
 			nullptr,
 			0,
 			euclideanDistance(source, destination)
-		};
+		});
 
-		openList.push_back(startNode);
+		openList.push_back(startNode.get());
 
 		while (!openList.empty()) {
-			const Node *currentNode = &openList.back();
+			Node* currentNode = openList.back();
 
 			// Set currentNode as node with lowest heuristic
-			for (auto & i : openList) {
-				if (i.heuristic < currentNode->heuristic) {
-					currentNode = &i;
+			for (const auto & i : openList) {
+				if (i->totalCost() < currentNode->totalCost()) {
+					currentNode = i;
 				}
 			}
 
 			// Return if destination has been reached
 			if (currentNode->space == destination) {
-				return reconstructPath(openList, currentNode);
+				return reconstructPath(currentNode);
 			}
 
 			// Move currentNode from open to closed
 
+			// USE UNIQUE PTR TO MAKE NEW NODES AND AVOID DANGLING
 			// Check all neighboring nodes
 
 				// Skip nodes in closed list
