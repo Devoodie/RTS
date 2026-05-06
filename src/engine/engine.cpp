@@ -128,7 +128,7 @@ namespace engine {
 				break;
 			case HEX:
 				//WRONG WORK HERE
-				this->selected_hex = (HexSpace*)selection;
+				this->selected_hex2 = (HexSpace*)selection;
 				this->MousePosition = GetMousePosition();
 
 				this->ui_elements[1].x = MousePosition.x + grid::inradius / 4;
@@ -254,30 +254,29 @@ namespace engine {
 		Vector2 mouse_point = GetMousePosition();
 		//0 endturn button, 1 Others(????), 
 		//may need to change the way this works to switch on states instead of ui elements
-		for(int i = 0; i < ui_elements.size(); ++i){
-			switch(i){
-				//end turn
-				case 0:
-					if(CheckCollisionPointRec(mouse_point, ui_elements[0]) and IsMouseButtonReleased(0)){
-						std::cout << "ENDTURN" << std::endl;
-						this->endTurn();
-						return true;
-					}
-				case 1:
-					if(this->ui_elements.size() < 2) continue;
-					if(CheckCollisionPointRec(mouse_point, ui_elements[1]) and IsMouseButtonReleased(0)){
-						selected_unit->position.x = selected_hex2->x;
-						selected_unit->position.y = selected_hex2->y;
-						this->state = MOVING;
-						std::cout << "MOVE!" << std::endl;
-						return true;
-					}
-				default:
-					//std::cerr << "UI element " << i << " Not Recognized" << std::endl;
-					return false;
-			};
+		
+		if(CheckCollisionPointRec(mouse_point, ui_elements[0]) and IsMouseButtonReleased(0)){
+			std::cout << "ENDTURN" << std::endl;
+			this->endTurn();
+			return true;
 		}
-		return false;
+		if(this->ui_elements.size() < 2) return false;
+
+		switch(this->state){
+			//end turn
+			case OPTIONS:
+				if(CheckCollisionPointRec(mouse_point, ui_elements[1]) and IsMouseButtonReleased(0)){
+					selected_unit->position.x = selected_hex2->x;
+					selected_unit->position.y = selected_hex2->y;
+					this->state = MOVING;
+					std::cout << "MOVE!" << std::endl;
+					return true;
+				}
+			default:
+				//std::cerr << "UI element " << i << " Not Recognized" << std::endl;
+				return false;
+		};
+	return false;
 	}
 
 	//moves units
