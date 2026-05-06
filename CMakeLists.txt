@@ -1,47 +1,34 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.10)
-PROJECT(RTS)
+cmake_minimum_required(VERSION 3.10)
+project(RTS LANGUAGES CXX)
 
-SET(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-OPTION(RTS_BUILD_TESTS "Build RTS Tests" OFF)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Apple specific
-IF(APPLE)
-    LIST(APPEND CMAKE_PREFIX_PATH "/opt/homebrew")
-ENDIF()
+option(RTS_BUILD_TESTS "Build RTS Tests" OFF)
 
-# Raylib
-FIND_PACKAGE(raylib CONFIG REQUIRED)
+if(APPLE)
+    list(APPEND CMAKE_PREFIX_PATH "/opt/homebrew")
+endif()
 
-# Main executable
-ADD_EXECUTABLE(main "./main.cpp")
-SET_PROPERTY(TARGET main PROPERTY CXX_STANDARD 23)
-TARGET_INCLUDE_DIRECTORIES(main PRIVATE "./include")
+find_package(raylib CONFIG REQUIRED)
 
-# Test executable
-IF(RTS_BUILD_TESTS)
-    ADD_EXECUTABLE(testArrayList "src/tests/testArrayList.c")
-    SET_PROPERTY(TARGET testArrayList PROPERTY CXX_STANDARD 23)
-    TARGET_INCLUDE_DIRECTORIES(testArrayList PRIVATE "./include")
-    TARGET_LINK_LIBRARIES(testArrayList PRIVATE arraylist)
-ENDIF()
+add_library(grid STATIC src/utils/grid.cpp)
+target_include_directories(grid PUBLIC include)
+target_link_libraries(grid PUBLIC raylib)
 
-# Grid library
-ADD_LIBRARY(grid STATIC "src/utils/grid.cpp")
-SET_PROPERTY(TARGET grid PROPERTY CXX_STANDARD 23)
-TARGET_INCLUDE_DIRECTORIES(grid PRIVATE "./include")
+add_library(entities STATIC src/engine/entities.cpp)
+target_include_directories(entities PUBLIC include)
+target_link_libraries(entities PUBLIC grid)
 
-# Entity Library
-ADD_LIBRARY(entities STATIC "src/engine/entities.cpp")
-SET_PROPERTY(TARGET entities PROPERTY CXX_STANDARD 23)
-TARGET_INCLUDE_DIRECTORIES(entities PRIVATE "./include")
+add_library(engine STATIC src/engine/engine.cpp)
+target_include_directories(engine PUBLIC include)
+target_link_libraries(engine PUBLIC entities grid)
 
-# Engine Library
-ADD_LIBRARY(engine STATIC "src/engine/engine.cpp")
-SET_PROPERTY(TARGET engine PROPERTY CXX_STANDARD 23)
-TARGET_INCLUDE_DIRECTORIES(engine PRIVATE "./include")
+add_executable(main main.cpp)
+target_link_libraries(main PRIVATE engine)
 
-# Link libraries
-TARGET_LINK_LIBRARIES(grid PRIVATE raylib)
-TARGET_LINK_LIBRARIES(entities PUBLIC grid)
-TARGET_LINK_LIBRARIES(grid PUBLIC entities)
-TARGET_LINK_LIBRARIES(main PRIVATE grid engine)
+if(RTS_BUILD_TESTS)
+    add_executable(tests src/tests/tests.cpp)
+    target_link_libraries(tests PRIVATE engine)
+endif()
