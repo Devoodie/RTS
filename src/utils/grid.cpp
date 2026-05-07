@@ -6,6 +6,7 @@
 #include <engine/entities.hpp>
 #include <raylib.h>
 #include <memory>
+#include <algorithm>
 
 HexSpace::HexSpace (){
 	x = 0;
@@ -36,7 +37,7 @@ namespace grid {
 		return static_cast<int>(std::sqrt(std::pow(a.x - b.x, 2) + std::pow(a.y - b.y, 2)));
 	}
 
-	// Returns a path reconstruction where path[0] is currentNode
+	// Returns a path reconstruction where path[0] is start
 	std::vector<HexSpace> reconstructPath(const Node *currentNode) {
 		std::vector<HexSpace> wPath;
 		std::vector<HexSpace> path;
@@ -61,6 +62,9 @@ namespace grid {
 	{
 		auto closedList = std::vector<Node*>();
 		auto openList   = std::vector<Node*>();
+		auto nodeList   = std::vector<std::unique_ptr<Node>>();
+
+		// TODO: Roll through &grid and make Nodes for nodeList, set startNode as the start
 
 		auto startNode = std::make_unique<Node>(Node{
 			source,
@@ -72,14 +76,13 @@ namespace grid {
 		openList.push_back(startNode.get());
 
 		while (!openList.empty()) {
-			Node* currentNode = openList.back();
+			// Set currentNode as node with the lowest total cost
+			std::ranges::sort(openList, [](const Node* a, const Node* b)
+			{
+				return a->totalCost() > b->totalCost();
+			});
 
-			// Set currentNode as node with lowest heuristic
-			for (const auto & i : openList) {
-				if (i->totalCost() < currentNode->totalCost()) {
-					currentNode = i;
-				}
-			}
+			Node* currentNode = openList.back();
 
 			// Return if destination has been reached
 			if (currentNode->space == destination) {
@@ -87,8 +90,10 @@ namespace grid {
 			}
 
 			// Move currentNode from open to closed
+			closedList.push_back(currentNode);
+			openList.pop_back();
 
-			// USE UNIQUE PTR TO MAKE NEW NODES AND AVOID DANGLING
+			// TODO: Devise way to get all neighbors cheaply
 			// Check all neighboring nodes
 
 				// Skip nodes in closed list
