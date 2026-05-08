@@ -13,11 +13,20 @@ class Unit;
 class HexSpace {	
 	public:
 		HexSpace *neighbors[6] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
-		float x;
-		float y;
+		float x_position;
+		float y_position;
+
+		int x_index;
+		int y_index;
+
 		Unit *occupier;
+		int move_cost;
 
 		Vector2 vertices[6];
+		bool operator==(const HexSpace& other) const {
+			return x_position == other.x_position && y_position == other.y_position;
+		}
+
 	HexSpace();
 };
 

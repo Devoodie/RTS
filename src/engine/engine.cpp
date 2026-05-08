@@ -129,7 +129,11 @@ namespace engine {
 			case HEX:{
 				//WRONG WORK HERE
 				HexSpace *hex_ptr = (HexSpace*)selection;
-				if(hex_ptr->occupier != nullptr) return;
+				if(hex_ptr->occupier != nullptr){ 
+					this->ui_elements[1].x = 16384;
+					this->ui_elements[1].y = 16384;
+					return;
+				};
 				this->selected_hex2 = hex_ptr;
 				this->MousePosition = GetMousePosition();
 
@@ -150,8 +154,9 @@ namespace engine {
 					this->escape();
 					return;
 				}
+
 				//UNIT COMPARISON
-				this->selected_unit2 = unit_ptr;
+				//this->selected_unit2 = unit_ptr;
 				  }
 			case HEX:
 				std::cout << "Hex 2 Selected" << std::endl;
@@ -278,8 +283,8 @@ namespace engine {
 			//end turn
 			case OPTIONS:
 				if(CheckCollisionPointRec(mouse_point, ui_elements[1]) and IsMouseButtonReleased(0)){
-					selected_unit->position.x = selected_hex2->x;
-					selected_unit->position.y = selected_hex2->y;
+					selected_unit->position.x = selected_hex2->x_position;
+					selected_unit->position.y = selected_hex2->y_position;
 					this->state = MOVING;
 					std::cout << "MOVE!" << std::endl;
 					return true;
