@@ -38,12 +38,12 @@ namespace grid {
 	}
 
 	// Returns a path reconstruction where path[0] is start
-	std::vector<HexSpace> reconstructPath(const Node *currentNode) {
-		std::vector<HexSpace> wPath;
-		std::vector<HexSpace> path;
+	std::vector<HexSpace*> reconstructPath(const Node *currentNode) {
+		std::vector<HexSpace*> wPath;
+		std::vector<HexSpace*> path;
 
 		while (currentNode != nullptr) {
-			wPath.push_back(currentNode->space);
+			wPath.push_back(&currentNode->space);
 			currentNode = currentNode->parent;
 		}
 
@@ -55,25 +55,41 @@ namespace grid {
 		return path;
 	}
 
-	std::vector<HexSpace> astar(
+	std::vector<HexSpace*> astar(
 		HexSpace &source,
-		HexSpace &destination,
-		const std::vector<std::vector<HexSpace>> &grid)
+		const HexSpace &destination,
+		std::vector<std::vector<HexSpace>> &grid)
 	{
 		auto closedList = std::vector<Node*>();
 		auto openList   = std::vector<Node*>();
-		auto nodeList   = std::vector<std::unique_ptr<Node>>();
+		auto nodeList   = std::unordered_map<HexSpace*, std::unique_ptr<Node>>();
+		Node* startNode = nullptr;
+		static int maxCost = 9999;
 
-		// TODO: Roll through &grid and make Nodes for nodeList, set startNode as the start
+		// Create nodes for each HexSpace in grid, set startNode
+		for (auto &x : grid) {
+			for (auto &y : x) {
+				nodeList.emplace(&y, std::make_unique<Node>(
+					Node{
+					y,
+					nullptr,
+					maxCost,
+						maxCost
+				}
+				));
+			}
+		}
 
-		auto startNode = std::make_unique<Node>(Node{
-			source,
-			nullptr,
-			0,
-			euclideanDistance(source, destination)
-		});
+		if (nodeList.contains(&source)) {
+			startNode = nodeList.at(&source).get();
+			startNode->moveCost = 0;
+			startNode->heuristic = 0;
+		} else {
+			// Add error logging here if engine-applicable
+			return std::vector(1, &source); // source not found on provided grid
+		}
 
-		openList.push_back(startNode.get());
+		openList.push_back(startNode);
 
 		while (!openList.empty()) {
 			// Set currentNode as node with the lowest total cost
@@ -85,7 +101,7 @@ namespace grid {
 			Node* currentNode = openList.back();
 
 			// Return if destination has been reached
-			if (currentNode->space == destination) {
+			if (&currentNode->space == &destination) {
 				return reconstructPath(currentNode);
 			}
 
@@ -93,18 +109,35 @@ namespace grid {
 			closedList.push_back(currentNode);
 			openList.pop_back();
 
-			// TODO: Devise way to get all neighbors cheaply
+			// Establish list of neighbors
+			std::vector<Node*> neighbors;
+			for (auto & neighbor : currentNode->space.neighbors) {
+				if (neighbor != nullptr) {
+					neighbors.push_back(nodeList.at(neighbor).get());
+				}
+			}
+
 			// Check all neighboring nodes
+			for (auto &neighbor : neighbors) {
+				if (std::ranges::contains(closedList, neighbor)) continue;
 
-				// Skip nodes in closed list
+				int tentativeCost =
+					currentNode->moveCost + euclideanDistance(currentNode->space, neighbor->space);
 
-				// Calculate tentative cost
+				if (!std::ranges::contains(openList, neighbor)) {
+					openList.push_back(neighbor);
+				} else if (tentativeCost > neighbor->moveCost) {
+					continue;
+				}
 
-				//
+				neighbor->parent = currentNode;
+				neighbor->moveCost = tentativeCost;
+				neighbor->heuristic = euclideanDistance(neighbor->space, destination);
+			}
 		}
 
 		// Return just source on failure
-		return std::vector(1, source);
+		return std::vector(1, &source);
 	}
 
 	void initGrid(const int row, const int col, std::vector<std::vector<HexSpace>> &grid_space){
