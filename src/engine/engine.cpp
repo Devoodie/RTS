@@ -126,15 +126,17 @@ namespace engine {
 		switch(input){
 			case UNIT:
 				break;
-			case HEX:
+			case HEX:{
 				//WRONG WORK HERE
-				HexSpace *hex_ptr = 
-				this->selected_hex2 = (HexSpace*)selection;
+				HexSpace *hex_ptr = (HexSpace*)selection;
+				if(hex_ptr->occupier != nullptr) return;
+				this->selected_hex2 = hex_ptr;
 				this->MousePosition = GetMousePosition();
 
 				this->ui_elements[1].x = MousePosition.x + grid::inradius / 4;
 				this->ui_elements[1].y = MousePosition.y;
 				break;
+				 }
 			default:
 				return;
 		}
@@ -153,8 +155,11 @@ namespace engine {
 				  }
 			case HEX:
 				std::cout << "Hex 2 Selected" << std::endl;
+				HexSpace* hex_ptr = (HexSpace*) selection;
+				if(hex_ptr->occupier != nullptr) return; 
+
+				this->selected_hex2 = hex_ptr;
 				this->MousePosition = GetMousePosition();
-				this->selected_hex2 = (HexSpace*) selection;
 				this->state = OPTIONS;
 
 				if(this->ui_elements.size() > 1) this->ui_elements.erase(ui_elements.begin() + 1);
@@ -288,29 +293,29 @@ namespace engine {
 
 	//moves units
 	void Game::Move(){
-		Unit *unit = this->selected_unit;
+		Unit *unit_ptr = this->selected_unit;
 
 		Vector2 destRect = {
-			.x = unit->position.x - grid::inradius / 2,
-			.y = unit->position.y - grid::radius  / 2,
+			.x = unit_ptr->position.x - grid::inradius / 2,
+			.y = unit_ptr->position.y - grid::radius  / 2,
 		};
 
-		if(destRect.x != unit->render_rect.x or destRect.y != unit->render_rect.y){
+		if(destRect.x != unit_ptr->render_rect.x or destRect.y != unit_ptr->render_rect.y){
 
-//			std::cout << "Position: (" << unit->render_rect.x << "," << unit->render_rect.y << ")\n" <<"Desired Position: (" << destRect.x << " ," << destRect.y << ")" << std::endl;
+//			std::cout << "Position: (" << unit_ptr->render_rect.x << "," << unit_ptr->render_rect.y << ")\n" <<"Desired Position: (" << destRect.x << " ," << destRect.y << ")" << std::endl;
 			Vector2 renderRect = {
-				.x = unit->render_rect.x, 
-				.y = unit->render_rect.y
+				.x = unit_ptr->render_rect.x, 
+				.y = unit_ptr->render_rect.y
 			};
 
 			float max_dist = GetFrameTime() * 240;
 			Vector2 new_pos = Vector2MoveTowards(renderRect, destRect, max_dist);
 
-			unit->render_rect.x = new_pos.x;
-			unit->render_rect.y = new_pos.y;
+			unit_ptr->render_rect.x = new_pos.x;
+			unit_ptr->render_rect.y = new_pos.y;
 		} else {
 			selected_hex->occupier = NULL;
-			selected_hex2->occupier = unit;
+			selected_hex2->occupier = unit_ptr;
 			escape();
 		}
 	}
