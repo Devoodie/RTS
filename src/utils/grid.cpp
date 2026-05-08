@@ -33,7 +33,7 @@ namespace grid {
 	};
 
 	// Returns a heuristic using Euclidean approximation
-	int euclideanDistance(const HexSpace &a, const HexSpace &b) {
+	int getHeuristicDistance(const HexSpace &a, const HexSpace &b) {
 		return static_cast<int>(std::sqrt(std::pow(a.x - b.x, 2) + std::pow(a.y - b.y, 2)));
 	}
 
@@ -73,7 +73,7 @@ namespace grid {
 					Node{
 					y,
 					nullptr,
-					maxCost,
+					y.move_cost,
 						maxCost
 				}
 				));
@@ -112,7 +112,8 @@ namespace grid {
 			// Establish list of neighbors
 			std::vector<Node*> neighbors;
 			for (auto & neighbor : currentNode->space.neighbors) {
-				if (neighbor != nullptr) {
+				if (neighbor != nullptr &&
+					nodeList.contains(neighbor)) {
 					neighbors.push_back(nodeList.at(neighbor).get());
 				}
 			}
@@ -121,8 +122,13 @@ namespace grid {
 			for (auto &neighbor : neighbors) {
 				if (std::ranges::contains(closedList, neighbor)) continue;
 
-				int tentativeCost =
-					currentNode->moveCost + euclideanDistance(currentNode->space, neighbor->space);
+				if (neighbor->space.occupier != nullptr &&
+					&neighbor->space != &destination) continue;
+
+				const int tentativeCost =
+					currentNode->moveCost
+					+ getHeuristicDistance(currentNode->space, neighbor->space)
+					+ neighbor->space.move_cost;
 
 				if (!std::ranges::contains(openList, neighbor)) {
 					openList.push_back(neighbor);
@@ -132,7 +138,7 @@ namespace grid {
 
 				neighbor->parent = currentNode;
 				neighbor->moveCost = tentativeCost;
-				neighbor->heuristic = euclideanDistance(neighbor->space, destination);
+				neighbor->heuristic = getHeuristicDistance(neighbor->space, destination);
 			}
 		}
 
