@@ -30,7 +30,7 @@ target_link_libraries(main PRIVATE engine)
 
 if(RTS_BUILD_TESTS)
     find_package(GTest CONFIG REQUIRED)
-    add_executable(tests src/tests/tests.cpp
+    add_executable(tests
             src/tests/astartest.cpp)
     target_link_libraries(tests PRIVATE
             engine

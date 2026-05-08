@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include "../../include/utils/grid.hpp"
+#include "utils/grid.hpp"
 #include <engine/entities.hpp>
 #include <raylib.h>
 #include <memory>
