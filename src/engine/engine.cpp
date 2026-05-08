@@ -128,6 +128,7 @@ namespace engine {
 				break;
 			case HEX:
 				//WRONG WORK HERE
+				HexSpace *hex_ptr = 
 				this->selected_hex2 = (HexSpace*)selection;
 				this->MousePosition = GetMousePosition();
 
@@ -147,6 +148,7 @@ namespace engine {
 					this->escape();
 					return;
 				}
+				//UNIT COMPARISON
 				this->selected_unit2 = unit_ptr;
 				  }
 			case HEX:
@@ -173,10 +175,14 @@ namespace engine {
 				if(new_unit == selected_unit) this->escape();
 				break;
 				  }
-			case HEX:
+			case HEX:{
 				std::cout << "Hex 2 Selected" << std::endl;
+				HexSpace *hex_ptr = (HexSpace*) selection;
+				
+				if(hex_ptr->occupier != nullptr) return;
+
 				this->MousePosition = GetMousePosition();
-				this->selected_hex2 = (HexSpace*) selection;
+				this->selected_hex2 = hex_ptr;
 				this->state = OPTIONS;
 
 				//create ui element for options
@@ -187,6 +193,7 @@ namespace engine {
 					.height = grid::radius / 2,
 					});
 				break;
+				 }
 			default:
 				return;
 		}
