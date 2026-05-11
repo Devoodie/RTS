@@ -25,7 +25,7 @@ namespace grid {
 	float inradius = 0;
 
 	struct Node {
-		HexSpace &space;
+		const HexSpace &space;
 		Node *parent;
 		int moveCost;
 		int heuristic;
@@ -38,9 +38,9 @@ namespace grid {
 	}
 
 	// Returns a path reconstruction where path[0] is start
-	std::vector<HexSpace*> reconstructPath(const Node *currentNode) {
-		std::vector<HexSpace*> wPath;
-		std::vector<HexSpace*> path;
+	std::vector<const HexSpace*> reconstructPath(const Node *currentNode) {
+		std::vector<const HexSpace*> wPath;
+		std::vector<const HexSpace*> path;
 
 		while (currentNode != nullptr) {
 			wPath.push_back(&currentNode->space);
@@ -55,14 +55,14 @@ namespace grid {
 		return path;
 	}
 
-	std::vector<HexSpace*> astar(
-		HexSpace &source,
+	std::vector<const HexSpace*> astar(
+		const HexSpace &source,
 		const HexSpace &destination,
-		std::vector<std::vector<HexSpace>> &grid)
+		const std::vector<std::vector<HexSpace>> &grid)
 	{
 		auto closedList = std::vector<Node*>();
 		auto openList   = std::vector<Node*>();
-		auto nodeList   = std::unordered_map<HexSpace*, std::unique_ptr<Node>>();
+		auto nodeList   = std::unordered_map<const HexSpace*, std::unique_ptr<Node>>();
 		Node* startNode = nullptr;
 		static int maxCost = 9999;
 

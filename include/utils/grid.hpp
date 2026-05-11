@@ -56,10 +56,10 @@ enum textures {
 /// @param destination The destination HexSpace
 /// @param grid The grid containing the source and destination HexSpace
 /// @return The path from source to destination, will only contain source on error
-std::vector<HexSpace*> astar(
-	HexSpace &source,
+std::vector<const HexSpace*> astar(
+	const HexSpace &source,
 	const HexSpace &destination,
-	std::vector<std::vector<HexSpace>> &grid);
+	const std::vector<std::vector<HexSpace>> &grid);
 
 void initGrid(const int row, const int col, std::vector<std::vector<HexSpace>> &grid);
 

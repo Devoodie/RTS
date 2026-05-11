@@ -31,7 +31,7 @@ bool AreNeighbors(const HexSpace* a, const HexSpace* b) {
 }
 
 void ExpectValidPath(
-    const std::vector<HexSpace*>& path,
+    const std::vector<const HexSpace*>& path,
     HexSpace& source,
     const HexSpace& destination
 ) {
@@ -55,7 +55,7 @@ TEST(AStarTest, SourceEqualsDestinationReturnsSourceOnly) {
     HexSpace& source = map[1][1];
     const HexSpace& destination = map[1][1];
 
-    std::vector<HexSpace*> path =
+    std::vector<const HexSpace*> path =
         grid::astar(source, destination, map);
 
     ASSERT_EQ(path.size(), 1u);
@@ -72,7 +72,7 @@ TEST(AStarTest, FindsPathToAdjacentHex) {
     const HexSpace& destination =
         *source.neighbors[grid::EAST];
 
-    std::vector<HexSpace*> path =
+    std::vector<const HexSpace*> path =
         grid::astar(source, destination, map);
 
     ExpectValidPath(path, source, destination);
@@ -85,7 +85,7 @@ TEST(AStarTest, FindsPathAcrossGrid) {
     HexSpace& source = map[0][0];
     const HexSpace& destination = map[5][5];
 
-    std::vector<HexSpace*> path =
+    std::vector<const HexSpace*> path =
         grid::astar(source, destination, map);
 
     ExpectValidPath(path, source, destination);
@@ -97,7 +97,7 @@ TEST(AStarTest, ReturnsSourceOnlyWhenSourceIsNotInGrid) {
     HexSpace sourceOutsideGrid;
     const HexSpace& destination = map[0][0];
 
-    std::vector<HexSpace*> path =
+    std::vector<const HexSpace*> path =
         grid::astar(sourceOutsideGrid, destination, map);
 
     ASSERT_EQ(path.size(), 1u);
@@ -114,7 +114,7 @@ TEST(AStarTest, ReturnsSourceOnlyWhenNoPathExists) {
         neighbor = nullptr;
     }
 
-    std::vector<HexSpace*> path =
+    std::vector<const HexSpace*> path =
         grid::astar(source, destination, map);
 
     ASSERT_EQ(path.size(), 1u);
