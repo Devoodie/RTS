@@ -111,7 +111,7 @@ namespace grid {
 
 			// Establish list of neighbors
 			std::vector<Node*> neighbors;
-			for (auto & neighbor : currentNode->space.neighbors) {
+			for (const HexSpace* neighbor : currentNode->space.neighbors) {
 				if (neighbor != nullptr &&
 					nodeList.contains(neighbor)) {
 					neighbors.push_back(nodeList.at(neighbor).get());
