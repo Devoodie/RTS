@@ -7,8 +7,8 @@
 #include <raylib.h>
 
 HexSpace::HexSpace (){
-	x = 0;
-	y = 0;
+	x_position = 0;
+	y_position = 0;
 	occupier = nullptr;
 };
 
@@ -45,7 +45,6 @@ void initGrid(const int row, const int col, std::vector<std::vector<HexSpace>> &
 
 		for(int j = 0; j < col; j++){
 			HexSpace *CurrentHex = &grid_space[i][j];
-
 			//cannot traverse off of the map 
 		
 
@@ -69,40 +68,42 @@ void initGrid(const int row, const int col, std::vector<std::vector<HexSpace>> &
 
 			}
 
-			CurrentHex->x = x;
-			CurrentHex->y = y;
+			CurrentHex->x_position = x;
+			CurrentHex->y_position = y;
+			CurrentHex->x_index = j;
+			CurrentHex->y_index = i;
 
 			float x_offset = (sqrt(3) / 2) * radius;
 			float y_offset = radius / 2;
 
 			CurrentHex->vertices[0] = { 
-				.x = CurrentHex->x + x_offset, 
-				.y = CurrentHex->y + -y_offset,
+				.x = CurrentHex->x_position + x_offset, 
+				.y = CurrentHex->y_position + -y_offset,
 			};
 
 			CurrentHex->vertices[1] = { 
-				.x = CurrentHex->x,
-				.y = CurrentHex->y -(radius),
+				.x = CurrentHex->x_position,
+				.y = CurrentHex->y_position -(radius),
 			};
 
 			CurrentHex->vertices[2] = { 
-				.x = CurrentHex->x -x_offset,
-				.y = CurrentHex->y + -(y_offset),
+				.x = CurrentHex->x_position - x_offset,
+				.y = CurrentHex->y_position + - (y_offset),
 			};
 
 			CurrentHex->vertices[3] = { 
-				.x = CurrentHex->x + -x_offset,
-				.y = CurrentHex->y + y_offset,
+				.x = CurrentHex->x_position + - x_offset,
+				.y = CurrentHex->y_position + y_offset,
 			};
 
 			CurrentHex->vertices[4] = { 
-				.x = CurrentHex->x,
-				.y = CurrentHex->y + radius,
+				.x = CurrentHex->x_position,
+				.y = CurrentHex->y_position + radius,
 			};
 
 			CurrentHex->vertices[5] = { 
-				.x = CurrentHex->x + x_offset,
-				.y = CurrentHex->y + y_offset,
+				.x = CurrentHex->x_position + x_offset,
+				.y = CurrentHex->y_position + y_offset,
 			};
 	
 			x += inradius * 2;
@@ -192,8 +193,8 @@ void renderGrid(
 			source_rectangle.height = float(texture_map[GRASS_HEX].height);
 
 			const HexSpace *CurrentHex = &grid_space[i][j];
-			hexagon_rectangle.x = CurrentHex->x - inradius; 
-			hexagon_rectangle.y = CurrentHex->y - radius - y_offset; 
+			hexagon_rectangle.x = CurrentHex->x_position - inradius; 
+			hexagon_rectangle.y = CurrentHex->y_position - radius - y_offset; 
 
 			DrawTexturePro(texture_map[GRASS_HEX], source_rectangle , hexagon_rectangle, hex_pos, 0, RAYWHITE);
 
@@ -217,7 +218,7 @@ void renderGrid(
 					    hexagon_rectangle.width, 
 					    hexagon_rectangle.height, 
 					    RED);
-			    DrawCircle(CurrentHex->x, CurrentHex->y, 3.0, RED);
+			    DrawCircle(CurrentHex->x_position, CurrentHex->y_position, 3.0, RED);
 
 			    for(int i = 0; i < 6; ++i){
 				    DrawCircle(CurrentHex->vertices[i].x, CurrentHex->vertices[i].y, 3.0, RED);
@@ -235,11 +236,15 @@ void initAssets(std::unordered_map<int, Texture2D> &texture_map){
 	const Texture2D dark_solider = LoadTexture("../assets/Dark_Solider.png");
 	const Texture2D fire_button = LoadTexture("../assets/Fire1.png");
 	const Texture2D move_button = LoadTexture("../assets/Move1.png");
+	const Texture2D info_rectangle = LoadTexture("../assets/Info_Rectangle.png");
  
 	texture_map[grid::GRASS_HEX] = hex_grass;
 	texture_map[grid::GRASS_BORDER] = grass_border;
 	texture_map[grid::DARK_SOLIDER] = dark_solider;
 	texture_map[grid::FIRE_BUTTON] = fire_button;
 	texture_map[grid::MOVE_BUTTON] = move_button;
+	texture_map[grid::INFO_RECT] = info_rectangle;
+
+
 }
 }
