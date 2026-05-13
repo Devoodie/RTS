@@ -34,7 +34,8 @@ namespace grid {
 
 	// Returns a heuristic using Euclidean approximation
 	int getHeuristicDistance(const HexSpace &a, const HexSpace &b) {
-		return static_cast<int>(std::sqrt(std::pow(a.x - b.x, 2) + std::pow(a.y - b.y, 2)));
+		return static_cast<int>(std::sqrt(std::pow(a.x_position - b.x_position, 2) +
+			std::pow(a.y_position - b.y_position, 2)));
 	}
 
 	// Returns a path reconstruction where path[0] is start
