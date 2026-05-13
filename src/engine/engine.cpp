@@ -4,6 +4,7 @@
 #include <engine/engine.hpp>
 #include <engine/entities.hpp>
 #include <unordered_map>
+#include <algorithm>
 
 Player::Player(){
 	units = std::vector<Unit*>();
@@ -61,6 +62,7 @@ namespace engine {
 					.width = grid::inradius,
 					.height = grid::radius / 2,
 					});
+				break;
 			case UI_INFO:
 				this->ui_elements.emplace_back((Rectangle){
 					.x = float((grid::ScreenWidth * 3) / 4 ),
@@ -68,6 +70,7 @@ namespace engine {
 					.width = float(grid::ScreenWidth / 4),
 					.height = float(grid::ScreenHeight),
 					});
+				break;
 		}
 	}
 
@@ -138,8 +141,14 @@ namespace engine {
 
 	void Game::optionTransition(inputAlphabet input, void *selection){
 		switch(input){
-			case UNIT:
+			case UNIT:{
+				Unit* unit_ptr = (Unit*)selection;
+				if(this->selected_unit == unit_ptr){
+					this->escape();
+					return;
+				}
 				break;
+				  }
 			case HEX:{
 				//WRONG WORK HERE
 				HexSpace *hex_ptr = (HexSpace*)selection;
