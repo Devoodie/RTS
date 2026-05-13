@@ -30,6 +30,11 @@ namespace engine {
 		MOVING,
 	};
 
+	enum uiElem {
+		UI_OPTIONS_1,
+		UI_INFO,
+	};
+
 class Game{
 	public:
 		int player_index;
@@ -71,6 +76,9 @@ class Game{
 
 		//transitions to idle state or calls menu
 		void escape();
+
+		//ui creation helper function
+		void createUiElem(uiElem ui_type);
 
 		//searches for collisions with properties of a hexagon and potentially transitions state
 		void handleCollision(HexSpace *collided_hex, Vector2 mouse_point);

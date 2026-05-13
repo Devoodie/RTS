@@ -52,6 +52,25 @@ namespace engine {
 		if(this->ui_elements.size() > 1) this->ui_elements.erase(ui_elements.begin() + 1);
 	}
 
+	void Game::createUiElem(uiElem ui_type){
+		switch(ui_type){
+			case UI_OPTIONS_1:
+				this->ui_elements.emplace_back((Rectangle){
+					.x = this->MousePosition.x + grid::inradius / 4,
+					.y = this->MousePosition.y,
+					.width = grid::inradius,
+					.height = grid::radius / 2,
+					});
+			case UI_INFO:
+				this->ui_elements.emplace_back((Rectangle){
+					.x = float((grid::ScreenWidth * 3) / 4 ),
+					.y = 0,
+					.width = float(grid::ScreenWidth / 4),
+					.height = float(grid::ScreenHeight),
+					});
+		}
+	}
+
 	void Game::hexInfoTransition(inputAlphabet input, void *selection){
 		switch(input){
 			case HEX:{
@@ -85,6 +104,7 @@ namespace engine {
 				Unit *unit_ptr = (Unit*)selection;
 
 				bool unit_owned = false;
+				//HEX INFO NEEDS THIS TOO
 				for(int i = 0; i < this->players[player_index].units.size(); ++i){
 					Unit *current_ptr = players[player_index].units[i];
 					if(current_ptr == unit_ptr){
@@ -107,13 +127,7 @@ namespace engine {
 			case HEX:
 				this->selected_hex = (HexSpace*)selection;
 				this->state = HEX_INFO;
-				this->ui_elements.emplace_back((Rectangle){
-					.x = float((grid::ScreenWidth * 3) / 4 ),
-					.y = 0,
-					.width = float(grid::ScreenWidth / 4),
-					.height = float(grid::ScreenHeight),
-					});
-
+				this->createUiElem(UI_INFO);
 				break;
 			default:
 				std::cerr << "ERR: INPUT NOT FOUND (idleTransition)" << std::endl;
@@ -168,12 +182,7 @@ namespace engine {
 				this->state = OPTIONS;
 
 				if(this->ui_elements.size() > 1) this->ui_elements.erase(ui_elements.begin() + 1);
-				this->ui_elements.emplace_back((Rectangle){
-					.x = this->MousePosition.x + grid::inradius / 4,
-					.y = this->MousePosition.y,
-					.width = grid::inradius,
-					.height = grid::radius / 2,
-					});
+				this->createUiElem(UI_OPTIONS_1);
 				break;
 
 		}
@@ -196,12 +205,7 @@ namespace engine {
 				this->state = OPTIONS;
 
 				//create ui element for options
-				this->ui_elements.emplace_back((Rectangle){
-					.x = this->MousePosition.x + grid::inradius / 4,
-					.y = this->MousePosition.y,
-					.width = grid::inradius,
-					.height = grid::radius / 2,
-					});
+				this->createUiElem(UI_OPTIONS_1);
 				break;
 				 }
 			default:
@@ -285,6 +289,11 @@ namespace engine {
 				if(CheckCollisionPointRec(mouse_point, ui_elements[1]) and IsMouseButtonReleased(0)){
 					selected_unit->position.x = selected_hex2->x_position;
 					selected_unit->position.y = selected_hex2->y_position;
+					selected_unit->current_hex = selected_hex2;
+
+					this->selected_hex->occupier = nullptr;
+					this->selected_hex2->occupier = selected_unit;
+
 					this->state = MOVING;
 					std::cout << "MOVE!" << std::endl;
 					return true;
