@@ -13,15 +13,18 @@ class Unit;
 class HexSpace {	
 	public:
 		HexSpace *neighbors[6] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
-		float x;
-		float y;
+		float x_position;
+		float y_position;
+
+		int x_index;
+		int y_index;
+
 		Unit *occupier;
 		int move_cost;
 
 		Vector2 vertices[6];
-
 		bool operator==(const HexSpace& other) const {
-			return x == other.x && y == other.y;
+			return x_position == other.x_position && y_position == other.y_position;
 		}
 
 	HexSpace();
@@ -38,10 +41,10 @@ enum cardinals {
 	NORTH_WEST = 5,
 };
 
+extern int ScreenWidth;
+extern int ScreenHeight;
 extern float radius;
 extern float inradius;
-
-
 
 enum textures {
 	GRASS_HEX = 0,
@@ -49,6 +52,7 @@ enum textures {
 	DARK_SOLIDER,
 	FIRE_BUTTON,
 	MOVE_BUTTON,
+	INFO_RECT,
 };
 
 /// Calculates the shortest past from source to destination

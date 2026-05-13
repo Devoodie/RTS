@@ -26,6 +26,10 @@ int main(void){
 	//init game class
 	engine::Game game;
 
+	int player_index = 0;
+	game.playerInit(2);
+
+
 	//initialize gridspace
 	
 	std::cout << "initialize grid" << std::endl;
@@ -33,13 +37,19 @@ int main(void){
 
 	Unit testUnit(&game.grid_space[0][0], INFANTRY);
 
+	Unit enemytestUnit(&game.grid_space[0][7], INFANTRY);
+
 	game.units.push_back(&testUnit);
+	game.units.push_back(&enemytestUnit);
+
+	game.players[0].units.push_back(&testUnit);
+	game.players[1].units.push_back(&enemytestUnit);
+	std::cout << "initialize grid" << std::endl;
+
 	game.grid_space[0][0].occupier = &testUnit;
-
-	int player_index = 0;
-
-	game.playerInit(2);
-
+	game.grid_space[0][7].occupier = &enemytestUnit;
+	
+	//endturn
 	//Should this be in the constructor?
 	Rectangle textRect = {
 		.x = screenWidth * 7 / 8,

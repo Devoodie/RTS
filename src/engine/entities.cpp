@@ -3,14 +3,14 @@
 Unit::Unit(HexSpace *hex, UnitType type) {
 	current_hex = hex;
 	position = {
-		.x = hex->x,
-		.y = hex->y,
+		.x = hex->x_position,
+		.y = hex->y_position,
 	};
 
 	//add half of the width and height to the x and y (respectively)
 	render_rect = {
-		.x = hex->x - grid::inradius / 2,
-		.y = hex ->y - grid::radius / 2,
+		.x = hex->x_position - grid::inradius / 2,
+		.y = hex ->y_position - grid::radius / 2,
 		.width = grid::inradius,
 		.height = grid::radius,
 	};

@@ -13,6 +13,7 @@ enum UnitType {
 
 class Unit {
 	public:
+		int player_index; 
 		int attack_range;
 		int move_speed;
 		HexSpace *current_hex;

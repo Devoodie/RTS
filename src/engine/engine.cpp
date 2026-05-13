@@ -6,7 +6,7 @@
 #include <unordered_map>
 
 Player::Player(){
-	units = std::vector<Unit>();
+	units = std::vector<Unit*>();
 	units.reserve(12);
 }
 
@@ -33,7 +33,9 @@ namespace engine {
 	//ADD STATE CHANGES
 	void Game::endTurn(){
 		std::cout << "End Turn!" << std::endl;
+		this->escape();
 		player_index = (player_index + 1) % player_count;
+		std::cout << "Player Index: " << player_index;
 		//state transition
 
 		return;
@@ -50,6 +52,30 @@ namespace engine {
 		if(this->ui_elements.size() > 1) this->ui_elements.erase(ui_elements.begin() + 1);
 	}
 
+	void Game::hexInfoTransition(inputAlphabet input, void *selection){
+		switch(input){
+			case HEX:{
+				HexSpace* hex_ptr = (HexSpace*)selection;
+				if(this->selected_hex == hex_ptr) {
+					this->escape();
+					return;
+				}
+				this->selected_hex = (HexSpace*)selection;
+				break;
+				 }
+			case UNIT:
+				std::cout << "Unit Selected" << std::endl;
+				Unit *unit_ptr = (Unit*)selection;
+				this->selected_unit = unit_ptr;
+				this->selected_hex = unit_ptr->current_hex;
+				this->state = UNIT1;
+				if(this->ui_elements.size() > 1) this->ui_elements.erase(ui_elements.begin() + 1);
+				break;
+			defaut:
+				std::cerr << "STATE " << input << " NOT HANDLED (hexInfoTransition)" << std::endl;
+		}
+	}
+
 	void Game::idleTransition(inputAlphabet input, void *selection){
 		switch(input){
 			case TURNEND:
@@ -57,15 +83,37 @@ namespace engine {
 			case UNIT: {
 				std::cout << "Unit Selected" << std::endl;
 				Unit *unit_ptr = (Unit*)selection;
-				this->selected_unit = unit_ptr;
-				this->selected_hex = unit_ptr->current_hex;
-				this->state = UNIT1;
-				break;
+
+				bool unit_owned = false;
+				for(int i = 0; i < this->players[player_index].units.size(); ++i){
+					Unit *current_ptr = players[player_index].units[i];
+					if(current_ptr == unit_ptr){
+						unit_owned = true;
+						break;
+					}
+				}
+
+				if(unit_owned){
+					this->selected_unit = unit_ptr;
+					this->selected_hex = unit_ptr->current_hex;
+					this->state = UNIT1;
+					break;
+				} else {
+					//SHOW COMPARISON
+					//WORK HERE
+					this->state = UNIT_INFO;
+				}
 				   }
 			case HEX:
 				this->selected_hex = (HexSpace*)selection;
-//				this->MousePosition = GetMousePosition();
-//				this->state = INFO;
+				this->state = HEX_INFO;
+				this->ui_elements.emplace_back((Rectangle){
+					.x = float((grid::ScreenWidth * 3) / 4 ),
+					.y = 0,
+					.width = float(grid::ScreenWidth / 4),
+					.height = float(grid::ScreenHeight),
+					});
+
 				break;
 			default:
 				std::cerr << "ERR: INPUT NOT FOUND (idleTransition)" << std::endl;
@@ -78,20 +126,58 @@ namespace engine {
 		switch(input){
 			case UNIT:
 				break;
-			case HEX:
+			case HEX:{
 				//WRONG WORK HERE
-				this->selected_hex = (HexSpace*)selection;
+				HexSpace *hex_ptr = (HexSpace*)selection;
+				if(hex_ptr->occupier != nullptr){ 
+					this->ui_elements[1].x = 16384;
+					this->ui_elements[1].y = 16384;
+					return;
+				};
+				this->selected_hex2 = hex_ptr;
 				this->MousePosition = GetMousePosition();
 
 				this->ui_elements[1].x = MousePosition.x + grid::inradius / 4;
 				this->ui_elements[1].y = MousePosition.y;
 				break;
+				 }
 			default:
 				return;
 		}
 	}
 
-	
+	void Game::unitInfoTransition(inputAlphabet input, void *selection){
+		switch(input){
+			case UNIT:{
+				Unit *unit_ptr = (Unit*)selection;
+				if(unit_ptr == this->selected_unit){
+					this->escape();
+					return;
+				}
+
+				//UNIT COMPARISON
+				//this->selected_unit2 = unit_ptr;
+				  }
+			case HEX:
+				std::cout << "Hex 2 Selected" << std::endl;
+				HexSpace* hex_ptr = (HexSpace*) selection;
+				if(hex_ptr->occupier != nullptr) return; 
+
+				this->selected_hex2 = hex_ptr;
+				this->MousePosition = GetMousePosition();
+				this->state = OPTIONS;
+
+				if(this->ui_elements.size() > 1) this->ui_elements.erase(ui_elements.begin() + 1);
+				this->ui_elements.emplace_back((Rectangle){
+					.x = this->MousePosition.x + grid::inradius / 4,
+					.y = this->MousePosition.y,
+					.width = grid::inradius,
+					.height = grid::radius / 2,
+					});
+				break;
+
+		}
+	}
 	void Game::unitTransition(inputAlphabet input, void *selection){
 		switch(input){
 			case UNIT:{
@@ -99,10 +185,14 @@ namespace engine {
 				if(new_unit == selected_unit) this->escape();
 				break;
 				  }
-			case HEX:
+			case HEX:{
 				std::cout << "Hex 2 Selected" << std::endl;
+				HexSpace *hex_ptr = (HexSpace*) selection;
+				
+				if(hex_ptr->occupier != nullptr) return;
+
 				this->MousePosition = GetMousePosition();
-				this->selected_hex2 = (HexSpace*) selection;
+				this->selected_hex2 = hex_ptr;
 				this->state = OPTIONS;
 
 				//create ui element for options
@@ -113,6 +203,7 @@ namespace engine {
 					.height = grid::radius / 2,
 					});
 				break;
+				 }
 			default:
 				return;
 		}
@@ -129,8 +220,14 @@ namespace engine {
 			case OPTIONS:
 				optionTransition(input, selection);
 				break;
+			case HEX_INFO:
+				hexInfoTransition(input, selection);
+				break;
+			case UNIT_INFO:
+				unitInfoTransition(input, selection);
+				break;
 			default:
-				std::cerr << "ERR: INPUT NOT FOUND (stateTransition)" << std::endl;
+				std::cerr << "ERR STATE " << input << " NOT FOUND (transitionState)" << std::endl;
 				return;
 		}
 	}
@@ -174,57 +271,56 @@ namespace engine {
 		Vector2 mouse_point = GetMousePosition();
 		//0 endturn button, 1 Others(????), 
 		//may need to change the way this works to switch on states instead of ui elements
-		for(int i = 0; i < ui_elements.size(); ++i){
-			switch(i){
-				//end turn
-				case 0:
-					if(CheckCollisionPointRec(mouse_point, ui_elements[0]) and IsMouseButtonReleased(0)){
-						std::cout << "ENDTURN" << std::endl;
-						this->endTurn();
-						return true;
-					}
-				case 1:
-					if(this->ui_elements.size() < 2) continue;
-					if(CheckCollisionPointRec(mouse_point, ui_elements[1]) and IsMouseButtonReleased(0)){
-						selected_unit->position.x = selected_hex2->x;
-						selected_unit->position.y = selected_hex2->y;
-						this->state = MOVING;
-						std::cout << "MOVE!" << std::endl;
-						return true;
-					}
-				default:
-					//std::cerr << "UI element " << i << " Not Recognized" << std::endl;
-					return false;
-			};
+		
+		if(CheckCollisionPointRec(mouse_point, ui_elements[0]) and IsMouseButtonReleased(0)){
+			std::cout << "ENDTURN" << std::endl;
+			this->endTurn();
+			return true;
 		}
-		return false;
+		if(this->ui_elements.size() < 2) return false;
+
+		switch(this->state){
+			//end turn
+			case OPTIONS:
+				if(CheckCollisionPointRec(mouse_point, ui_elements[1]) and IsMouseButtonReleased(0)){
+					selected_unit->position.x = selected_hex2->x_position;
+					selected_unit->position.y = selected_hex2->y_position;
+					this->state = MOVING;
+					std::cout << "MOVE!" << std::endl;
+					return true;
+				}
+			default:
+				//std::cerr << "UI element " << i << " Not Recognized" << std::endl;
+				return false;
+		};
+	return false;
 	}
 
 	//moves units
 	void Game::Move(){
-		Unit *unit = this->selected_unit;
+		Unit *unit_ptr = this->selected_unit;
 
 		Vector2 destRect = {
-			.x = unit->position.x - grid::inradius / 2,
-			.y = unit->position.y - grid::radius  / 2,
+			.x = unit_ptr->position.x - grid::inradius / 2,
+			.y = unit_ptr->position.y - grid::radius  / 2,
 		};
 
-		if(destRect.x != unit->render_rect.x or destRect.y != unit->render_rect.y){
+		if(destRect.x != unit_ptr->render_rect.x or destRect.y != unit_ptr->render_rect.y){
 
-//			std::cout << "Position: (" << unit->render_rect.x << "," << unit->render_rect.y << ")\n" <<"Desired Position: (" << destRect.x << " ," << destRect.y << ")" << std::endl;
+//			std::cout << "Position: (" << unit_ptr->render_rect.x << "," << unit_ptr->render_rect.y << ")\n" <<"Desired Position: (" << destRect.x << " ," << destRect.y << ")" << std::endl;
 			Vector2 renderRect = {
-				.x = unit->render_rect.x, 
-				.y = unit->render_rect.y
+				.x = unit_ptr->render_rect.x, 
+				.y = unit_ptr->render_rect.y
 			};
 
 			float max_dist = GetFrameTime() * 240;
 			Vector2 new_pos = Vector2MoveTowards(renderRect, destRect, max_dist);
 
-			unit->render_rect.x = new_pos.x;
-			unit->render_rect.y = new_pos.y;
+			unit_ptr->render_rect.x = new_pos.x;
+			unit_ptr->render_rect.y = new_pos.y;
 		} else {
 			selected_hex->occupier = NULL;
-			selected_hex2->occupier = unit;
+			selected_hex2->occupier = unit_ptr;
 			escape();
 		}
 	}
@@ -259,20 +355,38 @@ namespace engine {
 	//THIS SHOULD BE CHANGED FROM RENDER OPTIONS TO RENDER UI
 	//CHECK NULL POINTERS TO DETERMINE WHICH RECTANGLES SHOULD BE RENDERED
 	void Game::renderOptions(std::unordered_map<int, Texture2D> texture_map){
-		if(this->state != OPTIONS){
-			return;
-		} else {
-			Texture2D &move_button = texture_map[grid::MOVE_BUTTON];
+		switch(this->state){
+			case OPTIONS:{
+				Texture2D &move_button = texture_map[grid::MOVE_BUTTON];
 
-			Rectangle texture_rect = {
-				.x = 0,
-				.y = 0,
-				.width = (float)move_button.width,
-				.height = (float)move_button.height,
-			};
+				Rectangle texture_rect = {
+				     .x = 0,
+				     .y = 0,
+				     .width = (float)move_button.width,
+				     .height = (float)move_button.height,
+				};
 
-			Rectangle options = this->ui_elements[1];
-			DrawTexturePro(move_button, texture_rect, options, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
+			        Rectangle options = this->ui_elements[1];
+			        DrawTexturePro(move_button, texture_rect, options, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
+				break;
+				}
+			case UNIT_INFO:
+			case HEX_INFO:{
+				Texture2D &info_rect= texture_map[grid::INFO_RECT];
+
+				Rectangle texture_rect = {
+				     .x = 0,
+				     .y = 0,
+				     .width = (float)info_rect.width,
+				     .height = (float)info_rect.height,
+				};
+
+			        Rectangle options = this->ui_elements[1];
+			        DrawTexturePro(info_rect, texture_rect, options, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
+				}
+				break;
+			default:
+				break;
 		}
 	}
 }
