@@ -214,7 +214,11 @@ namespace engine {
 					//WORKHERE
 					std::cout << "FIREEEEEEE" <<std::endl;
 					Vector2 button_position = unit_ptr->position;
+
+					this->MousePosition = button_position;
 					this->createUiElem(UI_OPTIONS_1);
+					
+					//PROB DO FIRE ANIMATION
 					this->state = FIRE;
 				}
 				break;
