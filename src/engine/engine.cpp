@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include <iostream>
 #include <raylib.h>
 #include <raymath.h>
@@ -146,7 +147,7 @@ namespace engine {
 				if(this->selected_unit == unit_ptr){
 					this->escape();
 					return;
-				}
+				} 
 				break;
 				  }
 			case HEX:{
@@ -199,8 +200,23 @@ namespace engine {
 	void Game::unitTransition(inputAlphabet input, void *selection){
 		switch(input){
 			case UNIT:{
-				Unit *new_unit = (Unit*)selection;
-				if(new_unit == selected_unit) this->escape();
+				Unit *unit_ptr = (Unit*)selection;
+				if(unit_ptr == selected_unit) this->escape();
+
+				HexSpace* hex_ptr = unit_ptr->current_hex;
+				const std::vector<Unit*> &players_units = this->players[this->player_index].units;
+				bool unit_owned = std::ranges::contains(players_units.begin(), players_units.end(), unit_ptr);
+
+				if(unit_owned){
+				} else if(std::abs(hex_ptr->indices.x - selected_hex->indices.x) <= selected_unit->attack_range and
+					  std::abs(hex_ptr->indices.y - selected_hex->indices.y) <= selected_unit->attack_range) {
+
+					//WORKHERE
+					std::cout << "FIREEEEEEE" <<std::endl;
+					Vector2 button_position = unit_ptr->position;
+					this->createUiElem(UI_OPTIONS_1);
+					this->state = FIRE;
+				}
 				break;
 				  }
 			case HEX:{
@@ -388,6 +404,20 @@ namespace engine {
 			        DrawTexturePro(move_button, texture_rect, options, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
 				break;
 				}
+			case FIRE:{
+				Texture2D &move_button = texture_map[grid::FIRE_BUTTON];
+
+				Rectangle texture_rect = {
+				     .x = 0,
+				     .y = 0,
+				     .width = (float)move_button.width,
+				     .height = (float)move_button.height,
+				};
+
+			        Rectangle options = this->ui_elements[1];
+			        DrawTexturePro(move_button, texture_rect, options, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
+				break;
+				  }
 			case UNIT_INFO:
 			case HEX_INFO:{
 				Texture2D &info_rect= texture_map[grid::INFO_RECT];

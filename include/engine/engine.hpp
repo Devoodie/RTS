@@ -25,6 +25,7 @@ namespace engine {
 		IDLE,
 		UNIT1,
 		OPTIONS,
+		FIRE,
 		HEX_INFO,
 		UNIT_INFO,
 		MOVING,

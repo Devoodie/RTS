@@ -70,8 +70,9 @@ void initGrid(const int row, const int col, std::vector<std::vector<HexSpace>> &
 
 			CurrentHex->x_position = x;
 			CurrentHex->y_position = y;
-			CurrentHex->x_index = j;
-			CurrentHex->y_index = i;
+
+			CurrentHex->indices.x = j;
+			CurrentHex->indices.y = i;
 
 			float x_offset = (sqrt(3) / 2) * radius;
 			float y_offset = radius / 2;

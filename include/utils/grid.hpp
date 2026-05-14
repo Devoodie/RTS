@@ -16,8 +16,7 @@ class HexSpace {
 		float x_position;
 		float y_position;
 
-		int x_index;
-		int y_index;
+		Vector2 indices;
 
 		Unit *occupier;
 		int move_cost;
