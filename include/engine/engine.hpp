@@ -26,6 +26,7 @@ namespace engine {
 		UNIT1,
 		OPTIONS,
 		FIRE,
+		FIRING,
 		HEX_INFO,
 		UNIT_INFO,
 		MOVING,
@@ -90,12 +91,11 @@ class Game{
 		bool uiCollisionCheck();
 
 		void Move();
+		
+		void Fire();
 
 		//main game loop
 		void versus();
-
-		//renders options menu
-		void renderOptions(std::unordered_map<int, Texture2D> texture_map);
 
 		Game();
 		

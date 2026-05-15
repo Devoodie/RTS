@@ -1,4 +1,5 @@
 #include <engine/ui.hpp> 
+#include <raylib.h>
 
 namespace ui{
 	//THIS SHOULD BE CHANGED FROM RENDER OPTIONS TO RENDER UI
@@ -33,6 +34,9 @@ namespace ui{
 			        DrawTexturePro(move_button, texture_rect, options, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
 				break;
 				  }
+			case engine::FIRING:
+//					  DrawText(const char *text, int posX, int posY, int fontSize, Color color);
+					  break;
 			case engine::UNIT_INFO:
 			case engine::HEX_INFO:{
 				Texture2D &info_rect= texture_map[grid::INFO_RECT];

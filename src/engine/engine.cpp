@@ -311,27 +311,29 @@ namespace engine {
 			return true;
 		}
 		if(this->ui_elements.size() < 2) return false;
+		if(CheckCollisionPointRec(mouse_point, ui_elements[1]) and IsMouseButtonReleased(0)){
+			switch(this->state){
+				//end turn
+				case OPTIONS:
+						selected_unit->position.x = selected_hex2->x_position;
+						selected_unit->position.y = selected_hex2->y_position;
+						selected_unit->current_hex = selected_hex2;
 
-		switch(this->state){
-			//end turn
-			case OPTIONS:
-				if(CheckCollisionPointRec(mouse_point, ui_elements[1]) and IsMouseButtonReleased(0)){
-					selected_unit->position.x = selected_hex2->x_position;
-					selected_unit->position.y = selected_hex2->y_position;
-					selected_unit->current_hex = selected_hex2;
+						this->selected_hex->occupier = nullptr;
+						this->selected_hex2->occupier = selected_unit;
 
-					this->selected_hex->occupier = nullptr;
-					this->selected_hex2->occupier = selected_unit;
-
-					this->state = MOVING;
-					std::cout << "MOVE!" << std::endl;
-					return true;
-				}
-			default:
-				//std::cerr << "UI element " << i << " Not Recognized" << std::endl;
-				return false;
-		};
-	return false;
+						this->state = MOVING;
+						std::cout << "MOVE!" << std::endl;
+					
+				case FIRE:
+						
+				default:
+					//std::cerr << "UI element " << i << " Not Recognized" << std::endl;
+					return false;
+			}
+			return true;
+		}
+		return false;
 	}
 
 	//moves units
@@ -350,7 +352,6 @@ namespace engine {
 				.x = unit_ptr->render_rect.x, 
 				.y = unit_ptr->render_rect.y
 			};
-
 			float max_dist = GetFrameTime() * 240;
 			Vector2 new_pos = Vector2MoveTowards(renderRect, destRect, max_dist);
 
@@ -363,7 +364,7 @@ namespace engine {
 		}
 	}
 
-//	void Game::Fire(){}
+	void Game::Fire(){}
 
 	void Game::versus(){
 		if(players.size() == 0) playerInit(player_count);
@@ -389,7 +390,6 @@ namespace engine {
 		if(!ui_collision) {
 			bool chng_state = this->collisionCheck();
 		}
-
 		//check_hexagon
 	}
 
