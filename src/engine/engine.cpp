@@ -197,6 +197,7 @@ namespace engine {
 
 		}
 	}
+
 	void Game::unitTransition(inputAlphabet input, void *selection){
 		switch(input){
 			case UNIT:{
@@ -291,7 +292,6 @@ namespace engine {
 				//Hexagon Hover (NO HOVER)
 				if(CheckCollisionPointPoly(mouse_point, CurrentHex->vertices, 6) and IsMouseButtonReleased(0)) {
 					std::cout << "Collision Hex " << j << ", " << i <<std::endl;
-
 					this->handleCollision(CurrentHex, mouse_point);
 					return true;
 				}
@@ -363,6 +363,8 @@ namespace engine {
 		}
 	}
 
+//	void Game::Fire(){}
+
 	void Game::versus(){
 		if(players.size() == 0) playerInit(player_count);
 
@@ -381,6 +383,7 @@ namespace engine {
 			return;
 			//dothis
 		}
+
 		bool ui_collision = this->uiCollisionCheck();
 		
 		if(!ui_collision) {
@@ -390,55 +393,4 @@ namespace engine {
 		//check_hexagon
 	}
 
-	//THIS SHOULD BE CHANGED FROM RENDER OPTIONS TO RENDER UI
-	//CHECK NULL POINTERS TO DETERMINE WHICH RECTANGLES SHOULD BE RENDERED
-	void Game::renderOptions(std::unordered_map<int, Texture2D> texture_map){
-		switch(this->state){
-			case OPTIONS:{
-				Texture2D &move_button = texture_map[grid::MOVE_BUTTON];
-
-				Rectangle texture_rect = {
-				     .x = 0,
-				     .y = 0,
-				     .width = (float)move_button.width,
-				     .height = (float)move_button.height,
-				};
-
-			        Rectangle options = this->ui_elements[1];
-			        DrawTexturePro(move_button, texture_rect, options, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
-				break;
-				}
-			case FIRE:{
-				Texture2D &move_button = texture_map[grid::FIRE_BUTTON];
-
-				Rectangle texture_rect = {
-				     .x = 0,
-				     .y = 0,
-				     .width = (float)move_button.width,
-				     .height = (float)move_button.height,
-				};
-
-			        Rectangle options = this->ui_elements[1];
-			        DrawTexturePro(move_button, texture_rect, options, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
-				break;
-				  }
-			case UNIT_INFO:
-			case HEX_INFO:{
-				Texture2D &info_rect= texture_map[grid::INFO_RECT];
-
-				Rectangle texture_rect = {
-				     .x = 0,
-				     .y = 0,
-				     .width = (float)info_rect.width,
-				     .height = (float)info_rect.height,
-				};
-
-			        Rectangle options = this->ui_elements[1];
-			        DrawTexturePro(info_rect, texture_rect, options, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
-				}
-				break;
-			default:
-				break;
-		}
-	}
 }

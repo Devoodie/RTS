@@ -7,6 +7,7 @@
 #include "include/utils/grid.hpp"
 #include <engine/entities.hpp>
 #include <engine/engine.hpp>
+#include <engine/ui.hpp>
 
 constexpr int grid_length = 8;
 constexpr int grid_height = 8;
@@ -71,7 +72,7 @@ int main(void){
 		grid::renderGrid(texture_map, game.grid_space, false);
 		grid::renderUnits(texture_map, game.units);
 		//render options
-		game.renderOptions(texture_map);
+		ui::renderOptions(game, texture_map);
 		DrawText("END TURN", textRect.x, textRect.y, 15, RED);
 
 		EndDrawing();
