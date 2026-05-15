@@ -3,8 +3,6 @@
 
 #include <utils/grid.hpp>
 
-class HexSpace;
-
 enum UnitType {
 	INFANTRY,
 	JET,
@@ -16,11 +14,11 @@ class Unit {
 		int player_index; 
 		int attack_range;
 		int move_speed;
-		HexSpace *current_hex;
+		grid::HexSpace *current_hex;
 		Vector2 position;
 		Rectangle render_rect;
 
-		Unit(HexSpace *hex, UnitType type);
+		Unit(grid::HexSpace *hex, UnitType type);
 };
 
 #endif

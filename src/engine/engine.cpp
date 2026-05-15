@@ -16,7 +16,7 @@ namespace engine {
 		players = std::vector<Player>();
 		player_count = 2;
 		player_index = 0;
-		grid_space = std::vector<std::vector<HexSpace>>(8, std::vector<HexSpace>(8));
+		grid_space = std::vector<std::vector<grid::HexSpace>>(8, std::vector<grid::HexSpace>(8));
 		state = IDLE;
 	}
 
@@ -55,12 +55,12 @@ namespace engine {
 	void Game::hexInfoTransition(inputAlphabet input, void *selection){
 		switch(input){
 			case HEX:{
-				HexSpace* hex_ptr = (HexSpace*)selection;
+				grid::HexSpace* hex_ptr = (grid::HexSpace*)selection;
 				if(this->selected_hex == hex_ptr) {
 					this->escape();
 					return;
 				}
-				this->selected_hex = (HexSpace*)selection;
+				this->selected_hex = (grid::HexSpace*)selection;
 				break;
 				 }
 			case UNIT:
@@ -105,7 +105,7 @@ namespace engine {
 				}
 				   }
 			case HEX:
-				this->selected_hex = (HexSpace*)selection;
+				this->selected_hex = (grid::HexSpace*)selection;
 				this->state = HEX_INFO;
 				this->ui_elements.emplace_back((Rectangle){
 					.x = float((grid::ScreenWidth * 3) / 4 ),
@@ -128,7 +128,7 @@ namespace engine {
 				break;
 			case HEX:{
 				//WRONG WORK HERE
-				HexSpace *hex_ptr = (HexSpace*)selection;
+				grid::HexSpace *hex_ptr = (grid::HexSpace*)selection;
 				if(hex_ptr->occupier != nullptr){ 
 					this->ui_elements[1].x = 16384;
 					this->ui_elements[1].y = 16384;
@@ -160,7 +160,7 @@ namespace engine {
 				  }
 			case HEX:
 				std::cout << "Hex 2 Selected" << std::endl;
-				HexSpace* hex_ptr = (HexSpace*) selection;
+				grid::HexSpace* hex_ptr = (grid::HexSpace*) selection;
 				if(hex_ptr->occupier != nullptr) return; 
 
 				this->selected_hex2 = hex_ptr;
@@ -187,7 +187,7 @@ namespace engine {
 				  }
 			case HEX:{
 				std::cout << "Hex 2 Selected" << std::endl;
-				HexSpace *hex_ptr = (HexSpace*) selection;
+				grid::HexSpace *hex_ptr = (grid::HexSpace*) selection;
 				
 				if(hex_ptr->occupier != nullptr) return;
 
@@ -232,7 +232,7 @@ namespace engine {
 		}
 	}
 
-	void Game::handleCollision(HexSpace *collided_hex, Vector2 mouse_point){
+	void Game::handleCollision(grid::HexSpace *collided_hex, Vector2 mouse_point){
 		if(collided_hex->occupier != nullptr){
 			//CHANGE ALL TO RELEASED OR DOWN (THEY MUST ALL BE THE SAME)
 			if (CheckCollisionPointRec(mouse_point, collided_hex->occupier->render_rect) and IsMouseButtonReleased(0)) {
@@ -253,7 +253,7 @@ namespace engine {
 		Vector2 mouse_point = GetMousePosition();
 		for(int i = 0; i < grid_space.size(); ++i){
 			for(int j = 0; j < grid_space[i].size(); ++j){
-				HexSpace *CurrentHex = &grid_space[i][j];
+				grid::HexSpace *CurrentHex = &grid_space[i][j];
 
 				//Hexagon Hover (NO HOVER)
 				if(CheckCollisionPointPoly(mouse_point, CurrentHex->vertices, 6) and IsMouseButtonReleased(0)) {

@@ -5,12 +5,36 @@
 #include <vector>
 
 extern "C" {
-#include "raylib.h"
+	#include "raylib.h"
 }
 
 class Unit;
 
-class HexSpace {	
+namespace grid {
+	extern int ScreenWidth;
+	extern int ScreenHeight;
+	extern float radius;
+	extern float inradius;
+
+	enum cardinals {
+		NORTH_EAST = 0,
+		EAST = 1,
+		SOUTH_EAST = 2,
+		SOUTH_WEST = 3,
+		WEST = 4,
+		NORTH_WEST = 5,
+	};
+
+	enum textures {
+		GRASS_HEX = 0,
+		GRASS_BORDER,
+		DARK_SOLIDER,
+		FIRE_BUTTON,
+		MOVE_BUTTON,
+		INFO_RECT,
+	};
+
+	class HexSpace {
 	public:
 		HexSpace *neighbors[6] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 		float x_position;
@@ -27,51 +51,33 @@ class HexSpace {
 			return x_position == other.x_position && y_position == other.y_position;
 		}
 
-	HexSpace();
-};
+		HexSpace();
+	};
 
-namespace grid {
+	class AStar {
+	public:
+		/// Calculates the shortest past from source to destination
+		/// @param source The source HexSpace
+		/// @param destination The destination HexSpace
+		/// @param grid The grid containing the source and destination HexSpace
+		/// @return The path from source to destination, will only contain source on error
+		std::vector<const HexSpace*> astar(
+			const HexSpace &source,
+			const HexSpace &destination,
+			const std::vector<std::vector<HexSpace>> &grid);
+	};
 
-enum cardinals {
-	NORTH_EAST = 0,
-	EAST = 1,
-	SOUTH_EAST = 2,
-	SOUTH_WEST = 3,
-	WEST = 4, 
-	NORTH_WEST = 5,
-};
+	class Grid {
+	public:
+		AStar *astar;
 
-extern int ScreenWidth;
-extern int ScreenHeight;
-extern float radius;
-extern float inradius;
+		void initGrid(const int row, const int col, std::vector<std::vector<HexSpace>> &grid);
 
-enum textures {
-	GRASS_HEX = 0,
-	GRASS_BORDER,
-	DARK_SOLIDER,
-	FIRE_BUTTON,
-	MOVE_BUTTON,
-	INFO_RECT,
-};
+		void renderUnits(std::unordered_map<int, Texture2D> texture_map, std::vector<Unit*> units);
 
-/// Calculates the shortest past from source to destination
-/// @param source The source HexSpace
-/// @param destination The destination HexSpace
-/// @param grid The grid containing the source and destination HexSpace
-/// @return The path from source to destination, will only contain source on error
-std::vector<const HexSpace*> astar(
-	const HexSpace &source,
-	const HexSpace &destination,
-	const std::vector<std::vector<HexSpace>> &grid);
+		void renderGrid(std::unordered_map<int, Texture2D> textures, std::vector<std::vector<HexSpace>> grid,const bool debug);
 
-void initGrid(const int row, const int col, std::vector<std::vector<HexSpace>> &grid);
-
-void renderUnits(std::unordered_map<int, Texture2D> texture_map, std::vector<Unit*> units);
-
-void renderGrid(std::unordered_map<int, Texture2D> textures, std::vector<std::vector<HexSpace>> grid,const bool debug);
-
-void initAssets(std::unordered_map<int , Texture2D> &texture_map);
-
+		void initAssets(std::unordered_map<int , Texture2D> &texture_map);
+	};
 }
 #endif

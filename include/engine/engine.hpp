@@ -37,14 +37,14 @@ class Game{
 		std::vector<Player> players;
 		std::vector<Unit*> units;
 
-		std::vector<std::vector<HexSpace>> grid_space;
+		std::vector<std::vector<grid::HexSpace>> grid_space;
 		std::vector<Rectangle> ui_elements;
 
 		Unit *selected_unit;
 		Unit *selected_unit2;
 
-		HexSpace *selected_hex;
-		HexSpace *selected_hex2;
+		grid::HexSpace *selected_hex;
+		grid::HexSpace *selected_hex2;
 		states state;
 
 		//REDUNDANT PROPERTY
@@ -73,7 +73,7 @@ class Game{
 		void escape();
 
 		//searches for collisions with properties of a hexagon and potentially transitions state
-		void handleCollision(HexSpace *collided_hex, Vector2 mouse_point);
+		void handleCollision(grid::HexSpace *collided_hex, Vector2 mouse_point);
 
 		//checks for collisions with hexagons then calls handle collision
 		bool collisionCheck();

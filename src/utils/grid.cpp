@@ -1,14 +1,12 @@
 #include <cmath>
-
 #include <iostream>
-
 #include "utils/grid.hpp"
-#include <engine/entities.hpp>
+#include "engine/entities.hpp"
 #include <raylib.h>
 #include <memory>
 #include <algorithm>
 
-HexSpace::HexSpace (){
+grid::HexSpace::HexSpace (){
 	x_position = 0;
 	y_position = 0;
 	occupier = nullptr;

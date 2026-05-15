@@ -1,6 +1,6 @@
 #include <engine/entities.hpp>
 
-Unit::Unit(HexSpace *hex, UnitType type) {
+Unit::Unit(grid::HexSpace *hex, UnitType type) {
 	current_hex = hex;
 	position = {
 		.x = hex->x_position,

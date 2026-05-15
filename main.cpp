@@ -4,7 +4,7 @@
 
 #include <raylib.h>
 
-#include "include/utils/grid.hpp"
+#include <utils/grid.hpp>
 #include <engine/entities.hpp>
 #include <engine/engine.hpp>
 
@@ -19,9 +19,12 @@ int main(void){
 
 	SetExitKey(KEY_NULL);
 
+	// Init grid
+	grid::Grid grid{};
+
 	//ASSETS
 	std::unordered_map <int, Texture2D> texture_map;
-	grid::initAssets(texture_map);
+	grid.initAssets(texture_map);
 
 	//init game class
 	engine::Game game;
@@ -33,7 +36,7 @@ int main(void){
 	//initialize gridspace
 	
 	std::cout << "initialize grid" << std::endl;
-	grid::initGrid(grid_height, grid_length, game.grid_space);
+	grid.initGrid(grid_height, grid_length, game.grid_space);
 
 	Unit testUnit(&game.grid_space[0][0], INFANTRY);
 
@@ -68,8 +71,8 @@ int main(void){
 		BeginDrawing();
 
 		ClearBackground(RAYWHITE);
-		grid::renderGrid(texture_map, game.grid_space, false);
-		grid::renderUnits(texture_map, game.units);
+		grid.renderGrid(texture_map, game.grid_space, false);
+		grid.renderUnits(texture_map, game.units);
 		//render options
 		game.renderOptions(texture_map);
 		DrawText("END TURN", textRect.x, textRect.y, 15, RED);
