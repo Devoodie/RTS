@@ -35,6 +35,7 @@ namespace engine {
 	enum uiElem {
 		UI_OPTIONS_1,
 		UI_INFO,
+		UI_FIRING_TEXT,
 	};
 
 class Game{
@@ -80,7 +81,7 @@ class Game{
 		void escape();
 
 		//ui creation helper function
-		void createUiElem(uiElem ui_type);
+		void createUiElem(uiElem ui_type, float dmg_taken);
 
 		//searches for collisions with properties of a hexagon and potentially transitions state
 		void handleCollision(HexSpace *collided_hex, Vector2 mouse_point);

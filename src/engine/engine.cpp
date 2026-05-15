@@ -54,7 +54,7 @@ namespace engine {
 		if(this->ui_elements.size() > 1) this->ui_elements.erase(ui_elements.begin() + 1);
 	}
 
-	void Game::createUiElem(uiElem ui_type){
+	void Game::createUiElem(uiElem ui_type, float dmg_taken = 0.0){
 		switch(ui_type){
 			case UI_OPTIONS_1:
 				this->ui_elements.emplace_back((Rectangle){
@@ -70,6 +70,15 @@ namespace engine {
 					.y = 0,
 					.width = float(grid::ScreenWidth / 4),
 					.height = float(grid::ScreenHeight),
+					});
+				break;
+				//temporary
+			case UI_FIRING_TEXT:
+				this->ui_elements.emplace_back((Rectangle){
+					.x = float(selected_unit2->position.x - (selected_unit2->render_rect.width / 4)),
+					.y = this->selected_unit2->position.y,
+					.width = 255,
+					.height = 0,
 					});
 				break;
 		}
@@ -221,6 +230,10 @@ namespace engine {
 					
 					//PROB DO FIRE ANIMATION
 					this->state = FIRE;
+
+					//i don't want to put this before every single append
+					//this->ui_elements.erase(ui_elements.begin() + 1);
+					this->createUiElem(UI_FIRING_TEXT);
 				}
 				break;
 				  }
@@ -324,9 +337,10 @@ namespace engine {
 
 						this->state = MOVING;
 						std::cout << "MOVE!" << std::endl;
+						break;
 					
 				case FIRE:
-						
+						break;
 				default:
 					//std::cerr << "UI element " << i << " Not Recognized" << std::endl;
 					return false;
@@ -363,8 +377,11 @@ namespace engine {
 			escape();
 		}
 	}
-
-	void Game::Fire(){}
+//WORK HERE
+	void Game::Fire(){
+		ColorAlpha(RED, this->ui_elements[1].width]);
+		DrawTextEx(GetFontDefault(), TextFormat("",), Vector2 position, float fontSize, float spacing, Color tint)
+	}
 
 	void Game::versus(){
 		if(players.size() == 0) playerInit(player_count);
