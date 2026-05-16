@@ -11,6 +11,8 @@ extern "C" {
 class Unit;
 
 namespace grid {
+	class AStar;
+
 	extern int ScreenWidth;
 	extern int ScreenHeight;
 	extern float radius;
@@ -52,19 +54,6 @@ namespace grid {
 		}
 
 		HexSpace();
-	};
-
-	class AStar {
-	public:
-		/// Calculates the shortest past from source to destination
-		/// @param source The source HexSpace
-		/// @param destination The destination HexSpace
-		/// @param grid The grid containing the source and destination HexSpace
-		/// @return The path from source to destination, will only contain source on error
-		static std::vector<const HexSpace*> astar(
-			const HexSpace &source,
-			const HexSpace &destination,
-			const std::vector<std::vector<HexSpace>> &grid);
 	};
 
 	class Grid {

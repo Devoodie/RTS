@@ -13,7 +13,8 @@ endif()
 
 find_package(raylib CONFIG REQUIRED)
 
-add_library(grid STATIC src/utils/grid.cpp)
+add_library(grid STATIC src/utils/grid.cpp
+        src/utils/astar.cpp)
 target_include_directories(grid PUBLIC include)
 target_link_libraries(grid PUBLIC raylib)
 
@@ -21,7 +22,8 @@ add_library(entities STATIC src/engine/entities.cpp)
 target_include_directories(entities PUBLIC include)
 target_link_libraries(entities PUBLIC grid)
 
-add_library(engine STATIC src/engine/engine.cpp)
+add_library(engine STATIC src/engine/engine.cpp
+        include/utils/astar.hpp)
 target_include_directories(engine PUBLIC include)
 target_link_libraries(engine PUBLIC entities grid)
 
