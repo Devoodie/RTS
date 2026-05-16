@@ -10,24 +10,20 @@
 
 constexpr int grid_length = 8;
 constexpr int grid_height = 8;
+constexpr int screenWidth = 1920;
+constexpr int screenHeight = 1080;
 
-int main(void){
-	const int screenWidth = 1920;
-	const int screenHeight = 1080;
-	
+int main(){
 	InitWindow(screenWidth, screenHeight, "RTS");
-
 	SetExitKey(KEY_NULL);
 
-	// Init grid
+	// Init engine, grid
 	grid::Grid grid{};
+	engine::Game game;
 
-	//ASSETS
+	// Init assets
 	std::unordered_map <int, Texture2D> texture_map;
 	grid.initAssets(texture_map);
-
-	//init game class
-	engine::Game game;
 
 	int player_index = 0;
 	game.playerInit(2);

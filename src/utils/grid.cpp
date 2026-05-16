@@ -6,14 +6,13 @@
 #include <memory>
 #include <algorithm>
 
-grid::HexSpace::HexSpace (){
-	x_position = 0;
-	y_position = 0;
-	occupier = nullptr;
-	move_cost = 1;
-};
-
 namespace grid {
+	HexSpace::HexSpace (){
+		x_position = 0;
+		y_position = 0;
+		occupier = nullptr;
+		move_cost = 1;
+	}
 
 	int ScreenWidth = 1920;
 	int ScreenHeight = 1080;
@@ -27,8 +26,9 @@ namespace grid {
 		Node *parent;
 		int moveCost;
 		int heuristic;
-		int totalCost() const { return moveCost + heuristic; }
+		[[nodiscard]] int totalCost() const { return moveCost + heuristic; }
 	};
+
 
 	// Returns a heuristic using Euclidean approximation
 	int getHeuristicDistance(const HexSpace &a, const HexSpace &b) {
@@ -54,7 +54,7 @@ namespace grid {
 		return path;
 	}
 
-	std::vector<const HexSpace*> astar(
+	std::vector<const HexSpace *> AStar::astar(
 		const HexSpace &source,
 		const HexSpace &destination,
 		const std::vector<std::vector<HexSpace>> &grid)
@@ -145,7 +145,7 @@ namespace grid {
 		return std::vector(1, &source);
 	}
 
-	void initGrid(const int row, const int col, std::vector<std::vector<HexSpace>> &grid_space){
+	void Grid::initGrid(const int row, const int col, std::vector<std::vector<HexSpace>> &grid_space){
 		// i is our row (y) index
 		// j is our column (x) index
 
@@ -236,7 +236,7 @@ namespace grid {
 }
 
 //add visibility rules
-void renderUnits(std::unordered_map<int, Texture2D> texture_map, std::vector<Unit *> units){
+void Grid::renderUnits(std::unordered_map<int, Texture2D> texture_map, std::vector<Unit *> units){
 	const float draw_width = inradius * 2;
 	const float draw_height = radius * 2;
 
@@ -268,7 +268,7 @@ void renderUnits(std::unordered_map<int, Texture2D> texture_map, std::vector<Uni
 	}
 };
 
-void renderGrid(
+void Grid::renderGrid(
 		std::unordered_map<int, Texture2D> texture_map, 
 		std::vector<std::vector<HexSpace>> grid_space, 
 		const bool debug
@@ -352,7 +352,7 @@ void renderGrid(
 
 }
 
-void initAssets(std::unordered_map<int, Texture2D> &texture_map){
+void Grid::initAssets(std::unordered_map<int, Texture2D> &texture_map){
 
 	const Texture2D hex_grass = LoadTexture("../assets/Hex_Grass_Single.png");
 	const Texture2D grass_border = LoadTexture("../assets/Hex_Grass_Offset.png");

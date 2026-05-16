@@ -40,13 +40,13 @@ namespace grid {
 		float x_position;
 		float y_position;
 
-		int x_index;
-		int y_index;
+		int x_index{};
+		int y_index{};
 
 		Unit *occupier;
 		int move_cost;
 
-		Vector2 vertices[6];
+		Vector2 vertices[6]{};
 		bool operator==(const HexSpace& other) const {
 			return x_position == other.x_position && y_position == other.y_position;
 		}
@@ -61,7 +61,7 @@ namespace grid {
 		/// @param destination The destination HexSpace
 		/// @param grid The grid containing the source and destination HexSpace
 		/// @return The path from source to destination, will only contain source on error
-		std::vector<const HexSpace*> astar(
+		static std::vector<const HexSpace*> astar(
 			const HexSpace &source,
 			const HexSpace &destination,
 			const std::vector<std::vector<HexSpace>> &grid);
@@ -71,13 +71,21 @@ namespace grid {
 	public:
 		AStar *astar;
 
-		void initGrid(const int row, const int col, std::vector<std::vector<HexSpace>> &grid);
+		static void initGrid(
+			int row,
+			int col,
+			std::vector<std::vector<HexSpace>> &grid);
 
-		void renderUnits(std::unordered_map<int, Texture2D> texture_map, std::vector<Unit*> units);
+		static void renderUnits(
+			std::unordered_map<int, Texture2D> texture_map,
+			std::vector<Unit*> units);
 
-		void renderGrid(std::unordered_map<int, Texture2D> textures, std::vector<std::vector<HexSpace>> grid,const bool debug);
+		static void renderGrid(
+			std::unordered_map<int, Texture2D> textures,
+			std::vector<std::vector<HexSpace>> grid,
+			bool debug);
 
-		void initAssets(std::unordered_map<int , Texture2D> &texture_map);
+		static void initAssets(std::unordered_map<int , Texture2D> &texture_map);
 	};
 }
 #endif
