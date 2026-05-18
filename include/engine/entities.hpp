@@ -2,6 +2,7 @@
 #define RTS_ENTITIES_H 
 
 #include <utils/grid.hpp>
+#include <string>
 
 class HexSpace;
 
@@ -13,9 +14,11 @@ enum UnitType {
 
 class Unit {
 	public:
+		std::string name;
 		int player_index; 
 		int attack_range;
 		int move_speed;
+
 		HexSpace *current_hex;
 		Vector2 position;
 		Rectangle render_rect;

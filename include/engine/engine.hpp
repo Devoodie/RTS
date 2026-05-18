@@ -48,6 +48,10 @@ class Game{
 		std::vector<std::vector<HexSpace>> grid_space;
 		std::vector<Rectangle> ui_elements;
 
+		//TEMPORARY
+		float fire_txt_alpha;
+		float dmg_taken;
+
 		Unit *selected_unit;
 		Unit *selected_unit2;
 
@@ -55,7 +59,6 @@ class Game{
 		HexSpace *selected_hex2;
 		states state;
 
-		//REDUNDANT PROPERTY
 		Vector2 MousePosition;
 
 		void playerInit(int playerCount);
@@ -81,7 +84,7 @@ class Game{
 		void escape();
 
 		//ui creation helper function
-		void createUiElem(uiElem ui_type, float dmg_taken);
+		void createUiElem(uiElem ui_type);
 
 		//searches for collisions with properties of a hexagon and potentially transitions state
 		void handleCollision(HexSpace *collided_hex, Vector2 mouse_point);

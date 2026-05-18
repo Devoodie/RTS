@@ -54,7 +54,7 @@ namespace engine {
 		if(this->ui_elements.size() > 1) this->ui_elements.erase(ui_elements.begin() + 1);
 	}
 
-	void Game::createUiElem(uiElem ui_type, float dmg_taken = 0.0){
+	void Game::createUiElem(uiElem ui_type){
 		switch(ui_type){
 			case UI_OPTIONS_1:
 				this->ui_elements.emplace_back((Rectangle){
@@ -221,10 +221,9 @@ namespace engine {
 				} else if(std::abs(hex_ptr->indices.x - selected_hex->indices.x) <= selected_unit->attack_range and
 					  std::abs(hex_ptr->indices.y - selected_hex->indices.y) <= selected_unit->attack_range) {
 
-					//WORKHERE
-					std::cout << "FIREEEEEEE" <<std::endl;
-					Vector2 button_position = unit_ptr->position;
+					this->selected_unit2 = unit_ptr;
 
+					Vector2 button_position = unit_ptr->position;
 					this->MousePosition = button_position;
 					this->createUiElem(UI_OPTIONS_1);
 					
@@ -233,7 +232,7 @@ namespace engine {
 
 					//i don't want to put this before every single append
 					//this->ui_elements.erase(ui_elements.begin() + 1);
-					this->createUiElem(UI_FIRING_TEXT);
+					std::cout << "FIREEEEEEE" <<std::endl;
 				}
 				break;
 				  }
@@ -356,7 +355,7 @@ namespace engine {
 
 		Vector2 destRect = {
 			.x = unit_ptr->position.x - grid::inradius / 2,
-			.y = unit_ptr->position.y - grid::radius  / 2,
+			.y = unit_ptr->position.y - grid::radius / 2,
 		};
 
 		if(destRect.x != unit_ptr->render_rect.x or destRect.y != unit_ptr->render_rect.y){
@@ -379,8 +378,30 @@ namespace engine {
 	}
 //WORK HERE
 	void Game::Fire(){
-		ColorAlpha(RED, this->ui_elements[1].width]);
-		DrawTextEx(GetFontDefault(), TextFormat("",), Vector2 position, float fontSize, float spacing, Color tint)
+		Color fire_text = ColorAlpha(RED, fire_txt_alpha);
+
+		Vector2 text_position = {
+			.x = ui_elements[1].x,
+			.y = ui_elements[1].y,
+		};
+
+		// Vector2 destination = {
+		// 	.x = selected_unit2->position.x,
+		// 	.y = ,
+		// };
+
+		DrawTextEx(
+			GetFontDefault(), 
+			TextFormat("%s Took %i Damage from %s!", selected_unit2->name.c_str(), this->dmg_taken, selected_unit->name.c_str()),
+			text_position, 
+			15, 
+			0, 
+			fire_text
+			);
+
+		//NEEDS CHANGES
+		float max_dist = 25 * GetFrameTime();
+//		Vector2 new_coords = Vector2MoveTowards(text_position, Vector2 target, float maxDistance);
 	}
 
 	void Game::versus(){

@@ -3,37 +3,28 @@
 
 namespace ui{
 	//THIS SHOULD BE CHANGED FROM RENDER OPTIONS TO RENDER UI
-	//CHECK NULL POINTERS TO DETERMINE WHICH RECTANGLES SHOULD BE RENDERED
 	void renderOptions(const engine::Game &engine_instance, std::unordered_map<int, Texture2D> texture_map){
 		switch(engine_instance.state){
+			case engine::FIRE:
 			case engine::OPTIONS:{
-				Texture2D &move_button = texture_map[grid::MOVE_BUTTON];
+				Texture2D opt_texture;
+				if(engine_instance.state == engine::FIRE){
+					opt_texture = texture_map[grid::FIRE_BUTTON];
+				} else{
+					opt_texture = texture_map[grid::MOVE_BUTTON];
+				}
 
 				Rectangle texture_rect = {
 				     .x = 0,
 				     .y = 0,
-				     .width = (float)move_button.width,
-				     .height = (float)move_button.height,
+				     .width = (float)opt_texture.width,
+				     .height = (float)opt_texture.height,
 				};
 
 			        Rectangle options = engine_instance.ui_elements[1];
-			        DrawTexturePro(move_button, texture_rect, options, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
+			        DrawTexturePro(opt_texture, texture_rect, options, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
 				break;
 				}
-			case engine::FIRE:{
-				Texture2D &move_button = texture_map[grid::FIRE_BUTTON];
-
-				Rectangle texture_rect = {
-				     .x = 0,
-				     .y = 0,
-				     .width = (float)move_button.width,
-				     .height = (float)move_button.height,
-				};
-
-			        Rectangle options = engine_instance.ui_elements[1];
-			        DrawTexturePro(move_button, texture_rect, options, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
-				break;
-				  }
 			case engine::FIRING:
 //					  DrawText(const char *text, int posX, int posY, int fontSize, Color color);
 					  break;
