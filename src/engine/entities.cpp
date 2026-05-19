@@ -1,9 +1,7 @@
 #include <engine/entities.hpp>
 
-Unit::Unit(HexSpace *hex, UnitType type) {
-	//NEEDS CHANGES
-	name = "Dark Solider";
-
+Unit::Unit(HexSpace *hex, UnitType type, int index) {
+	this->player_index = index;
 	current_hex = hex;
 	position = {
 		.x = hex->x_position,
@@ -20,8 +18,16 @@ Unit::Unit(HexSpace *hex, UnitType type) {
 
 	switch(type) {
 		case INFANTRY:
+			name = "Dark Solider";
+			hp = 100.0;
+			attacks = 1;
 			attack_range = 1;
 			move_speed = 4;
+			cmbt_str = 10;
+			defense = 0;
+
+			atks_left = attacks;
+			mvs_left = move_speed;
 		default:
 			attack_range = 1;
 			move_speed = 1;

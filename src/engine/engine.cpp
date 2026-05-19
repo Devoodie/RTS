@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <iostream>
+#include <cassert>
 #include <raylib.h>
 #include <raymath.h>
 #include <engine/engine.hpp>
@@ -116,26 +117,22 @@ namespace engine {
 				std::cout << "Unit Selected" << std::endl;
 				Unit *unit_ptr = (Unit*)selection;
 
-				bool unit_owned = false;
-				//HEX INFO NEEDS THIS TOO
-				for(int i = 0; i < this->players[player_index].units.size(); ++i){
-					Unit *current_ptr = players[player_index].units[i];
-					if(current_ptr == unit_ptr){
-						unit_owned = true;
-						break;
-					}
-				}
+				bool unit_owned = unit_ptr->player_index == this->player_index;
 
+				//HEX INFO NEEDS THIS TOO
 				if(unit_owned){
 					this->selected_unit = unit_ptr;
 					this->selected_hex = unit_ptr->current_hex;
 					this->state = UNIT1;
-					break;
+
 				} else {
 					//SHOW COMPARISON
 					//WORK HERE
+					this-> selected_unit = unit_ptr;
 					this->state = UNIT_INFO;
+					this->createUiElem(UI_INFO);
 				}
+				break;
 				   }
 			case HEX:
 				this->selected_hex = (HexSpace*)selection;
@@ -187,7 +184,7 @@ namespace engine {
 					this->escape();
 					return;
 				}
-
+				break;
 				//UNIT COMPARISON
 				//this->selected_unit2 = unit_ptr;
 				  }
@@ -214,8 +211,7 @@ namespace engine {
 				if(unit_ptr == selected_unit) this->escape();
 
 				HexSpace* hex_ptr = unit_ptr->current_hex;
-				const std::vector<Unit*> &players_units = this->players[this->player_index].units;
-				bool unit_owned = std::ranges::contains(players_units.begin(), players_units.end(), unit_ptr);
+				bool unit_owned = unit_ptr->player_index == this->player_index;
 
 				if(unit_owned){
 				} else if(std::abs(hex_ptr->indices.x - selected_hex->indices.x) <= selected_unit->attack_range and
@@ -312,6 +308,10 @@ namespace engine {
 		return false;
 	}
 
+	//can't decide if this belongs in engine or unit
+	float Game::calcDamage(){
+	}
+
 	bool Game::uiCollisionCheck(){
 		Vector2 mouse_point = GetMousePosition();
 		//0 endturn button, 1 Others(????), 
@@ -339,6 +339,9 @@ namespace engine {
 						break;
 					
 				case FIRE:
+						assert("Number of atks Greater than 0" && this->selected_unit->atks_left > 0);
+						this->selected_unit->atks_left -= 1;
+
 						break;
 				default:
 					//std::cerr << "UI element " << i << " Not Recognized" << std::endl;

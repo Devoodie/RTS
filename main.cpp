@@ -36,9 +36,9 @@ int main(void){
 	std::cout << "initialize grid" << std::endl;
 	grid::initGrid(grid_height, grid_length, game.grid_space);
 
-	Unit testUnit(&game.grid_space[0][0], INFANTRY);
+	Unit testUnit(&game.grid_space[0][0], INFANTRY, 0);
 
-	Unit enemytestUnit(&game.grid_space[0][7], INFANTRY);
+	Unit enemytestUnit(&game.grid_space[0][7], INFANTRY, 1);
 
 	game.units.push_back(&testUnit);
 	game.units.push_back(&enemytestUnit);

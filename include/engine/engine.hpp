@@ -92,6 +92,8 @@ class Game{
 		//checks for collisions with hexagons then calls handle collision
 		bool collisionCheck();
 
+		float calcDamage();
+
 		bool uiCollisionCheck();
 
 		void Move();
