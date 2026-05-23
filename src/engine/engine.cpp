@@ -310,6 +310,24 @@ namespace engine {
 
 	//can't decide if this belongs in engine or unit
 	float Game::calcDamage(){
+		//base damage when attack = defense is 40
+		int diff = this->selected_unit2->defense - this->selected_unit->cmbt_str;
+		float dmg = 40.0;
+		//reduction/enhancement based upon defense
+		float multipier = 1.0;
+
+		if(diff > 3){
+			float x = ((diff - 3) * .6) + .6;
+			multipier = (4 * x) / (5 * x + 1);
+		} else if(diff > 0){
+			multipier = diff * .2;
+		} else if(diff < 0){
+			//increase damage
+		}
+
+		//apply environmental defense
+		dmg *= multipier;
+		return dmg;
 	}
 
 	bool Game::uiCollisionCheck(){

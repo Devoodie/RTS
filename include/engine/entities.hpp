@@ -14,6 +14,7 @@ enum UnitType {
 
 class Unit {
 	public:
+		//put this some where else and use a unit id
 		std::string name;
 		int player_index; 
 
