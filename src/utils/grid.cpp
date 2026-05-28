@@ -10,6 +10,7 @@ HexSpace::HexSpace (){
 	x_position = 0;
 	y_position = 0;
 	occupier = nullptr;
+	env_defense = 0;
 };
 
 namespace grid {

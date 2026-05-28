@@ -326,6 +326,12 @@ namespace engine {
 		}
 
 		//apply environmental defense
+		if(this->selected_hex2->env_defense < 0){
+			float env_mul = .05 * this->selected_hex2->env_defense;
+			multipier *= env_mul;
+
+		}
+
 		dmg *= multipier;
 		return dmg;
 	}

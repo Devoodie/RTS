@@ -13,6 +13,7 @@ class Unit;
 class HexSpace {	
 	public:
 		HexSpace *neighbors[6] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+
 		float x_position;
 		float y_position;
 
@@ -20,6 +21,7 @@ class HexSpace {
 
 		Unit *occupier;
 		int move_cost;
+		int env_defense;
 
 		Vector2 vertices[6];
 		bool operator==(const HexSpace& other) const {
