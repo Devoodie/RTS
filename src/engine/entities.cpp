@@ -24,7 +24,7 @@ Unit::Unit(HexSpace *hex, UnitType type, int index) {
 			attack_range = 1;
 			move_speed = 4;
 			cmbt_str = 10;
-			defense = 0;
+			defense = 1;
 
 			atks_left = attacks;
 			mvs_left = move_speed;

@@ -75,12 +75,18 @@ namespace engine {
 				break;
 				//temporary
 			case UI_FIRING_TEXT:
-				this->ui_elements.emplace_back((Rectangle){
-					.x = float(selected_unit2->position.x - (selected_unit2->render_rect.width / 4)),
-					.y = this->selected_unit2->position.y,
-					.width = 255,
-					.height = 0,
-					});
+				this->dmg_txt_index = this->messages.size();
+				Vector2 text_pos = {
+					.x = this->selected_unit2->position.x - grid::inradius / 2,
+					.y = this->selected_unit2->position.y - grid::radius,
+				};
+
+				this->messages.emplace_back((Text){
+						.content = TextFormat("-%.2f HP", this->dmg_taken),
+						.text_color = RED,
+						.position = text_pos,
+						.font_size = 15,
+						});
 				break;
 		}
 	}
@@ -218,6 +224,7 @@ namespace engine {
 					  std::abs(hex_ptr->indices.y - selected_hex->indices.y) <= selected_unit->attack_range) {
 
 					this->selected_unit2 = unit_ptr;
+					this->selected_hex2 = hex_ptr;
 
 					Vector2 button_position = unit_ptr->position;
 					this->MousePosition = button_position;
@@ -267,6 +274,9 @@ namespace engine {
 				break;
 			case UNIT_INFO:
 				unitInfoTransition(input, selection);
+				break;
+				//ad fire transition
+			case FIRE:
 				break;
 			default:
 				std::cerr << "ERR STATE " << input << " NOT FOUND (transitionState)" << std::endl;
@@ -325,11 +335,18 @@ namespace engine {
 			//increase damage
 		}
 
+		//hp
+		float i = 1;
+		while(i * 10 < this->selected_unit->hp ){
+			i++;
+		}
+
+		multipier *= (i * .10);
+
 		//apply environmental defense
-		if(this->selected_hex2->env_defense < 0){
+		if(this->selected_hex2->env_defense > 0){
 			float env_mul = .05 * this->selected_hex2->env_defense;
 			multipier *= env_mul;
-
 		}
 
 		dmg *= multipier;
@@ -366,6 +383,12 @@ namespace engine {
 						assert("Number of atks Greater than 0" && this->selected_unit->atks_left > 0);
 						this->selected_unit->atks_left -= 1;
 
+						this->dmg_taken = calcDamage();
+						this->selected_unit2->hp -= this->dmg_taken;
+
+						this->createUiElem(UI_FIRING_TEXT);
+						this->state = FIRING;
+
 						break;
 				default:
 					//std::cerr << "UI element " << i << " Not Recognized" << std::endl;
@@ -398,37 +421,32 @@ namespace engine {
 			unit_ptr->render_rect.x = new_pos.x;
 			unit_ptr->render_rect.y = new_pos.y;
 		} else {
-			selected_hex->occupier = NULL;
-			selected_hex2->occupier = unit_ptr;
 			escape();
 		}
 	}
 //WORK HERE
 	void Game::Fire(){
-		Color fire_text = ColorAlpha(RED, fire_txt_alpha);
+		float y_dest = this->selected_unit2->position.y - grid::radius * 2.5;
+		Text *firing_text = &this->messages[dmg_txt_index];
 
-		Vector2 text_position = {
-			.x = ui_elements[1].x,
-			.y = ui_elements[1].y,
+		if(firing_text->position.y == y_dest) {
+			messages.erase(messages.begin() + dmg_txt_index);
+			this->escape();
+		}
+		
+		Color &fire_text = firing_text->text_color;
+
+		Vector2 destination = {
+			.x = firing_text->position.x,
+			.y = y_dest,
 		};
 
-		// Vector2 destination = {
-		// 	.x = selected_unit2->position.x,
-		// 	.y = ,
-		// };
-
-		DrawTextEx(
-			GetFontDefault(), 
-			TextFormat("%s Took %i Damage from %s!", selected_unit2->name.c_str(), this->dmg_taken, selected_unit->name.c_str()),
-			text_position, 
-			15, 
-			0, 
-			fire_text
-			);
+		//edit color according to closeness to the y destination
 
 		//NEEDS CHANGES
-		float max_dist = 25 * GetFrameTime();
-//		Vector2 new_coords = Vector2MoveTowards(text_position, Vector2 target, float maxDistance);
+		float max_dist = GetFrameTime() * 40;
+		Vector2 new_coords = Vector2MoveTowards(firing_text->position, destination, max_dist);
+		firing_text->position = new_coords;
 	}
 
 	void Game::versus(){
@@ -444,10 +462,13 @@ namespace engine {
 			return;
 		}
 
-		if(this->state == MOVING){
-			this->Move();
-			return;
-			//dothis
+		switch(this->state){
+			case MOVING:
+				this->Move();
+				return;
+			case FIRING:
+				this->Fire();
+				return;
 		}
 
 		bool ui_collision = this->uiCollisionCheck();

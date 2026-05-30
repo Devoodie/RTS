@@ -49,4 +49,16 @@ namespace ui{
 		}
 	}
 
+	void renderText(const std::vector<Text> &messages){
+		for(Text message: messages){
+			DrawTextEx(
+					GetFontDefault(), 
+					message.content.c_str(), 
+					message.position, 
+					message.font_size,  //placeholder
+					5, 
+					message.text_color
+					);
+		}
+	}
 }

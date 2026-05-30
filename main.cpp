@@ -73,6 +73,7 @@ int main(void){
 		grid::renderUnits(texture_map, game.units);
 		//render options
 		ui::renderOptions(game, texture_map);
+		ui::renderText(game.messages);
 		DrawText("END TURN", textRect.x, textRect.y, 15, RED);
 
 		EndDrawing();

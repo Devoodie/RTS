@@ -2,7 +2,9 @@
 #define RTS_ENGINE_H
 
 #include "utils/grid.hpp"
+#include <string>
 #include <vector>
+#include <cstdint>
 
 class Player {
 	public:
@@ -11,6 +13,13 @@ class Player {
 	//resources
 
 		Player();
+};
+
+struct Text {
+	std::string content;
+	Color text_color;
+	Vector2 position;
+	float font_size;
 };
 
 namespace engine {
@@ -47,10 +56,12 @@ class Game{
 
 		std::vector<std::vector<HexSpace>> grid_space;
 		std::vector<Rectangle> ui_elements;
+		std::vector<Text> messages;
 
 		//TEMPORARY
 		float fire_txt_alpha;
 		float dmg_taken;
+		uint8_t dmg_txt_index;
 
 		Unit *selected_unit;
 		Unit *selected_unit2;
@@ -106,10 +117,7 @@ class Game{
 		Game();
 		
 };
-
-
 }
 
-//class Collider {};
 //
 #endif
