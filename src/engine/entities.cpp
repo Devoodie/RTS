@@ -18,7 +18,6 @@ Unit::Unit(HexSpace *hex, UnitType type, int index) {
 
 	switch(type) {
 		case INFANTRY:
-			name = "Dark Solider";
 			hp = 100.0;
 			attacks = 1;
 			attack_range = 1;

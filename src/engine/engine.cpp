@@ -133,7 +133,6 @@ namespace engine {
 
 				} else {
 					//SHOW COMPARISON
-					//WORK HERE
 					this-> selected_unit = unit_ptr;
 					this->state = UNIT_INFO;
 					this->createUiElem(UI_INFO);
@@ -163,7 +162,6 @@ namespace engine {
 				break;
 				  }
 			case HEX:{
-				//WRONG WORK HERE
 				HexSpace *hex_ptr = (HexSpace*)selection;
 				if(hex_ptr->occupier != nullptr){ 
 					this->ui_elements[1].x = 16384;
@@ -258,6 +256,46 @@ namespace engine {
 		}
 	}
 
+	void Game::fireTransition(inputAlphabet input, void *selection){
+		switch(input){
+			case UNIT:{
+				//WORKHERE
+				Unit* unit_ptr = (Unit*)selection;
+				if(this->selected_unit == unit_ptr or this->selected_unit2 == unit_ptr){
+					this->selected_unit2 = nullptr;
+					this->selected_hex2 = nullptr;
+					this->state = UNIT1;
+					this->ui_elements.erase(ui_elements.begin() + 1);
+					this->escape();
+					return;
+				} else if (unit_ptr->player_index == this->player_index){
+					//for now change the selected unit
+					this->selected_unit2 = nullptr;
+					this->selected_hex2 = nullptr;
+					this->selected_unit = unit_ptr;
+					this->selected_hex = unit_ptr->current_hex;
+					this->state = UNIT1;
+					this->ui_elements.erase(ui_elements.begin() + 1);
+				} else {
+					HexSpace* hex_ptr = unit_ptr->current_hex;
+					if (std::abs(hex_ptr->indices.x - selected_hex->indices.x) <= selected_unit->attack_range and
+					  std::abs(hex_ptr->indices.y - selected_hex->indices.y) <= selected_unit->attack_range){
+						this->selected_unit2 = unit_ptr;
+					} 
+					//otherwise idk 
+				}
+				//c
+				break;
+				  }
+			case HEX:{
+					 //DO MOVEment stuff from options 
+				 }
+			default:
+				return;
+		}
+
+	}
+
 	void Game::transitionState(inputAlphabet input, void *selection){
 		switch(this->state){
 			case IDLE:
@@ -277,6 +315,7 @@ namespace engine {
 				break;
 				//ad fire transition
 			case FIRE:
+				fireTransition(input, selection);
 				break;
 			default:
 				std::cerr << "ERR STATE " << input << " NOT FOUND (transitionState)" << std::endl;
@@ -424,7 +463,7 @@ namespace engine {
 			escape();
 		}
 	}
-//WORK HERE
+
 	void Game::Fire(){
 		float y_dest = this->selected_unit2->position.y - grid::radius * 2.5;
 		Text *firing_text = &this->messages[dmg_txt_index];

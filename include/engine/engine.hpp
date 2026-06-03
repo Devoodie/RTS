@@ -77,16 +77,20 @@ class Game{
 
 		//All Transition functions change state and state should only be changed in transition functions
 		
-		void hexInfoTransition(inputAlphabet input, void *selection);
 		//transitions fsm from idle to another state
 		void idleTransition(inputAlphabet input, void *selection);
 
 		//transitions fsm from option to another state
 		void optionTransition(inputAlphabet input, void *selection);
 
-		void unitInfoTransition(inputAlphabet input, void *selection);
+		void hexInfoTransition(inputAlphabet input, void *selection);
+
 		//transitions fsm from unit to another state
 		void unitTransition(inputAlphabet input, void *selection);
+
+		void unitInfoTransition(inputAlphabet input, void *selection);
+
+		void fireTransition(inputAlphabet input, void *selection);
 
 		//handles state transition calls 
 		void transitionState(inputAlphabet input, void *selection);

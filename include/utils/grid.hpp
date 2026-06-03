@@ -13,11 +13,10 @@ class Unit;
 class HexSpace {	
 	public:
 		HexSpace *neighbors[6] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+		Vector2 indices;
 
 		float x_position;
 		float y_position;
-
-		Vector2 indices;
 
 		Unit *occupier;
 		int move_cost;
