@@ -357,41 +357,6 @@ namespace engine {
 		return false;
 	}
 
-	//can't decide if this belongs in engine or unit
-	float Game::calcDamage(){
-		//base damage when attack = defense is 40
-		int diff = this->selected_unit2->defense - this->selected_unit->cmbt_str;
-		float dmg = 40.0;
-		//reduction/enhancement based upon defense
-		float multipier = 1.0;
-
-		if(diff > 3){
-			float x = ((diff - 3) * .6) + .6;
-			multipier = (4 * x) / (5 * x + 1);
-		} else if(diff > 0){
-			multipier = diff * .2;
-		} else if(diff < 0){
-			//increase damage
-		}
-
-		//hp
-		float i = 1;
-		while(i * 10 < this->selected_unit->hp ){
-			i++;
-		}
-
-		multipier *= (i * .10);
-
-		//apply environmental defense
-		if(this->selected_hex2->env_defense > 0){
-			float env_mul = .05 * this->selected_hex2->env_defense;
-			multipier *= env_mul;
-		}
-
-		dmg *= multipier;
-		return dmg;
-	}
-
 	bool Game::uiCollisionCheck(){
 		Vector2 mouse_point = GetMousePosition();
 		//0 endturn button, 1 Others(????), 
@@ -436,6 +401,41 @@ namespace engine {
 			return true;
 		}
 		return false;
+	}
+
+	//can't decide if this belongs in engine or unit
+	float Game::calcDamage(){
+		//base damage when attack = defense is 40
+		int diff = this->selected_unit2->defense - this->selected_unit->cmbt_str;
+		float dmg = 40.0;
+		//reduction/enhancement based upon defense
+		float multipier = 1.0;
+
+		if(diff > 3){
+			float x = ((diff - 3) * .6) + .6;
+			multipier = (4 * x) / (5 * x + 1);
+		} else if(diff > 0){
+			multipier = diff * .2;
+		} else if(diff < 0){
+			//increase damage
+		}
+
+		//hp
+		float i = 1;
+		while(i * 10 < this->selected_unit->hp ){
+			i++;
+		}
+
+		multipier *= (i * .10);
+
+		//apply environmental defense
+		if(this->selected_hex2->env_defense > 0){
+			float env_mul = .05 * this->selected_hex2->env_defense;
+			multipier *= env_mul;
+		}
+
+		dmg *= multipier;
+		return dmg;
 	}
 
 	//moves units

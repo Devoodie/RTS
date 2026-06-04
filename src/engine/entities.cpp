@@ -31,5 +31,5 @@ Unit::Unit(HexSpace *hex, UnitType type, int index) {
 			attack_range = 1;
 			move_speed = 1;
 	}
-
+	hex->occupier = this;
 }

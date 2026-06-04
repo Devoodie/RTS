@@ -32,6 +32,7 @@ class Unit {
 
 		uint8_t player_index; 
 
+		//creates unit on hex
 		Unit(HexSpace *hex, UnitType type, int index);
 };
 

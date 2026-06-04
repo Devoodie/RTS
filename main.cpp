@@ -38,7 +38,7 @@ int main(void){
 
 	Unit testUnit(&game.grid_space[0][0], INFANTRY, 0);
 
-	Unit enemytestUnit(&game.grid_space[0][7], INFANTRY, 1);
+	Unit enemytestUnit(&game.grid_space[0][5], INFANTRY, 1);
 
 	game.units.push_back(&testUnit);
 	game.units.push_back(&enemytestUnit);
@@ -47,8 +47,8 @@ int main(void){
 	game.players[1].units.push_back(&enemytestUnit);
 	std::cout << "initialize grid" << std::endl;
 
-	game.grid_space[0][0].occupier = &testUnit;
-	game.grid_space[0][7].occupier = &enemytestUnit;
+	// game.grid_space[0][0].occupier = &testUnit;
+	// game.grid_space[0][5].occupier = &enemytestUnit;
 	
 	//endturn
 	//Should this be in the constructor?
