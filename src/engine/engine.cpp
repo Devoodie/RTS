@@ -288,8 +288,25 @@ namespace engine {
 				break;
 				  }
 			case HEX:{
+ 				//WORKHERE
+				this->state = OPTIONS;
+
+				this->selected_unit2 = nullptr;
+
+				HexSpace *hex_ptr = (HexSpace*)selection;
+				if(hex_ptr->occupier != nullptr){ 
+					this->ui_elements[1].x = 16384;
+					this->ui_elements[1].y = 16384;
+					return;
+				};
+				this->selected_hex2 = hex_ptr;
+				this->MousePosition = GetMousePosition();
+
+				this->ui_elements[1].x = MousePosition.x + grid::inradius / 4;
+				this->ui_elements[1].y = MousePosition.y;
 					 //DO MOVEment stuff from options 
 				 }
+				break;
 			default:
 				return;
 		}

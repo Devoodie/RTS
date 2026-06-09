@@ -67,7 +67,7 @@ int main(void){
 	{
 		game.versus();
 		BeginDrawing();
-		std::cout << sizeof(Unit) << std::endl;
+//		std::cout << sizeof(Unit) << std::endl;
 
 		ClearBackground(RAYWHITE);
 		grid::renderGrid(texture_map, game.grid_space, false);
