@@ -36,8 +36,13 @@ namespace engine {
 	//ADD STATE CHANGES
 	void Game::endTurn(){
 		std::cout << "End Turn!" << std::endl;
+
 		this->escape();
 		player_index = (player_index + 1) % player_count;
+		for (Unit *unit : this->players[player_index].units){
+			//reset units to have their default attack amount 
+			unit->atks_left = 1;
+		}
 		std::cout << "Player Index: " << player_index;
 		//state transition
 
@@ -156,10 +161,36 @@ namespace engine {
 		switch(input){
 			case UNIT:{
 				Unit* unit_ptr = (Unit*)selection;
-				if(this->selected_unit == unit_ptr){
+				bool eql_unit2;
+				if(this->state == FIRE) eql_unit2 = this->selected_unit2 == unit_ptr;
+				if(this->selected_unit == unit_ptr or eql_unit2){
+					if(this->state == FIRE) this->selected_unit2 = nullptr;
+					this->selected_hex2 = nullptr;
+					this->state = UNIT1;
+					this->ui_elements.erase(ui_elements.begin() + 1);
 					this->escape();
 					return;
-				} 
+				} else if (unit_ptr->player_index == this->player_index){
+					//for now change the selected unit
+					if (this->state == FIRE) this->selected_unit2 = nullptr;
+					this->selected_hex2 = nullptr;
+					this->selected_unit = unit_ptr;
+					this->selected_hex = unit_ptr->current_hex;
+					this->state = UNIT1;
+					this->ui_elements.erase(ui_elements.begin() + 1);
+				} else {
+					HexSpace* hex_ptr = unit_ptr->current_hex;
+					if (std::abs(hex_ptr->indices.x - selected_hex->indices.x) <= selected_unit->attack_range and
+					  std::abs(hex_ptr->indices.y - selected_hex->indices.y) <= selected_unit->attack_range){
+						this->selected_unit2 = unit_ptr;
+						if(this->state != FIRE){
+							this->state = FIRE;
+							this->ui_elements[1].x = unit_ptr->position.x;
+							this->ui_elements[1].y = unit_ptr->position.y;
+						};
+					} 
+					//otherwise idk 
+				}
 				break;
 				  }
 			case HEX:{
@@ -263,63 +294,6 @@ namespace engine {
 		}
 	}
 
-	void Game::fireTransition(inputAlphabet input, void *selection){
-		switch(input){
-			case UNIT:{
-				//WORKHERE
-				Unit* unit_ptr = (Unit*)selection;
-				if(this->selected_unit == unit_ptr or this->selected_unit2 == unit_ptr){
-					this->selected_unit2 = nullptr;
-					this->selected_hex2 = nullptr;
-					this->state = UNIT1;
-					this->ui_elements.erase(ui_elements.begin() + 1);
-					this->escape();
-					return;
-				} else if (unit_ptr->player_index == this->player_index){
-					//for now change the selected unit
-					this->selected_unit2 = nullptr;
-					this->selected_hex2 = nullptr;
-					this->selected_unit = unit_ptr;
-					this->selected_hex = unit_ptr->current_hex;
-					this->state = UNIT1;
-					this->ui_elements.erase(ui_elements.begin() + 1);
-				} else {
-					HexSpace* hex_ptr = unit_ptr->current_hex;
-					if (std::abs(hex_ptr->indices.x - selected_hex->indices.x) <= selected_unit->attack_range and
-					  std::abs(hex_ptr->indices.y - selected_hex->indices.y) <= selected_unit->attack_range){
-						this->selected_unit2 = unit_ptr;
-					} 
-					//otherwise idk 
-				}
-				//c
-				break;
-				  }
-			case HEX:{
- 				//WORKHERE
-				this->state = OPTIONS;
-
-				this->selected_unit2 = nullptr;
-
-				HexSpace *hex_ptr = (HexSpace*)selection;
-				if(hex_ptr->occupier != nullptr){ 
-					this->ui_elements[1].x = 16384;
-					this->ui_elements[1].y = 16384;
-					return;
-				};
-				this->selected_hex2 = hex_ptr;
-				this->MousePosition = GetMousePosition();
-
-				this->ui_elements[1].x = MousePosition.x + grid::inradius / 4;
-				this->ui_elements[1].y = MousePosition.y;
-					 //DO MOVEment stuff from options 
-				 }
-				break;
-			default:
-				return;
-		}
-
-	}
-
 	void Game::transitionState(inputAlphabet input, void *selection){
 		switch(this->state){
 			case IDLE:
@@ -328,6 +302,7 @@ namespace engine {
 			case UNIT1:
 				unitTransition(input, selection);
 				break;
+			case FIRE:
 			case OPTIONS:
 				optionTransition(input, selection);
 				break;
@@ -338,9 +313,9 @@ namespace engine {
 				unitInfoTransition(input, selection);
 				break;
 				//ad fire transition
-			case FIRE:
-				fireTransition(input, selection);
-				break;
+			// case FIRE:
+			// 	fireTransition(input, selection);
+			// 	break;
 			default:
 				std::cerr << "ERR STATE " << input << " NOT FOUND (transitionState)" << std::endl;
 				return;
