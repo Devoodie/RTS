@@ -151,6 +151,7 @@ namespace engine {
 		}
 	}
 
+	//this will handle fire and option transition
 	void Game::optionTransition(inputAlphabet input, void *selection){
 		switch(input){
 			case UNIT:{
@@ -162,6 +163,12 @@ namespace engine {
 				break;
 				  }
 			case HEX:{
+
+				if(this->state == FIRE) {
+					this->state = OPTIONS;
+					this->selected_unit2 = nullptr;
+				}
+
 				HexSpace *hex_ptr = (HexSpace*)selection;
 				if(hex_ptr->occupier != nullptr){ 
 					this->ui_elements[1].x = 16384;
