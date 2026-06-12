@@ -18,6 +18,7 @@ class Unit {
 		Rectangle render_rect;
 		HexSpace *current_hex;
 		Vector2 position;
+		UnitType type;
 
 		//stats 
 		float hp;
@@ -30,10 +31,24 @@ class Unit {
 		uint8_t atks_left;
 		uint8_t mvs_left;
 
-		uint8_t player_index; 
+		uint8_t owner_index; 
 
 		//creates unit on hex
 		Unit(HexSpace *hex, UnitType type, int index);
+
+		//Copy assignment operator for vector
+};
+
+enum StructureType {
+	HQ,
+	FACTORY,
+	RESEARCH,
+	AIRPORT,
+};
+
+class Structure{
+	public:
+		StructureType type;
 };
 
 #endif

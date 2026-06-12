@@ -134,7 +134,7 @@ namespace engine {
 				std::cout << "Unit Selected" << std::endl;
 				Unit *unit_ptr = (Unit*)selection;
 
-				bool unit_owned = unit_ptr->player_index == this->player_index;
+				bool unit_owned = unit_ptr->owner_index == this->player_index;
 
 				//HEX INFO NEEDS THIS TOO
 				if(unit_owned){
@@ -176,7 +176,7 @@ namespace engine {
 					this->ui_elements.erase(ui_elements.begin() + 1);
 					this->escape();
 					return;
-				} else if (unit_ptr->player_index == this->player_index){
+				} else if (unit_ptr->owner_index == this->player_index){
 					//for now change the selected unit
 					if (this->state == FIRE) this->selected_unit2 = nullptr;
 					this->selected_hex2 = nullptr;
@@ -264,7 +264,7 @@ namespace engine {
 				if(unit_ptr == selected_unit) this->escape();
 
 				HexSpace* hex_ptr = unit_ptr->current_hex;
-				bool unit_owned = unit_ptr->player_index == this->player_index;
+				bool unit_owned = unit_ptr->owner_index == this->player_index;
 
 				if(unit_owned){
 				} else if(std::abs(hex_ptr->indices.x - selected_hex->indices.x) <= selected_unit->attack_range and

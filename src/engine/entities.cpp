@@ -1,10 +1,7 @@
 #include <engine/entities.hpp>
 #include <iostream>
 
-Unit::Unit(HexSpace *hex, UnitType type, int index) {
-	this->player_index = index;
-	this->current_hex = hex;
-
+Unit::Unit(HexSpace *hex, UnitType type, int index) : current_hex(hex), type(type), owner_index(index) {
 	position = {
 		.x = hex->x_position,
 		.y = hex->y_position,
