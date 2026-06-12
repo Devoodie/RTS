@@ -42,7 +42,6 @@ int main(void){
 	game.players[1].units.push_back(game.units.size());
 	game.units.emplace_back(&game.grid_space[0][5], INFANTRY, 1);
 
-	std::cout << "initialize grid" << std::endl;
 
 	//endturn
 	//Should this be in the constructor?

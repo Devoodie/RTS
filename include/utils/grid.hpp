@@ -9,7 +9,7 @@ extern "C" {
 }
 
 class Unit;
-
+//MAJOR ISSUE ALL HEX'S WILL HAVE INVALID OCCUPIER POINTERS WHEN THE UNIT VECTOR REALLOCATES CHANGE TO INDEXING
 class HexSpace {	
 	public:
 		HexSpace *neighbors[6] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};

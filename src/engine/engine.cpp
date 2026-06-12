@@ -332,9 +332,7 @@ namespace engine {
 
 	void Game::handleCollision(HexSpace *collided_hex, Vector2 mouse_point){
 		if(collided_hex->occupier != nullptr){
-			std::cout << " not null" << std::endl;
 			//CHANGE ALL TO RELEASED OR DOWN (THEY MUST ALL BE THE SAME)
-			std::cout << collided_hex->occupier->render_rect.x << ", " << collided_hex->occupier->render_rect.y << std::endl;
 			if (CheckCollisionPointRec(mouse_point, collided_hex->occupier->render_rect) and IsMouseButtonReleased(0)) {
 				//do unit stuff
 				std::cout << "Unit Collision Detected" << std::endl;
@@ -463,7 +461,6 @@ namespace engine {
 
 		if(destRect.x != unit_ptr->render_rect.x or destRect.y != unit_ptr->render_rect.y){
 
-//			std::cout << "Position: (" << unit_ptr->render_rect.x << "," << unit_ptr->render_rect.y << ")\n" <<"Desired Position: (" << destRect.x << " ," << destRect.y << ")" << std::endl;
 			Vector2 renderRect = {
 				.x = unit_ptr->render_rect.x, 
 				.y = unit_ptr->render_rect.y
@@ -504,7 +501,6 @@ namespace engine {
 
 	void Game::versus(){
 		if(players.size() == 0) playerInit(player_count);
-		std::cout << grid_space[0][5].occupier << ", "  << &units[1] << std::endl;
 
 		Player current_player = players[player_index];
 
