@@ -8,8 +8,7 @@
 
 class Player {
 	public:
-		std::vector<Unit*> units;
-	//structures Aidan ARRAYLIST
+		std::vector<uint16_t> units;
 	//resources
 
 		Player();
@@ -52,7 +51,7 @@ class Game{
 		int player_index;
 		int player_count;
 		std::vector<Player> players;
-		std::vector<Unit*> units;
+		std::vector<Unit> units;
 
 		std::vector<std::vector<HexSpace>> grid_space;
 		std::vector<Rectangle> ui_elements;
@@ -80,7 +79,7 @@ class Game{
 		//transitions fsm from idle to another state
 		void idleTransition(inputAlphabet input, void *selection);
 
-		//transitions fsm from option to another state
+		//transitions handles fire transitions option transitions
 		void optionTransition(inputAlphabet input, void *selection);
 
 		void hexInfoTransition(inputAlphabet input, void *selection);
@@ -89,8 +88,6 @@ class Game{
 		void unitTransition(inputAlphabet input, void *selection);
 
 		void unitInfoTransition(inputAlphabet input, void *selection);
-
-		void fireTransition(inputAlphabet input, void *selection);
 
 		//handles state transition calls 
 		void transitionState(inputAlphabet input, void *selection);

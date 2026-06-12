@@ -36,20 +36,14 @@ int main(void){
 	std::cout << "initialize grid" << std::endl;
 	grid::initGrid(grid_height, grid_length, game.grid_space);
 
-	Unit testUnit(&game.grid_space[0][0], INFANTRY, 0);
+	game.players[0].units.push_back(game.units.size());
+	game.units.emplace_back(&game.grid_space[0][0], INFANTRY, 0);
 
-	Unit enemytestUnit(&game.grid_space[0][5], INFANTRY, 1);
+	game.players[1].units.push_back(game.units.size());
+	game.units.emplace_back(&game.grid_space[0][5], INFANTRY, 1);
 
-	game.units.push_back(&testUnit);
-	game.units.push_back(&enemytestUnit);
-
-	game.players[0].units.push_back(&testUnit);
-	game.players[1].units.push_back(&enemytestUnit);
 	std::cout << "initialize grid" << std::endl;
 
-	// game.grid_space[0][0].occupier = &testUnit;
-	// game.grid_space[0][5].occupier = &enemytestUnit;
-	
 	//endturn
 	//Should this be in the constructor?
 	Rectangle textRect = {
@@ -67,11 +61,10 @@ int main(void){
 	{
 		game.versus();
 		BeginDrawing();
-//		std::cout << sizeof(Unit) << std::endl;
 
 		ClearBackground(RAYWHITE);
 		grid::renderGrid(texture_map, game.grid_space, false);
-		grid::renderUnits(texture_map, game.units);
+		grid::renderUnits(texture_map, game.units, true);
 		//render options
 		ui::renderOptions(game, texture_map);
 		ui::renderText(game.messages);

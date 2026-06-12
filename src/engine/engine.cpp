@@ -6,10 +6,9 @@
 #include <engine/engine.hpp>
 #include <engine/entities.hpp>
 #include <unordered_map>
-#include <algorithm>
 
 Player::Player(){
-	units = std::vector<Unit*>();
+	units = std::vector<uint16_t>();
 	units.reserve(12);
 }
 
@@ -39,11 +38,14 @@ namespace engine {
 
 		this->escape();
 		player_index = (player_index + 1) % player_count;
-		for (Unit *unit : this->players[player_index].units){
-			//reset units to have their default attack amount 
-			unit->atks_left = 1;
+		//reset units to have their default attack amount 
+		
+		for (uint16_t unit_index : this->players[player_index].units){
+			Unit &unit = this->units[unit_index];
+			unit.atks_left = 1;
 		}
-		std::cout << "Player Index: " << player_index;
+
+		std::cout << "Player Index: " << player_index << std::endl;
 		//state transition
 
 		return;
@@ -193,14 +195,19 @@ namespace engine {
 				}
 				break;
 				  }
-			case HEX:{
+			case HEX:{	
+				HexSpace *hex_ptr = (HexSpace*)selection;
+
+				if(hex_ptr == selected_hex2){
+					this->escape();
+					return;
+				}
 
 				if(this->state == FIRE) {
 					this->state = OPTIONS;
 					this->selected_unit2 = nullptr;
 				}
 
-				HexSpace *hex_ptr = (HexSpace*)selection;
 				if(hex_ptr->occupier != nullptr){ 
 					this->ui_elements[1].x = 16384;
 					this->ui_elements[1].y = 16384;
@@ -324,7 +331,9 @@ namespace engine {
 
 	void Game::handleCollision(HexSpace *collided_hex, Vector2 mouse_point){
 		if(collided_hex->occupier != nullptr){
+			std::cout << " not null" << std::endl;
 			//CHANGE ALL TO RELEASED OR DOWN (THEY MUST ALL BE THE SAME)
+			std::cout << collided_hex->occupier->render_rect.x << ", " << collided_hex->occupier->render_rect.y << std::endl;
 			if (CheckCollisionPointRec(mouse_point, collided_hex->occupier->render_rect) and IsMouseButtonReleased(0)) {
 				//do unit stuff
 				std::cout << "Unit Collision Detected" << std::endl;
@@ -388,6 +397,11 @@ namespace engine {
 
 						this->dmg_taken = calcDamage();
 						this->selected_unit2->hp -= this->dmg_taken;
+
+						if(this->selected_unit2->hp < 0){
+							// free the unit
+
+						}
 
 						this->createUiElem(UI_FIRING_TEXT);
 						this->state = FIRING;
@@ -489,6 +503,7 @@ namespace engine {
 
 	void Game::versus(){
 		if(players.size() == 0) playerInit(player_count);
+		std::cout << grid_space[0][5].occupier << ", "  << &units[1] << std::endl;
 
 		Player current_player = players[player_index];
 

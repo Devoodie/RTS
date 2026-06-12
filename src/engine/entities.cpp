@@ -1,8 +1,11 @@
 #include <engine/entities.hpp>
+#include <iostream>
 
 Unit::Unit(HexSpace *hex, UnitType type, int index) {
 	this->player_index = index;
-	current_hex = hex;
+	this->current_hex = hex;
+	hex->occupier = this;
+
 	position = {
 		.x = hex->x_position,
 		.y = hex->y_position,
@@ -31,5 +34,4 @@ Unit::Unit(HexSpace *hex, UnitType type, int index) {
 			attack_range = 1;
 			move_speed = 1;
 	}
-	hex->occupier = this;
 }

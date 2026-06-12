@@ -115,7 +115,7 @@ void initGrid(const int row, const int col, std::vector<std::vector<HexSpace>> &
 }
 
 //add visibility rules
-void renderUnits(std::unordered_map<int, Texture2D> texture_map, std::vector<Unit *> units){
+void renderUnits(std::unordered_map<int, Texture2D> texture_map, const std::vector<Unit> &units, bool debug){
 	const float draw_width = inradius * 2;
 	const float draw_height = radius * 2;
 
@@ -136,14 +136,25 @@ void renderUnits(std::unordered_map<int, Texture2D> texture_map, std::vector<Uni
 	};
 
 	for(int i = 0; i < units.size(); ++i){
-		Unit* CurrentUnit = units[i];
-		unit_rectangle.x = CurrentUnit->render_rect.x;
-		unit_rectangle.y = CurrentUnit->render_rect.y;
+		Unit CurrentUnit = units[i];
+		unit_rectangle.x = CurrentUnit.render_rect.x;
+		unit_rectangle.y = CurrentUnit.render_rect.y;
 
 		source_rectangle.width = float(texture_map[DARK_SOLIDER].width);
 		source_rectangle.height = float(texture_map[DARK_SOLIDER].height);
 
 		DrawTexturePro(solider_texture, source_rectangle, unit_rectangle, {.x = 0, .y = 0}, 0, RAYWHITE);
+
+		if(debug){
+		    DrawRectangleLines(
+			    CurrentUnit.render_rect.x, 
+			    CurrentUnit.render_rect.y, 
+			    CurrentUnit.render_rect.width, 
+			    CurrentUnit.render_rect.height, 
+			    RED
+			    );
+
+		}
 	}
 };
 
