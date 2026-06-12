@@ -19,6 +19,7 @@ namespace engine {
 		player_count = 2;
 		player_index = 0;
 		grid_space = std::vector<std::vector<HexSpace>>(8, std::vector<HexSpace>(8));
+		units.reserve(50);
 		state = IDLE;
 	}
 
