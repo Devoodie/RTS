@@ -3,6 +3,7 @@
 
 #include <unordered_map>
 #include <vector>
+#include <cstdint>
 
 extern "C" {
 #include"raylib.h"
@@ -14,11 +15,11 @@ class HexSpace {
 	public:
 		HexSpace *neighbors[6] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 		Vector2 indices;
+		uint16_t occupier_index;
 
 		float x_position;
 		float y_position;
 
-		Unit *occupier;
 		int move_cost;
 		int env_defense;
 

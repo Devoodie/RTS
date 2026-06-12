@@ -104,9 +104,12 @@ class Game{
 		//checks for collisions with hexagons then calls handle collision
 		bool collisionCheck();
 
+		bool uiCollisionCheck();
+
 		float calcDamage();
 
-		bool uiCollisionCheck();
+		//removes unit at index and decrement all indexes 
+		void popUnit(uint16_t rm_index);
 
 		void Move();
 		

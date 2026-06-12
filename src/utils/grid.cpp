@@ -9,7 +9,7 @@
 HexSpace::HexSpace (){
 	x_position = 0;
 	y_position = 0;
-	occupier = nullptr;
+	occupier_index = 65535;
 	env_defense = 0;
 };
 

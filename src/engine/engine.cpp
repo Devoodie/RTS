@@ -209,7 +209,7 @@ namespace engine {
 					this->selected_unit2 = nullptr;
 				}
 
-				if(hex_ptr->occupier != nullptr){ 
+				if(hex_ptr->occupier_index != 65535){ 
 					this->ui_elements[1].x = 16384;
 					this->ui_elements[1].y = 16384;
 					return;
@@ -241,7 +241,7 @@ namespace engine {
 			case HEX:
 				std::cout << "Hex 2 Selected" << std::endl;
 				HexSpace* hex_ptr = (HexSpace*) selection;
-				if(hex_ptr->occupier != nullptr) return; 
+				if(hex_ptr->occupier_index != 65535) return; 
 
 				this->selected_hex2 = hex_ptr;
 				this->MousePosition = GetMousePosition();
@@ -287,7 +287,7 @@ namespace engine {
 				std::cout << "Hex 2 Selected" << std::endl;
 				HexSpace *hex_ptr = (HexSpace*) selection;
 				
-				if(hex_ptr->occupier != nullptr) return;
+				if(hex_ptr->occupier_index != 65535) return;
 
 				this->MousePosition = GetMousePosition();
 				this->selected_hex2 = hex_ptr;
@@ -331,12 +331,14 @@ namespace engine {
 	}
 
 	void Game::handleCollision(HexSpace *collided_hex, Vector2 mouse_point){
-		if(collided_hex->occupier != nullptr){
+		if(collided_hex->occupier_index != 65535){
 			//CHANGE ALL TO RELEASED OR DOWN (THEY MUST ALL BE THE SAME)
-			if (CheckCollisionPointRec(mouse_point, collided_hex->occupier->render_rect) and IsMouseButtonReleased(0)) {
+			Unit* unit_ptr = &this->units[collided_hex->occupier_index];
+			
+			if (CheckCollisionPointRec(mouse_point, unit_ptr->render_rect) and IsMouseButtonReleased(0)) {
 				//do unit stuff
 				std::cout << "Unit Collision Detected" << std::endl;
-				this->transitionState(UNIT, collided_hex->occupier);
+				this->transitionState(UNIT, unit_ptr);
 			}
 			else if(IsMouseButtonReleased(0)) {
 				this->transitionState(HEX, collided_hex);
@@ -383,8 +385,8 @@ namespace engine {
 						selected_unit->position.y = selected_hex2->y_position;
 						selected_unit->current_hex = selected_hex2;
 
-						this->selected_hex->occupier = nullptr;
-						this->selected_hex2->occupier = selected_unit;
+						this->selected_hex2->occupier_index = selected_hex->occupier_index;
+						this->selected_hex->occupier_index = 65535;
 
 						this->state = MOVING;
 						std::cout << "MOVE!" << std::endl;
@@ -397,14 +399,8 @@ namespace engine {
 						this->dmg_taken = calcDamage();
 						this->selected_unit2->hp -= this->dmg_taken;
 
-						if(this->selected_unit2->hp < 0){
-							// free the unit
-
-						}
-
 						this->createUiElem(UI_FIRING_TEXT);
 						this->state = FIRING;
-
 						break;
 				default:
 					//std::cerr << "UI element " << i << " Not Recognized" << std::endl;
@@ -450,6 +446,20 @@ namespace engine {
 		return dmg;
 	}
 
+	void Game::popUnit(uint16_t rm_index){
+		//pop
+		this->units.erase(units.begin() + rm_index);
+		for(uint16_t &unit_index : this->players[player_index].units){
+			if(unit_index >= rm_index) unit_index -= 1;
+		}
+
+		for(auto &hex_row: this->grid_space){
+			for(HexSpace &hex : hex_row){
+				if(hex.occupier_index != 65535 and hex.occupier_index >= rm_index) hex.occupier_index -= 1;
+			}
+		}
+	}
+
 	//moves units
 	void Game::Move(){
 		Unit *unit_ptr = this->selected_unit;
@@ -481,6 +491,14 @@ namespace engine {
 
 		if(firing_text->position.y == y_dest) {
 			messages.erase(messages.begin() + dmg_txt_index);
+			if(this->selected_unit2->hp < 0){
+			// free the unit
+				this->selected_unit2 = nullptr;
+				this->popUnit(this->selected_hex2->occupier_index);
+
+				this->selected_hex2->occupier_index = 65535;
+				this->selected_hex2 = nullptr;
+			};
 			this->escape();
 		}
 		
