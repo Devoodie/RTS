@@ -7,6 +7,8 @@
 #include <engine/entities.hpp>
 #include <unordered_map>
 
+constexpr int unused = 65535;
+
 Player::Player(){
 	units = std::vector<uint16_t>();
 	units.reserve(12);
@@ -38,14 +40,15 @@ namespace engine {
 		std::cout << "End Turn!" << std::endl;
 
 		this->escape();
-		player_index = (player_index + 1) % player_count;
-		//reset units to have their default attack amount 
-		
+
 		for (uint16_t unit_index : this->players[player_index].units){
 			Unit &unit = this->units[unit_index];
 			unit.atks_left = 1;
 		}
 
+		player_index = (player_index + 1) % player_count;
+		//reset units to have their default attack amount 
+		
 		std::cout << "Player Index: " << player_index << std::endl;
 		//state transition
 
@@ -209,7 +212,7 @@ namespace engine {
 					this->selected_unit2 = nullptr;
 				}
 
-				if(hex_ptr->occupier_index != 65535){ 
+				if(hex_ptr->occupier_index != unused){ 
 					this->ui_elements[1].x = 16384;
 					this->ui_elements[1].y = 16384;
 					return;
@@ -241,7 +244,7 @@ namespace engine {
 			case HEX:
 				std::cout << "Hex 2 Selected" << std::endl;
 				HexSpace* hex_ptr = (HexSpace*) selection;
-				if(hex_ptr->occupier_index != 65535) return; 
+				if(hex_ptr->occupier_index != unused) return; 
 
 				this->selected_hex2 = hex_ptr;
 				this->MousePosition = GetMousePosition();
@@ -287,7 +290,7 @@ namespace engine {
 				std::cout << "Hex 2 Selected" << std::endl;
 				HexSpace *hex_ptr = (HexSpace*) selection;
 				
-				if(hex_ptr->occupier_index != 65535) return;
+				if(hex_ptr->occupier_index != unused) return;
 
 				this->MousePosition = GetMousePosition();
 				this->selected_hex2 = hex_ptr;
@@ -331,7 +334,7 @@ namespace engine {
 	}
 
 	void Game::handleCollision(HexSpace *collided_hex, Vector2 mouse_point){
-		if(collided_hex->occupier_index != 65535){
+		if(collided_hex->occupier_index != unused){
 			//CHANGE ALL TO RELEASED OR DOWN (THEY MUST ALL BE THE SAME)
 			Unit* unit_ptr = &this->units[collided_hex->occupier_index];
 			
@@ -386,7 +389,7 @@ namespace engine {
 						selected_unit->current_hex = selected_hex2;
 
 						this->selected_hex2->occupier_index = selected_hex->occupier_index;
-						this->selected_hex->occupier_index = 65535;
+						this->selected_hex->occupier_index = unused;
 
 						this->state = MOVING;
 						std::cout << "MOVE!" << std::endl;
@@ -455,7 +458,7 @@ namespace engine {
 
 		for(auto &hex_row: this->grid_space){
 			for(HexSpace &hex : hex_row){
-				if(hex.occupier_index != 65535 and hex.occupier_index >= rm_index) hex.occupier_index -= 1;
+				if(hex.occupier_index != unused and hex.occupier_index >= rm_index) hex.occupier_index -= 1;
 			}
 		}
 	}
@@ -496,7 +499,7 @@ namespace engine {
 				this->selected_unit2 = nullptr;
 				this->popUnit(this->selected_hex2->occupier_index);
 
-				this->selected_hex2->occupier_index = 65535;
+				this->selected_hex2->occupier_index = unused;
 				this->selected_hex2 = nullptr;
 			};
 			this->escape();

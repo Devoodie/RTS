@@ -121,6 +121,8 @@ void renderUnits(std::unordered_map<int, Texture2D> texture_map, const std::vect
 
 	const Texture2D solider_texture = texture_map[DARK_SOLIDER]; 
 
+	Color color;
+
 	Rectangle unit_rectangle = {
 		.x = 0,
 		.y = 0,
@@ -137,13 +139,20 @@ void renderUnits(std::unordered_map<int, Texture2D> texture_map, const std::vect
 
 	for(int i = 0; i < units.size(); ++i){
 		Unit CurrentUnit = units[i];
+
+		if(CurrentUnit.atks_left == 0){
+			color = GRAY;
+		} else {
+			color = RAYWHITE;
+		}
+
 		unit_rectangle.x = CurrentUnit.render_rect.x;
 		unit_rectangle.y = CurrentUnit.render_rect.y;
 
 		source_rectangle.width = float(texture_map[DARK_SOLIDER].width);
 		source_rectangle.height = float(texture_map[DARK_SOLIDER].height);
 
-		DrawTexturePro(solider_texture, source_rectangle, unit_rectangle, {.x = 0, .y = 0}, 0, RAYWHITE);
+		DrawTexturePro(solider_texture, source_rectangle, unit_rectangle, {.x = 0, .y = 0}, 0, color);
 
 		if(debug){
 		    DrawRectangleLines(
