@@ -5,7 +5,6 @@
 #include <raymath.h>
 #include <engine/engine.hpp>
 #include <engine/entities.hpp>
-#include <unordered_map>
 
 constexpr int unused = 65535;
 
@@ -78,9 +77,9 @@ namespace engine {
 				break;
 			case UI_INFO:
 				this->ui_elements.emplace_back((Rectangle){
-					.x = float((grid::ScreenWidth * 3) / 4 ),
+					.x = float((grid::ScreenWidth * 3) / 4.0 ),
 					.y = 0,
-					.width = float(grid::ScreenWidth / 4),
+					.width = float(grid::ScreenWidth / 4.0),
 					.height = float(grid::ScreenHeight),
 					});
 				break;
@@ -116,6 +115,14 @@ namespace engine {
 			case UNIT:
 				std::cout << "Unit Selected" << std::endl;
 				Unit *unit_ptr = (Unit*)selection;
+
+				if(unit_ptr->owner_index != this->player_index){
+					this->selected_unit = unit_ptr;
+					this->selected_hex = unit_ptr->current_hex;
+					this->state = UNIT_INFO;
+					return;
+				}
+
 				this->selected_unit = unit_ptr;
 				this->selected_hex = unit_ptr->current_hex;
 				this->state = UNIT1;
@@ -123,6 +130,7 @@ namespace engine {
 				break;
 			defaut:
 				std::cerr << "STATE " << input << " NOT HANDLED (hexInfoTransition)" << std::endl;
+				break;
 		}
 	}
 
@@ -138,6 +146,7 @@ namespace engine {
 
 				//HEX INFO NEEDS THIS TOO
 				if(unit_owned){
+					std::cout << "owned" << std::endl;
 					this->selected_unit = unit_ptr;
 					this->selected_hex = unit_ptr->current_hex;
 					this->state = UNIT1;
@@ -244,6 +253,14 @@ namespace engine {
 			case HEX:
 				std::cout << "Hex 2 Selected" << std::endl;
 				HexSpace* hex_ptr = (HexSpace*) selection;
+
+				if(this->selected_unit->owner_index != this->player_index){
+					this->selected_unit = nullptr;
+					this->selected_hex = hex_ptr;
+					this->state = HEX_INFO;
+					return;
+				}
+
 				if(hex_ptr->occupier_index != unused) return; 
 
 				this->selected_hex2 = hex_ptr;
@@ -306,6 +323,7 @@ namespace engine {
 	}
 
 	void Game::transitionState(inputAlphabet input, void *selection){
+		std::cout << "CURRENT STATE: " << this->state <<  ", INPUT: " << input << std::endl;
 		switch(this->state){
 			case IDLE:
 				idleTransition(input, selection);
