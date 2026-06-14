@@ -10,6 +10,7 @@ HexSpace::HexSpace (){
 	x_position = 0;
 	y_position = 0;
 	occupier_index = 65535;
+	structure_index = 65535;
 	env_defense = 0;
 };
 
@@ -112,6 +113,36 @@ void initGrid(const int row, const int col, std::vector<std::vector<HexSpace>> &
 		}
 		y += (int) (radius * 3) / 2;
 	}
+}
+
+void renderBuildings(std::unordered_map<int, Texture2D> texture_map, const std::vector<Building> &buildings, const bool debug){
+	const float draw_width = inradius * 2;
+	const float draw_height = radius * 2;
+
+	const Texture2D hq_texture = texture_map[HQ];
+	
+	Rectangle building_rectangle = {
+		.x = 0,
+		.y = 0,
+		.width = draw_width, 
+		.height = draw_height,
+	};
+
+	Rectangle source_rectangle = {
+		.x = 0,
+		.y = 0,
+		.width = (float)hq_texture.width,
+		.height = (float)hq_texture.height,
+	};
+
+
+	for(Building structure: buildings){
+		building_rectangle.x = structure.hex->x_position - inradius;
+		building_rectangle.y = structure.hex->y_position - radius;
+
+		DrawTexturePro(hq_texture, source_rectangle, building_rectangle, {.x = 0, .y = 0}, 0, RAYWHITE);
+	}
+
 }
 
 //add visibility rules
@@ -259,6 +290,7 @@ void initAssets(std::unordered_map<int, Texture2D> &texture_map){
 	const Texture2D fire_button = LoadTexture("../assets/Fire1.png");
 	const Texture2D move_button = LoadTexture("../assets/Move1.png");
 	const Texture2D info_rectangle = LoadTexture("../assets/Info_Rectangle.png");
+	const Texture2D hq = LoadTexture("../assets/HQ.png");
  
 	texture_map[grid::GRASS_HEX] = hex_grass;
 	texture_map[grid::GRASS_BORDER] = grass_border;
@@ -266,6 +298,7 @@ void initAssets(std::unordered_map<int, Texture2D> &texture_map){
 	texture_map[grid::FIRE_BUTTON] = fire_button;
 	texture_map[grid::MOVE_BUTTON] = move_button;
 	texture_map[grid::INFO_RECT] = info_rectangle;
+	texture_map[grid::HQ] = hq;
 
 
 }

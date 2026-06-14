@@ -8,9 +8,10 @@
 
 constexpr int unused = 65535;
 
-Player::Player(){
-	units = std::vector<uint16_t>();
-	units.reserve(12);
+Player::Player(int hq_index){
+	units = std::vector<uint16_t>(12);
+	buildings = std::vector<uint8_t>(12);
+	buildings.emplace_back(hq_index);
 }
 
 namespace engine {
@@ -29,8 +30,17 @@ namespace engine {
 			std::cout << "PLAYER COUNT ALREADY MET!" << std::endl;
 			return;
 		}
+
+		//CHANGE PLACEHOLDER
+		int row = 7;
+		int iter = 0;
 		while(players.size() < playerCount) {
-			players.emplace_back(Player());
+			this->buildings.emplace_back(&this->grid_space[0][players.size() * row], HQ, this->players.size());
+
+			grid_space[0][players.size() * row].structure_index = iter;
+			players.emplace_back(Player(iter));
+			iter++;
+
 		}
 	}
 

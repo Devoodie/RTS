@@ -65,7 +65,8 @@ int main(void){
 
 		ClearBackground(RAYWHITE);
 		grid::renderGrid(texture_map, game.grid_space, false);
-		grid::renderUnits(texture_map, game.units, true);
+		grid::renderBuildings(texture_map, game.buildings, false);
+		grid::renderUnits(texture_map, game.units, false);
 		//render options
 		ui::renderOptions(game, texture_map);
 		ui::renderText(game.messages);

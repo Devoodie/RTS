@@ -34,21 +34,26 @@ class Unit {
 		uint8_t owner_index; 
 
 		//creates unit on hex
-		Unit(HexSpace *hex, UnitType type, int index);
+		Unit(HexSpace *hex, UnitType type, int player_index);
 
 		//Copy assignment operator for vector
 };
 
-enum StructureType {
+enum BuildingType{
 	HQ,
 	FACTORY,
 	RESEARCH,
 	AIRPORT,
 };
 
-class Structure{
+class Building{
 	public:
-		StructureType type;
+		HexSpace *hex;
+		float hp;
+		uint8_t owner_inex;
+		BuildingType type;
+
+		Building(HexSpace *hex, BuildingType type, int owner_index);
 };
 
 #endif

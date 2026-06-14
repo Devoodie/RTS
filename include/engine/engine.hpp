@@ -2,6 +2,7 @@
 #define RTS_ENGINE_H
 
 #include "utils/grid.hpp"
+#include "entities.hpp"
 #include <string>
 #include <vector>
 #include <cstdint>
@@ -9,9 +10,10 @@
 class Player {
 	public:
 		std::vector<uint16_t> units;
-	//resources
+		std::vector<uint8_t> buildings;
 
-		Player();
+		//creates a player with an index to its HQ
+		Player(int hq_index);
 };
 
 struct Text {
@@ -52,6 +54,7 @@ class Game{
 		int player_count;
 		std::vector<Player> players;
 		std::vector<Unit> units;
+		std::vector<Building> buildings;
 
 		std::vector<std::vector<HexSpace>> grid_space;
 		std::vector<Rectangle> ui_elements;
