@@ -49,6 +49,7 @@ enum BuildingType{
 class Building{
 	public:
 		HexSpace *hex;
+		Rectangle render_rect;
 		float hp;
 		uint8_t owner_inex;
 		BuildingType type;

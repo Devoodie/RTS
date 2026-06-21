@@ -351,10 +351,6 @@ namespace engine {
 			case UNIT_INFO:
 				unitInfoTransition(input, selection);
 				break;
-				//ad fire transition
-			// case FIRE:
-			// 	fireTransition(input, selection);
-			// 	break;
 			default:
 				std::cerr << "ERR STATE " << input << " NOT FOUND (transitionState)" << std::endl;
 				return;
@@ -362,6 +358,7 @@ namespace engine {
 	}
 
 	void Game::handleCollision(HexSpace *collided_hex, Vector2 mouse_point){
+		//add hovering
 		if(collided_hex->occupier_index != unused){
 			//CHANGE ALL TO RELEASED OR DOWN (THEY MUST ALL BE THE SAME)
 			Unit* unit_ptr = &this->units[collided_hex->occupier_index];
@@ -373,6 +370,12 @@ namespace engine {
 			}
 			else if(IsMouseButtonReleased(0)) {
 				this->transitionState(HEX, collided_hex);
+			}
+		} else if(collided_hex->structure_index != unused){
+			//check for building collision
+			Building* building_ptr = &this->buildings[collided_hex->structure_index];
+			if(CheckCollisionPointRec(mouse_point, building_ptr->render_rect) and IsMouseButtonReleased(0)){
+				this->transitionState(BUILDING, building_ptr);
 			}
 		} else {
 			if (IsMouseButtonReleased(0)) this->transitionState(HEX, collided_hex);

@@ -116,8 +116,8 @@ void initGrid(const int row, const int col, std::vector<std::vector<HexSpace>> &
 }
 
 void renderBuildings(std::unordered_map<int, Texture2D> texture_map, const std::vector<Building> &buildings, const bool debug){
-	const float draw_width = inradius * 2;
-	const float draw_height = radius * 2;
+	const float draw_width = inradius;
+	const float draw_height = radius;
 
 	const Texture2D hq_texture = texture_map[HQ];
 	
@@ -137,10 +137,21 @@ void renderBuildings(std::unordered_map<int, Texture2D> texture_map, const std::
 
 
 	for(Building structure: buildings){
-		building_rectangle.x = structure.hex->x_position - inradius;
-		building_rectangle.y = structure.hex->y_position - radius;
+		building_rectangle.x = structure.hex->x_position - inradius / 2;
+		building_rectangle.y = structure.hex->y_position - radius / 2;
 
 		DrawTexturePro(hq_texture, source_rectangle, building_rectangle, {.x = 0, .y = 0}, 0, RAYWHITE);
+
+		if(debug){
+		    DrawRectangleLines(
+			    building_rectangle.x, 
+			    building_rectangle.y, 
+			    building_rectangle.width, 
+			    building_rectangle.height, 
+			    RED
+			    );
+		}
+
 	}
 
 }
@@ -193,7 +204,6 @@ void renderUnits(std::unordered_map<int, Texture2D> texture_map, const std::vect
 			    CurrentUnit.render_rect.height, 
 			    RED
 			    );
-
 		}
 	}
 };

@@ -28,6 +28,7 @@ namespace engine {
 		TURNEND,
 		UNIT,
 		HEX,
+		BUILDING,
 		MOVE,
 	};
 
@@ -61,7 +62,6 @@ class Game{
 		std::vector<Text> messages;
 
 		//TEMPORARY
-		float fire_txt_alpha;
 		float dmg_taken;
 		uint8_t dmg_txt_index;
 
