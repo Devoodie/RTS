@@ -174,6 +174,9 @@ namespace engine {
 				this->state = HEX_INFO;
 				this->createUiElem(UI_INFO);
 				break;
+			case BUILDING:
+				//something
+				break;
 			default:
 				std::cerr << "ERR: INPUT NOT FOUND (idleTransition)" << std::endl;
 				return;

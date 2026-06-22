@@ -44,6 +44,7 @@ namespace ui{
 			        DrawTexturePro(info_rect, texture_rect, options, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
 				break;
 				}
+					      case engine::Structure
 			default:
 				break;
 		}
