@@ -31,7 +31,7 @@ namespace ui{
 					  break;
 			case engine::UNIT_INFO:
 			case engine::HEX_INFO:{
-				Texture2D &info_rect= texture_map[grid::INFO_RECT];
+				Texture2D &info_rect = texture_map[grid::INFO_RECT];
 
 				Rectangle texture_rect = {
 				     .x = 0,
@@ -44,7 +44,9 @@ namespace ui{
 			        DrawTexturePro(info_rect, texture_rect, options, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
 				break;
 				}
-					      case engine::Structure
+			case engine::SCROLL:
+					      //Get a bunch of shit
+					      break;
 			default:
 				break;
 		}

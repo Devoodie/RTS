@@ -41,6 +41,7 @@ namespace engine {
 		HEX_INFO,
 		UNIT_INFO,
 		MOVING,
+		SCROLL,
 	};
 
 	enum uiElem {
