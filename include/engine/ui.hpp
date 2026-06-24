@@ -18,7 +18,8 @@ namespace ui {
 		Rectangle dimensions;
 		uint16_t y_pos;
 
-		ScrollMenu();
+		scroll_type type;
+		ScrollMenu(scroll_type menu_type);
 	};
 
 	//renders options menu

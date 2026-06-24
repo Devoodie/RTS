@@ -1,8 +1,25 @@
-#include <iostream>
 #include <engine/ui.hpp> 
 #include <raylib.h>
 
 namespace ui{
+
+	ScrollMenu::ScrollMenu(scroll_type menu_type) : type(menu_type) {
+		switch(menu_type){
+			case UNITS:
+				for(int i = 0; i < this->elements.size(); ++i){
+					this->elements.emplace_back((Rectangle){
+						.x = 0,
+						.y = i * grid::radius / 2,
+						.width  = (float)grid::inradius * 4,
+						.height = grid::radius / 2,
+					});
+				}
+				break;
+			case UPGRADES:
+				break;
+		}
+
+	};
 	//THIS SHOULD BE CHANGED FROM RENDER OPTIONS TO RENDER UI
 	void renderOptions(const engine::Game &engine_instance, std::unordered_map<int, Texture2D> texture_map){
 		switch(engine_instance.state){
