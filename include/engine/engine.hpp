@@ -48,6 +48,7 @@ namespace engine {
 		UI_OPTIONS_1,
 		UI_INFO,
 		UI_FIRING_TEXT,
+		INFANTRY_SCRL,
 	};
 
 class Game{
@@ -75,6 +76,7 @@ class Game{
 
 		Vector2 MousePosition;
 
+		Camera2D &camera;
 		void playerInit(int playerCount);
 		void endTurn();
 
@@ -100,6 +102,7 @@ class Game{
 		void escape();
 
 		//ui creation helper function
+		//May create options or menus according to mouse position
 		void createUiElem(uiElem ui_type);
 
 		//searches for collisions with properties of a hexagon and potentially transitions state
@@ -122,7 +125,7 @@ class Game{
 		//main game loop
 		void versus();
 
-		Game();
+		Game(Camera2D &camera);
 		
 };
 }

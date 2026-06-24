@@ -3,6 +3,7 @@
 #include <vector>
 
 #include <raylib.h>
+#include <raymath.h>
 
 #include "include/utils/grid.hpp"
 #include <engine/entities.hpp>
@@ -18,6 +19,9 @@ int main(void){
 	
 	InitWindow(screenWidth, screenHeight, "RTS");
 
+	Camera2D camera = {0};
+	camera.zoom = 1.0;
+
 	SetExitKey(KEY_NULL);
 
 	//ASSETS
@@ -25,7 +29,7 @@ int main(void){
 	grid::initAssets(texture_map);
 
 	//init game class
-	engine::Game game;
+	engine::Game game(camera);
 
 	int player_index = 0;
 	game.playerInit(2);
@@ -63,6 +67,14 @@ int main(void){
 		game.versus();
 		BeginDrawing();
 
+		if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT)){
+			Vector2 delta = GetMouseDelta();
+			delta = Vector2Scale(delta, -1.0f/ camera.zoom);
+            		camera.target = Vector2Add(camera.target, delta);
+        	}
+
+		BeginMode2D(camera);
+
 		ClearBackground(RAYWHITE);
 		grid::renderGrid(texture_map, game.grid_space, false);
 		grid::renderBuildings(texture_map, game.buildings, true);
@@ -71,6 +83,8 @@ int main(void){
 		ui::renderOptions(game, texture_map);
 		ui::renderText(game.messages);
 		DrawText("END TURN", textRect.x, textRect.y, 15, RED);
+
+		EndMode2D();
 
 		EndDrawing();
 	}

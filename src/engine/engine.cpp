@@ -16,7 +16,7 @@ Player::Player(int hq_index){
 
 namespace engine {
 
-	Game::Game(){
+	Game::Game(Camera2D &camera) : camera(camera) {
 		players = std::vector<Player>();
 		player_count = 2;
 		player_index = 0;
@@ -240,7 +240,7 @@ namespace engine {
 					return;
 				};
 				this->selected_hex2 = hex_ptr;
-				this->MousePosition = GetMousePosition();
+				this->MousePosition =  GetScreenToWorld2D(GetMousePosition(), this->camera);
 
 				this->ui_elements[1].x = MousePosition.x + grid::inradius / 4;
 				this->ui_elements[1].y = MousePosition.y;
@@ -277,7 +277,7 @@ namespace engine {
 				if(hex_ptr->occupier_index != unused) return; 
 
 				this->selected_hex2 = hex_ptr;
-				this->MousePosition = GetMousePosition();
+				this->MousePosition = GetScreenToWorld2D(GetMousePosition(), this->camera);
 				this->state = OPTIONS;
 
 				if(this->ui_elements.size() > 1) this->ui_elements.erase(ui_elements.begin() + 1);
@@ -304,7 +304,7 @@ namespace engine {
 					this->selected_hex2 = hex_ptr;
 
 					Vector2 button_position = unit_ptr->position;
-					this->MousePosition = button_position;
+					this->MousePosition = GetScreenToWorld2D(GetMousePosition(), this->camera);
 					this->createUiElem(UI_OPTIONS_1);
 					
 					//PROB DO FIRE ANIMATION
@@ -322,7 +322,7 @@ namespace engine {
 				
 				if(hex_ptr->occupier_index != unused) return;
 
-				this->MousePosition = GetMousePosition();
+				this->MousePosition = GetScreenToWorld2D(GetMousePosition(), this->camera);
 				this->selected_hex2 = hex_ptr;
 				this->state = OPTIONS;
 
@@ -387,7 +387,7 @@ namespace engine {
 
 	//aidan optimize search (I THINK BINARY SEARCH WILL SHINE HERE)
 	bool Game::collisionCheck(){
-		Vector2 mouse_point = GetMousePosition();
+		Vector2 mouse_point = GetScreenToWorld2D(GetMousePosition(), this->camera);
 		for(int i = 0; i < grid_space.size(); ++i){
 			for(int j = 0; j < grid_space[i].size(); ++j){
 				HexSpace *CurrentHex = &grid_space[i][j];
@@ -404,7 +404,7 @@ namespace engine {
 	}
 
 	bool Game::uiCollisionCheck(){
-		Vector2 mouse_point = GetMousePosition();
+		Vector2 mouse_point = GetScreenToWorld2D(GetMousePosition(), this->camera);
 		//0 endturn button, 1 Others(????), 
 		//may need to change the way this works to switch on states instead of ui elements
 		
@@ -557,10 +557,12 @@ namespace engine {
 	void Game::versus(){
 		if(players.size() == 0) playerInit(player_count);
 
+
 		Player current_player = players[player_index];
 
 		//check collisions
 		//uichecks
+		//
 
 		if(IsKeyPressed(KEY_ESCAPE)) {
 			this->escape();

@@ -3,10 +3,11 @@
 
 namespace ui{
 
-	ScrollMenu::ScrollMenu(scroll_type menu_type) : type(menu_type) {
+	ScrollMenu::ScrollMenu(scroll_type menu_type, Rectangle placement) : type(menu_type), dimensions(placement) {
 		switch(menu_type){
 			case UNITS:
-				for(int i = 0; i < this->elements.size(); ++i){
+				this->y_pos = 0;
+				for(int i = 0; i < 3; ++i){
 					this->elements.emplace_back((Rectangle){
 						.x = 0,
 						.y = i * grid::radius / 2,

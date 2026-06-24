@@ -19,7 +19,7 @@ namespace ui {
 		uint16_t y_pos;
 
 		scroll_type type;
-		ScrollMenu(scroll_type menu_type);
+		ScrollMenu(scroll_type menu_type, Rectangle placement);
 	};
 
 	//renders options menu
