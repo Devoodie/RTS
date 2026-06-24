@@ -23,6 +23,22 @@ struct Text {
 	float font_size;
 };
 
+//will provide information to autofill menus on creation
+enum scroll_type {
+	UNITS,
+	UPGRADES,
+};
+
+class ScrollMenu {
+	public:
+		std::vector<Rectangle> elements;
+		Rectangle dimensions;
+		uint16_t y_pos;
+
+		scroll_type type;
+		ScrollMenu(scroll_type menu_type, Rectangle placement);
+};
+
 namespace engine {
 	enum inputAlphabet {
 		TURNEND,
@@ -52,10 +68,7 @@ namespace engine {
 	};
 
 class Game{
-	public:
-		int player_index;
-		int player_count;
-
+	public:	
 		std::vector<Player> players;
 		std::vector<Unit> units;
 		std::vector<Building> buildings;
@@ -63,8 +76,12 @@ class Game{
 		std::vector<std::vector<HexSpace>> grid_space;
 		std::vector<Rectangle> ui_elements;
 		std::vector<Text> messages;
+		ScrollMenu scrl_menu;
 
-		//TEMPORARY
+		int player_index;
+		int player_count;
+
+		//Temporary
 		float dmg_taken;
 		uint8_t dmg_txt_index;
 

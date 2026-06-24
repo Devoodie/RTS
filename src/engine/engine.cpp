@@ -14,9 +14,27 @@ Player::Player(int hq_index){
 	buildings.emplace_back(hq_index);
 }
 
+ScrollMenu::ScrollMenu(scroll_type menu_type, Rectangle placement) : type(menu_type), dimensions(placement) {	
+	switch(menu_type){
+		case UNITS:
+			this->y_pos = 0;
+			for(int i = 0; i < 3; ++i){
+				this->elements.emplace_back((Rectangle){
+					.x = 0,
+					.y = i * grid::radius / 2,
+					.width  = (float)grid::inradius * 4,
+					.height = grid::radius / 2,
+				});
+			}
+			break;
+		case UPGRADES:
+			break;
+	}
+};
+
 namespace engine {
 
-	Game::Game(Camera2D &camera) : camera(camera) {
+	Game::Game(Camera2D &camera) : camera(camera), scrl_menu(ScrollMenu(UNITS, {.x = 0, .y = 0, .width = 0, .height = 0})) {
 		players = std::vector<Player>();
 		player_count = 2;
 		player_index = 0;
@@ -40,7 +58,6 @@ namespace engine {
 			grid_space[0][players.size() * row].structure_index = iter;
 			players.emplace_back(Player(iter));
 			iter++;
-
 		}
 	}
 
@@ -111,6 +128,12 @@ namespace engine {
 				break;
 				}
 			case INFANTRY_SCRL:
+				// this->s
+				this->ui_elements.emplace_back((Rectangle){
+					.x = this->MousePosition.x + grid::inradius / 4,
+					.width = grid::inradius,
+					.height = grid::radius / 2,
+					});
 				break;
 		}
 	}
