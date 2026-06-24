@@ -67,24 +67,33 @@ int main(void){
 		game.versus();
 		BeginDrawing();
 
+		//DO ZOOMING
 		if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT)){
 			Vector2 delta = GetMouseDelta();
 			delta = Vector2Scale(delta, -1.0f/ camera.zoom);
             		camera.target = Vector2Add(camera.target, delta);
+
+			//make clamp values dependant on grid size
+			camera.target.y = Clamp(camera.target.y, -600, 600);
+			camera.target.x = Clamp(camera.target.x, -600, 600);
         	}
+
+		ClearBackground(RAYWHITE);
 
 		BeginMode2D(camera);
 
-		ClearBackground(RAYWHITE);
 		grid::renderGrid(texture_map, game.grid_space, false);
 		grid::renderBuildings(texture_map, game.buildings, true);
 		grid::renderUnits(texture_map, game.units, true );
 		//render options
-		ui::renderOptions(game, texture_map);
 		ui::renderText(game.messages);
-		DrawText("END TURN", textRect.x, textRect.y, 15, RED);
 
 		EndMode2D();
+
+		//mixture of 2D and Screenspace mode
+		ui::renderOptions(game, texture_map);
+		DrawText("END TURN", textRect.x, textRect.y, 15, RED);
+
 
 		EndDrawing();
 	}

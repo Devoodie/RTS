@@ -21,11 +21,14 @@ namespace ui{
 		}
 
 	};
+
 	//THIS SHOULD BE CHANGED FROM RENDER OPTIONS TO RENDER UI
 	void renderOptions(const engine::Game &engine_instance, std::unordered_map<int, Texture2D> texture_map){
 		switch(engine_instance.state){
 			case engine::FIRE:
 			case engine::OPTIONS:{
+
+				BeginMode2D(engine_instance.camera);
 				Texture2D opt_texture;
 				if(engine_instance.state == engine::FIRE){
 					opt_texture = texture_map[grid::FIRE_BUTTON];
@@ -42,6 +45,8 @@ namespace ui{
 
 			        Rectangle options = engine_instance.ui_elements[1];
 			        DrawTexturePro(opt_texture, texture_rect, options, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
+				EndMode2D();
+
 				break;
 				}
 			case engine::FIRING:

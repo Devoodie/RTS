@@ -95,6 +95,7 @@ namespace engine {
 				break;
 				//temporary
 			case UI_FIRING_TEXT:
+				{
 				this->dmg_txt_index = this->messages.size();
 				Vector2 text_pos = {
 					.x = this->selected_unit2->position.x - grid::inradius / 2,
@@ -107,6 +108,9 @@ namespace engine {
 						.position = text_pos,
 						.font_size = 15,
 						});
+				break;
+				}
+			case INFANTRY_SCRL:
 				break;
 		}
 	}
@@ -576,6 +580,8 @@ namespace engine {
 			case FIRING:
 				this->Fire();
 				return;
+			default:
+				break;
 		}
 
 		bool ui_collision = this->uiCollisionCheck();

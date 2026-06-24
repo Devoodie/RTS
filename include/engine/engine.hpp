@@ -55,6 +55,7 @@ class Game{
 	public:
 		int player_index;
 		int player_count;
+
 		std::vector<Player> players;
 		std::vector<Unit> units;
 		std::vector<Building> buildings;
@@ -77,6 +78,7 @@ class Game{
 		Vector2 MousePosition;
 
 		Camera2D &camera;
+
 		void playerInit(int playerCount);
 		void endTurn();
 
