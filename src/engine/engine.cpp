@@ -128,12 +128,13 @@ namespace engine {
 				break;
 				}
 			case INFANTRY_SCRL:
-				// this->s
-				this->ui_elements.emplace_back((Rectangle){
+				// CREATE NEW SCROLL
+				this->scrl_menu = ScrollMenu(UNITS, {
 					.x = this->MousePosition.x + grid::inradius / 4,
-					.width = grid::inradius,
-					.height = grid::radius / 2,
-					});
+					.y = this->MousePosition.y,
+					.width = grid::inradius * 4,
+					.height = grid::radius * 6,
+				});
 				break;
 		}
 	}
@@ -202,6 +203,7 @@ namespace engine {
 				this->createUiElem(UI_INFO);
 				break;
 			case BUILDING:
+				this->createUiElem(INFANTRY_SCRL);
 				//something
 				break;
 			default:
