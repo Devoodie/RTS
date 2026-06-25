@@ -51,7 +51,7 @@ class Building{
 		HexSpace *hex;
 		Rectangle render_rect;
 		float hp;
-		uint8_t owner_inex;
+		uint8_t owner_index;
 		BuildingType type;
 
 		Building(HexSpace *hex, BuildingType type, int owner_index);

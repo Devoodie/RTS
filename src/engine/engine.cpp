@@ -53,9 +53,10 @@ namespace engine {
 		int row = 7;
 		int iter = 0;
 		while(players.size() < playerCount) {
-			this->buildings.emplace_back(&this->grid_space[0][players.size() * row], HQ, this->players.size());
+			HexSpace *hex = &this->grid_space[0][players.size() * row];
+			this->buildings.emplace_back(hex, HQ, this->players.size());
 
-			grid_space[0][players.size() * row].structure_index = iter;
+			hex->structure_index = iter;
 			players.emplace_back(Player(iter));
 			iter++;
 		}
@@ -135,6 +136,7 @@ namespace engine {
 					.width = grid::inradius * 4,
 					.height = grid::radius * 6,
 				});
+				this->ui_elements.push_back(scrl_menu.dimensions);
 				break;
 		}
 	}
@@ -202,10 +204,20 @@ namespace engine {
 				this->state = HEX_INFO;
 				this->createUiElem(UI_INFO);
 				break;
-			case BUILDING:
-				this->createUiElem(INFANTRY_SCRL);
+			case BUILDING:{
+				Building * building_ptr = (Building*)selection;
+
+				this->MousePosition = GetScreenToWorld2D(GetMousePosition(), this->camera);
+				if(building_ptr->owner_index == this->player_index){
+					this->createUiElem(INFANTRY_SCRL);
+					this->state = SCROLL;
+				} else {
+					this->createUiElem(UI_INFO);
+					this->state = HEX_INFO;
+				}
 				//something
 				break;
+				}
 			default:
 				std::cerr << "ERR: INPUT NOT FOUND (idleTransition)" << std::endl;
 				return;
@@ -383,6 +395,8 @@ namespace engine {
 			case UNIT_INFO:
 				unitInfoTransition(input, selection);
 				break;
+			case SCROLL:
+				break;
 			default:
 				std::cerr << "ERR STATE " << input << " NOT FOUND (transitionState)" << std::endl;
 				return;
@@ -399,16 +413,20 @@ namespace engine {
 				//do unit stuff
 				std::cout << "Unit Collision Detected" << std::endl;
 				this->transitionState(UNIT, unit_ptr);
-			}
-			else if(IsMouseButtonReleased(0)) {
+			} else if(IsMouseButtonReleased(0)) {
 				this->transitionState(HEX, collided_hex);
 			}
 		} else if(collided_hex->structure_index != unused){
 			//check for building collision
 			Building* building_ptr = &this->buildings[collided_hex->structure_index];
+
 			if(CheckCollisionPointRec(mouse_point, building_ptr->render_rect) and IsMouseButtonReleased(0)){
+				std::cout << "BUILDING DETECTED" << std::endl;
 				this->transitionState(BUILDING, building_ptr);
+			} else if(IsMouseButtonReleased(0)) {
+				this->transitionState(HEX, collided_hex);
 			}
+ 
 		} else {
 			if (IsMouseButtonReleased(0)) this->transitionState(HEX, collided_hex);
 		}
@@ -467,6 +485,8 @@ namespace engine {
 
 						this->createUiElem(UI_FIRING_TEXT);
 						this->state = FIRING;
+						break;
+				case SCROLL:
 						break;
 				default:
 					//std::cerr << "UI element " << i << " Not Recognized" << std::endl;

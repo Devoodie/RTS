@@ -121,7 +121,8 @@ class Game{
 		void escape();
 
 		//ui creation helper function
-		//May create options or menus according to mouse position
+		//May create options or scroll menus
+		//Mouse position must be set to adjust element position
 		void createUiElem(uiElem ui_type);
 
 		//searches for collisions with properties of a hexagon and potentially transitions state

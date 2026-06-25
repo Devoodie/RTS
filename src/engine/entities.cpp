@@ -31,7 +31,7 @@ Unit::Unit(HexSpace *hex, UnitType type, int player_index) : current_hex(hex), t
 			move_speed = 1;
 	}
 }
-Building::Building(HexSpace *hex, BuildingType type, int player_index) : hex(hex), type(type), owner_inex(player_index) {
+Building::Building(HexSpace *hex, BuildingType type, int player_index) : hex(hex), type(type), owner_index(player_index) {
 	switch(type){
 		case HQ:
 			hp = 100;

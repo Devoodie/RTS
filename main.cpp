@@ -31,15 +31,15 @@ int main(void){
 	//init game class
 	engine::Game game(camera);
 
-	int player_index = 0;
-	game.playerInit(2);
-
 	//initialize gridspace
-	
+
 	std::cout << "initialize grid" << std::endl;
 	grid::initGrid(grid_height, grid_length, game.grid_space);
 
-	//
+	//initialize players
+	int player_index = 0;
+	game.playerInit(2);
+
 	game.players[0].units.push_back(game.units.size());
 	game.grid_space[0][0].occupier_index = game.units.size();
 	game.units.emplace_back(&game.grid_space[0][0], INFANTRY, 0);

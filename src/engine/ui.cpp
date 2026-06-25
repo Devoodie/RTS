@@ -48,8 +48,20 @@ namespace ui{
 				break;
 				}
 			case engine::SCROLL:
+			        {
+				Texture2D &elem = texture_map[grid::MOVE_BUTTON];
+
+				Rectangle texture_rect = {
+				     .x = 0,
+				     .y = 0,
+				     .width = (float)elem.width,
+				     .height = (float)elem.height,
+				};
+
+				DrawRectangle(engine_instance.scrl_menu.dimensions.x, engine_instance.scrl_menu.dimensions.y, engine_instance.scrl_menu.dimensions.width, engine_instance.scrl_menu.dimensions.height, BLACK);
 					      //Get a bunch of shit
-					      break;
+			        break;
+				}
 			default:
 				break;
 		}
