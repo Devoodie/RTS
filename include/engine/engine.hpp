@@ -36,7 +36,7 @@ class ScrollMenu {
 		uint16_t y_pos;
 
 		scroll_type type;
-		ScrollMenu(scroll_type menu_type, Rectangle placement);
+		ScrollMenu(scroll_type menu_type, const Vector2 &mouse_position);
 };
 
 namespace engine {
@@ -64,7 +64,7 @@ namespace engine {
 		UI_OPTIONS_1,
 		UI_INFO,
 		UI_FIRING_TEXT,
-		INFANTRY_SCRL,
+		UNIT_SCRL,
 	};
 
 class Game{

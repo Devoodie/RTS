@@ -49,6 +49,7 @@ namespace ui{
 				}
 			case engine::SCROLL:
 			        {
+				BeginMode2D(engine_instance.camera);
 				Texture2D &elem = texture_map[grid::MOVE_BUTTON];
 
 				Rectangle texture_rect = {
@@ -59,6 +60,7 @@ namespace ui{
 				};
 
 				DrawRectangle(engine_instance.scrl_menu.dimensions.x, engine_instance.scrl_menu.dimensions.y, engine_instance.scrl_menu.dimensions.width, engine_instance.scrl_menu.dimensions.height, BLACK);
+				EndMode2D();
 					      //Get a bunch of shit
 			        break;
 				}

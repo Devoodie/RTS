@@ -14,7 +14,7 @@ Player::Player(int hq_index){
 	buildings.emplace_back(hq_index);
 }
 
-ScrollMenu::ScrollMenu(scroll_type menu_type, Rectangle placement) : type(menu_type), dimensions(placement) {	
+ScrollMenu::ScrollMenu(scroll_type menu_type, const Vector2 &mouse_position) : type(menu_type) {	
 	switch(menu_type){
 		case UNITS:
 			this->y_pos = 0;
@@ -30,11 +30,25 @@ ScrollMenu::ScrollMenu(scroll_type menu_type, Rectangle placement) : type(menu_t
 		case UPGRADES:
 			break;
 	}
+	float height;
+	//max height is 2 Hex's or 8 elements
+	if(elements.size() > 8){
+		height = grid::radius / 2 * 8;
+	} else {
+		height = grid::radius / 2 * elements.size();
+	}
+
+	this->dimensions = {
+		.x = mouse_position.x + grid::inradius / 4,
+		.y = mouse_position.y,
+		.width = grid::inradius * 4,
+		.height = height,
+	};
 };
 
 namespace engine {
 
-	Game::Game(Camera2D &camera) : camera(camera), scrl_menu(ScrollMenu(UNITS, {.x = 0, .y = 0, .width = 0, .height = 0})) {
+	Game::Game(Camera2D &camera) : camera(camera), scrl_menu(ScrollMenu(UNITS, {0})) {
 		players = std::vector<Player>();
 		player_count = 2;
 		player_index = 0;
@@ -128,14 +142,9 @@ namespace engine {
 						});
 				break;
 				}
-			case INFANTRY_SCRL:
+			case UNIT_SCRL:
 				// CREATE NEW SCROLL
-				this->scrl_menu = ScrollMenu(UNITS, {
-					.x = this->MousePosition.x + grid::inradius / 4,
-					.y = this->MousePosition.y,
-					.width = grid::inradius * 4,
-					.height = grid::radius * 6,
-				});
+				this->scrl_menu = ScrollMenu(UNITS, this->MousePosition);
 				this->ui_elements.push_back(scrl_menu.dimensions);
 				break;
 		}
@@ -209,7 +218,7 @@ namespace engine {
 
 				this->MousePosition = GetScreenToWorld2D(GetMousePosition(), this->camera);
 				if(building_ptr->owner_index == this->player_index){
-					this->createUiElem(INFANTRY_SCRL);
+					this->createUiElem(UNIT_SCRL);
 					this->state = SCROLL;
 				} else {
 					this->createUiElem(UI_INFO);
