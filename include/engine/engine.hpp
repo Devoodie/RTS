@@ -33,7 +33,8 @@ class ScrollMenu {
 	public:
 		std::vector<Rectangle> elements;
 		Rectangle dimensions;
-		uint16_t y_pos;
+		float y_pos;
+		float internal_height;
 
 		scroll_type type;
 		ScrollMenu(scroll_type menu_type, const Vector2 &mouse_position);

@@ -59,7 +59,34 @@ namespace ui{
 				     .height = (float)elem.height,
 				};
 
-				DrawRectangle(engine_instance.scrl_menu.dimensions.x, engine_instance.scrl_menu.dimensions.y, engine_instance.scrl_menu.dimensions.width, engine_instance.scrl_menu.dimensions.height, BLACK);
+				float target_y = engine_instance.scrl_menu.dimensions.y;
+				float y_pos = engine_instance.scrl_menu.y_pos;
+				int elem_index = 0;
+
+				const std::vector<Rectangle> &elements = engine_instance.scrl_menu.elements;
+
+				while(y_pos < target_y){
+					const Rectangle &element = elements[elem_index];
+
+					if(y_pos > element.y + element.height){
+						elem_index += 1;
+						continue;
+					}
+
+					//ratio of how much texture to draw according to how much of the rectangle is showing
+					float draw_amount = (element.y + element.height) - y_pos;
+					draw_amount /= grid::radius / 2;
+					// WORKHERE
+					//if()
+				}
+
+				DrawRectangle(
+						engine_instance.scrl_menu.dimensions.x, 
+						engine_instance.scrl_menu.dimensions.y, 
+						engine_instance.scrl_menu.dimensions.width, 
+						engine_instance.scrl_menu.dimensions.height, 
+						BLACK
+						);
 				EndMode2D();
 					      //Get a bunch of shit
 			        break;

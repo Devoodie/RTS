@@ -26,6 +26,7 @@ ScrollMenu::ScrollMenu(scroll_type menu_type, const Vector2 &mouse_position) : t
 					.height = grid::radius / 2,
 				});
 			}
+			this->internal_height = elements[2].y + elements[2].height;
 			break;
 		case UPGRADES:
 			break;
