@@ -59,25 +59,32 @@ namespace ui{
 				     .height = (float)elem.height,
 				};
 
-				float target_y = engine_instance.scrl_menu.dimensions.y;
-				float y_pos = engine_instance.scrl_menu.y_pos;
+				const ScrollMenu &scrl_menu = engine_instance.scrl_menu;
+
+				float target_y = scrl_menu.y_pos + scrl_menu.dimensions.height;
+				if(target_y > scrl_menu.internal_height) target_y = scrl_menu.internal_height;
+
+				float internal_y = scrl_menu.y_pos;
 				int elem_index = 0;
 
-				const std::vector<Rectangle> &elements = engine_instance.scrl_menu.elements;
+				const std::vector<Rectangle> &elements = scrl_menu.elements;
 
-				while(y_pos < target_y){
+				while(internal_y < target_y){
 					const Rectangle &element = elements[elem_index];
 
-					if(y_pos > element.y + element.height){
+					if(internal_y > element.y + element.height){
 						elem_index += 1;
 						continue;
 					}
 
 					//ratio of how much texture to draw according to how much of the rectangle is showing
-					float draw_amount = (element.y + element.height) - y_pos;
+					float draw_amount = (element.y + element.height) - internal_y;
 					draw_amount /= grid::radius / 2;
+
+					if(internal_y + draw_amount > target_y)
+
 					// WORKHERE
-					//if()
+					if(true) void;
 				}
 
 				DrawRectangle(
