@@ -461,7 +461,8 @@ namespace engine {
 	}
 
 	bool Game::uiCollisionCheck(){
-		Vector2 mouse_point = GetScreenToWorld2D(GetMousePosition(), this->camera);
+		Vector2 mouse_point = GetMousePosition();
+		Vector2 wrld_point = GetScreenToWorld2D(GetMousePosition(), this->camera);
 		//0 endturn button, 1 Others(????), 
 		//may need to change the way this works to switch on states instead of ui elements
 		
@@ -471,7 +472,7 @@ namespace engine {
 			return true;
 		}
 		if(this->ui_elements.size() < 2) return false;
-		if(CheckCollisionPointRec(mouse_point, ui_elements[1]) and IsMouseButtonReleased(0)){
+		if(CheckCollisionPointRec(wrld_point, ui_elements[1]) and IsMouseButtonReleased(0)){
 			switch(this->state){
 				//end turn
 				case OPTIONS:
@@ -496,8 +497,22 @@ namespace engine {
 						this->createUiElem(UI_FIRING_TEXT);
 						this->state = FIRING;
 						break;
-				case SCROLL:
+				case SCROLL:{
+						//do linear search for mouse position within scroll menu
+						float target = wrld_point.y - this->scrl_menu.dimensions.y + this->scrl_menu.y_pos;
+						int collision_index = 0;
+						const std::vector<Rectangle> &elements = this->scrl_menu.elements;
+						for(int i = 0; i < elements.size(); ++i){	
+							Rectangle collision_rect = elements[i];
+							if(target >= collision_rect.y and target <= collision_rect.y + collision_rect.height){
+								collision_index = i;
+							}
+
+						}
+						std::cout << "COLLISION INDEX: " << collision_index << std::endl;
+						//do scroll menu specific stuff
 						break;
+					    }
 				default:
 					//std::cerr << "UI element " << i << " Not Recognized" << std::endl;
 					return false;
