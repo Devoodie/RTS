@@ -101,8 +101,17 @@ class Game{
 		void playerInit(int playerCount);
 		void endTurn();
 
-		//All Transition functions change state and state should only be changed in transition functions
+		//Helper functions that put the engine into a state available from idle state.
+		//ALL RETURN STATE TO SET
 		
+		//CREATES UI ELEMENTS AND RETURNS STATE TO SET 
+		engine::states SelectBuilding(Building* building_ptr);
+
+		//CREATES UI ELEMENTS AND PUTS THE STATE INTO EITHER UNIT1 OR UNIT INFO
+		engine::states SelectUnit(Unit* unit_ptr);
+
+		//All Transition functions change state and state should only be changed in transition functions
+		//
 		//transitions fsm from idle to another state
 		void idleTransition(inputAlphabet input, void *selection);
 
@@ -151,12 +160,7 @@ class Game{
 		//main game loop
 		void versus();
 
-		Game(Camera2D &camera);
-
-		//building input helper function
-		//CREATES UI ELEMENTS AND RETURNS STATE TO SET 
-		engine::states SelectBuilding(Building* building_ptr);
-		
+		Game(Camera2D &camera);	
 };
 }
 

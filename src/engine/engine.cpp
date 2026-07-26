@@ -97,6 +97,40 @@ void Game::endTurn(){
 	return;
 }
 
+engine::states Game::SelectBuilding(Building *building_ptr){
+	this->escape();
+	this->MousePosition = GetScreenToWorld2D(GetMousePosition(), this->camera);
+	this->selected_hex = building_ptr->hex;
+
+	if(building_ptr->owner_index != this->player_index){
+		this->createUiElem(UI_INFO);
+		return HEX_INFO;
+
+	} else {
+		this->createUiElem(UNIT_SCRL);
+		return SCROLL;
+	}
+}
+
+engine::states Game::SelectUnit(Unit* unit_ptr){
+	this->escape(); //put the engine into an idle state
+	bool unit_owned = unit_ptr->owner_index == this->player_index;
+	//HEX INFO NEEDS THIS TOO
+	if(unit_owned){
+		std::cout << "owned" << std::endl;
+		this->selected_unit = unit_ptr;
+		this->selected_hex = unit_ptr->current_hex;
+		return UNIT1;
+
+	} else {
+		//SHOW COMPARISON
+		this-> selected_unit = unit_ptr;
+		this->createUiElem(UI_INFO);
+		return UNIT_INFO;
+	}
+}
+
+
 void Game::escape(){
 	this->state = IDLE;
 	this->selected_unit = nullptr;
@@ -185,22 +219,6 @@ void Game::hexInfoTransition(inputAlphabet input, void *selection){
 	}
 }
 
-
-engine::states Game::SelectBuilding(Building *building_ptr){
-			this->MousePosition = GetScreenToWorld2D(GetMousePosition(), this->camera);
-			this->selected_hex = building_ptr->hex;
-
-			if(this->ui_elements.size() > 1) this->ui_elements.erase(ui_elements.begin() + 1);
-
-			if(building_ptr->owner_index == this->player_index){
-				this->createUiElem(UNIT_SCRL);
-				return SCROLL;
-			} else {
-				this->createUiElem(UI_INFO);
-				return HEX_INFO;
-			}
-}
-
 void Game::idleTransition(inputAlphabet input, void *selection){
 	switch(input){
 		case TURNEND:
@@ -210,20 +228,7 @@ void Game::idleTransition(inputAlphabet input, void *selection){
 			Unit *unit_ptr = (Unit*)selection;
 
 			bool unit_owned = unit_ptr->owner_index == this->player_index;
-
-			//HEX INFO NEEDS THIS TOO
-			if(unit_owned){
-				std::cout << "owned" << std::endl;
-				this->selected_unit = unit_ptr;
-				this->selected_hex = unit_ptr->current_hex;
-				this->state = UNIT1;
-
-			} else {
-				//SHOW COMPARISON
-				this-> selected_unit = unit_ptr;
-				this->state = UNIT_INFO;
-				this->createUiElem(UI_INFO);
-			}
+			this->state = SelectUnit(unit_ptr);
 			break;
 			   }
 		case HEX:
@@ -233,8 +238,6 @@ void Game::idleTransition(inputAlphabet input, void *selection){
 			break;
 		case BUILDING:{
 			Building *building_ptr = (Building*)selection;
-
-			this->selected_hex = building_ptr->hex;
 			this->state = this->SelectBuilding(building_ptr);
 			break;
 			}
@@ -398,6 +401,9 @@ void Game::unitTransition(inputAlphabet input, void *selection){
 			this->createUiElem(UI_OPTIONS_1);
 			break;
 			 }
+		case BUILDING:{
+		        //TODO >> CHANGE THIS 
+		         }
 		default:
 			return;
 	}
@@ -405,7 +411,13 @@ void Game::unitTransition(inputAlphabet input, void *selection){
 
 void Game::scrollTransition(inputAlphabet input, void *selection){
 	switch(input){
+		case UNIT:{
+			Unit* unit_ptr = (Unit*)selection;
+			this->state = this->SelectUnit(unit_ptr);
+			break;
+			  }
 		case HEX:
+			//TODO >> MAKE A HEX HELPER FUNCTION FOR HEXINFO
 			this->selected_hex = (HexSpace*)selection;
 			this->state = HEX_INFO;
 
@@ -415,14 +427,8 @@ void Game::scrollTransition(inputAlphabet input, void *selection){
 		case BUILDING:{
 			Building* building_ptr = (Building*)selection;
 			//ifbuilding not owned pull up hex info
-			if(building_ptr->owner_index != this->player_index){
-				this->selected_hex = building_ptr->hex;
-				this->state = HEX_INFO;
-
-				if(this->ui_elements.size() > 1) this->ui_elements.erase(ui_elements.begin() + 1);
-				this->createUiElem(UI_INFO);
-				return;
-			}
+			//Check building type to determine if a research or unit scroll menu should be made
+			this->state = this->SelectBuilding(building_ptr);
 			break;
 		      }
 		default:
@@ -433,7 +439,7 @@ void Game::scrollTransition(inputAlphabet input, void *selection){
 void Game::transitionState(inputAlphabet input, void *selection){
 	std::cout << "CURRENT STATE: " << this->state <<  ", INPUT: " << input << std::endl;
 	switch(this->state){
-		case IDLE:
+	case IDLE:
 			idleTransition(input, selection);
 			break;
 		case UNIT1:
