@@ -25,8 +25,8 @@ struct Text {
 
 //will provide information to autofill menus on creation
 enum scroll_type {
-	UNITS,
-	UPGRADES,
+	SCRLL_UNITS,
+	SCRLL_UPGRADES,
 };
 
 class ScrollMenu {
@@ -37,6 +37,7 @@ class ScrollMenu {
 		float internal_height;
 
 		scroll_type type;
+
 		ScrollMenu(scroll_type menu_type, const Vector2 &mouse_position);
 };
 
@@ -115,11 +116,15 @@ class Game{
 
 		void unitInfoTransition(inputAlphabet input, void *selection);
 
+		void scrollTransition(inputAlphabet input, void *selection);
+
 		//handles state transition calls 
 		void transitionState(inputAlphabet input, void *selection);
 
 		//transitions to idle state or calls menu
 		void escape();
+
+		void scrollCollision(int index, scroll_type type);
 
 		//ui creation helper function
 		//May create options or scroll menus
@@ -147,6 +152,10 @@ class Game{
 		void versus();
 
 		Game(Camera2D &camera);
+
+		//building input helper function
+		//CREATES UI ELEMENTS AND RETURNS STATE TO SET 
+		engine::states SelectBuilding(Building* building_ptr);
 		
 };
 }

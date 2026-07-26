@@ -289,7 +289,6 @@ void renderGrid(
 			}
 		}
 	}
-
 }
 
 void initAssets(std::unordered_map<int, Texture2D> &texture_map){
