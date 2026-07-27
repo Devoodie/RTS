@@ -6,9 +6,10 @@ namespace ui{
 	//THIS SHOULD BE CHANGED FROM RENDER OPTIONS TO RENDER UI
 void renderOptions(const engine::Game &engine_instance, std::unordered_map<int, Texture2D> texture_map){
 	switch(engine_instance.state){
+		case engine::UNIT1:
 		case engine::FIRE:
 		case engine::OPTIONS:{
-
+			if(engine_instance.ui_elements.size() <= 1) return;
 			BeginMode2D(engine_instance.camera);
 			Texture2D opt_texture;
 			if(engine_instance.state == engine::FIRE){

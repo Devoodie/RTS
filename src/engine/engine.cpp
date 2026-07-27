@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cstdlib>
 #include <iostream>
 #include <cassert>
@@ -120,6 +121,14 @@ engine::states Game::SelectUnit(Unit* unit_ptr){
 		std::cout << "owned" << std::endl;
 		this->selected_unit = unit_ptr;
 		this->selected_hex = unit_ptr->current_hex;
+
+		bool exists = this->selected_hex->structure_index != unused; 
+		bool owned = this->buildings[this->selected_hex->structure_index].owner_index == this->player_index;
+		if(unit_ptr->task != NONE or (exists and !owned)) {
+			Vector2 button_position = unit_ptr->position;
+			this->MousePosition = GetScreenToWorld2D(GetMousePosition(), this->camera);
+			this->createUiElem(UI_OPTIONS_1);
+		}
 		return UNIT1;
 
 	} else {
@@ -404,7 +413,7 @@ void Game::unitTransition(inputAlphabet input, void *selection){
 		case BUILDING:{
 		        //TODO >> CHANGE THIS 
 			Building *building_ptr = (Building*)selection;
-			if(building_ptr->owner_index == )
+	//		if(building_ptr->owner_index == )
 			break;
 		         }
 		default:
@@ -556,6 +565,7 @@ bool Game::uiCollisionCheck(){
 	if(CheckCollisionPointRec(wrld_point, ui_elements[1]) and IsMouseButtonReleased(0)){
 		switch(this->state){
 			//end turn
+			//this is for moving for now
 			case OPTIONS:
 					selected_unit->position.x = selected_hex2->x_position;
 					selected_unit->position.y = selected_hex2->y_position;
@@ -576,6 +586,15 @@ bool Game::uiCollisionCheck(){
 					this->createUiElem(UI_FIRING_TEXT);
 					this->state = FIRING;
 					break;
+			case UNIT1:{
+					//a task is being performed or is available we can do this with a scroll bar right now the only task is capture
+					Building& enemy_building = this->buildings[selected_hex->structure_index];
+					enemy_building.hp -= 40.0;
+					if(enemy_building.hp <= 0){
+						this->transferBuilding(this->selected_hex->structure_index, enemy_building.owner_index, this->selected_unit->owner_index);
+					}
+					break;
+				   }	
 			case SCROLL:{
 					//do linear search for mouse position within scroll menu
 					float target = wrld_point.y - this->scrl_menu.dimensions.y + this->scrl_menu.y_pos;
@@ -650,6 +669,15 @@ void Game::popUnit(uint16_t rm_index){
 			if(hex.occupier_index != unused and hex.occupier_index >= rm_index) hex.occupier_index -= 1;
 		}
 	}
+}
+
+void Game::transferBuilding(uint8_t building_index,int current_owner, int new_owner){
+	std::vector<uint8_t> &buildings = this->players[current_owner].buildings;
+	auto iterator = std::find(buildings.begin(), buildings.end(), building_index);
+
+	buildings.erase(iterator);
+	this->players[new_owner].buildings.push_back(building_index);
+	return;
 }
 
 //moves units

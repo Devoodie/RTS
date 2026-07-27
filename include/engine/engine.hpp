@@ -153,6 +153,8 @@ class Game{
 		//removes unit at index and decrement all indexes 
 		void popUnit(uint16_t rm_index);
 
+		void transferBuilding(uint8_t building_index, int current_owner, int new_owner);
+
 		void Move();
 		
 		void Fire();

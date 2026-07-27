@@ -13,12 +13,18 @@ enum UnitType {
 	TANK,
 };
 
+enum Tasks{
+	NONE,
+	CAPTURING,
+};
+
 class Unit {
 	public:
 		Rectangle render_rect;
 		HexSpace *current_hex;
 		Vector2 position;
 		UnitType type;
+		Tasks task;
 
 		//stats 
 		float hp;

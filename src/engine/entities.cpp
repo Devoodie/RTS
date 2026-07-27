@@ -17,6 +17,7 @@ Unit::Unit(HexSpace *hex, UnitType type, int player_index) : current_hex(hex), t
 
 	switch(type) {
 		case INFANTRY:
+			task = NONE;
 			hp = 100.0;
 			attacks = 1;
 			attack_range = 1;
