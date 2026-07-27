@@ -403,6 +403,9 @@ void Game::unitTransition(inputAlphabet input, void *selection){
 			 }
 		case BUILDING:{
 		        //TODO >> CHANGE THIS 
+			Building *building_ptr = (Building*)selection;
+			if(building_ptr->owner_index == )
+			break;
 		         }
 		default:
 			return;
@@ -562,8 +565,6 @@ bool Game::uiCollisionCheck(){
 					this->selected_hex->occupier_index = unused;
 
 					this->state = MOVING;
-					std::cout << "MOVE!" << std::endl;
-					break;
 				
 			case FIRE:
 					assert("Number of atks Greater than 0" && this->selected_unit->atks_left > 0);
@@ -716,7 +717,6 @@ void Game::versus(){
 
 	//check collisions
 	//uichecks
-	//
 
 	if(IsKeyPressed(KEY_ESCAPE)) {
 		this->escape();
