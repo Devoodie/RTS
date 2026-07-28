@@ -123,8 +123,9 @@ engine::states Game::SelectUnit(Unit* unit_ptr){
 		this->selected_hex = unit_ptr->current_hex;
 
 		bool exists = this->selected_hex->structure_index != unused; 
-		bool owned = this->buildings[this->selected_hex->structure_index].owner_index == this->player_index;
-		std::cout << "BUILDIN EXISTS" << std::endl;
+		std::cout << "BUILDING INDEX: " << this->selected_hex->structure_index << std::endl;
+
+		bool owned = (exists) ? this->buildings[this->selected_hex->structure_index].owner_index == this->player_index : false;
 		if(unit_ptr->task != NONE or (exists and !owned)) {
 			Vector2 button_position = unit_ptr->position;
 			this->MousePosition = GetScreenToWorld2D(GetMousePosition(), this->camera);
@@ -592,6 +593,7 @@ bool Game::uiCollisionCheck(){
 					//a task is being performed or is available we can do this with a scroll bar right now the only task is capture
 					this->selected_unit->task = CAPTURING;
 					Building& enemy_building = this->buildings[selected_hex->structure_index];
+
 					std::cout << "CAPTURING" << std::endl;
 					std::cout << this->ui_elements.size() << std::endl;
 					enemy_building.hp -= 40.0;
@@ -687,7 +689,6 @@ void Game::transferBuilding(uint8_t building_index,int current_owner, int new_ow
 
 	enemy_buildings.erase(iterator);
 	this->players[new_owner].buildings.push_back(building_index);
-	return;
 }
 
 //moves units
