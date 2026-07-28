@@ -10,6 +10,7 @@ void renderOptions(const engine::Game &engine_instance, std::unordered_map<int, 
 		case engine::FIRE:
 		case engine::OPTIONS:{
 			if(engine_instance.ui_elements.size() <= 1) return;
+
 			BeginMode2D(engine_instance.camera);
 			Texture2D opt_texture;
 			if(engine_instance.state == engine::FIRE){

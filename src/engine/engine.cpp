@@ -124,6 +124,7 @@ engine::states Game::SelectUnit(Unit* unit_ptr){
 
 		bool exists = this->selected_hex->structure_index != unused; 
 		bool owned = this->buildings[this->selected_hex->structure_index].owner_index == this->player_index;
+		std::cout << "BUILDIN EXISTS" << std::endl;
 		if(unit_ptr->task != NONE or (exists and !owned)) {
 			Vector2 button_position = unit_ptr->position;
 			this->MousePosition = GetScreenToWorld2D(GetMousePosition(), this->camera);
@@ -451,7 +452,7 @@ void Game::scrollTransition(inputAlphabet input, void *selection){
 void Game::transitionState(inputAlphabet input, void *selection){
 	std::cout << "CURRENT STATE: " << this->state <<  ", INPUT: " << input << std::endl;
 	switch(this->state){
-	case IDLE:
+		case IDLE:
 			idleTransition(input, selection);
 			break;
 		case UNIT1:
@@ -575,7 +576,7 @@ bool Game::uiCollisionCheck(){
 					this->selected_hex->occupier_index = unused;
 
 					this->state = MOVING;
-				
+					break;
 			case FIRE:
 					assert("Number of atks Greater than 0" && this->selected_unit->atks_left > 0);
 					this->selected_unit->atks_left -= 1;
@@ -587,12 +588,21 @@ bool Game::uiCollisionCheck(){
 					this->state = FIRING;
 					break;
 			case UNIT1:{
+
 					//a task is being performed or is available we can do this with a scroll bar right now the only task is capture
+					this->selected_unit->task = CAPTURING;
 					Building& enemy_building = this->buildings[selected_hex->structure_index];
+					std::cout << "CAPTURING" << std::endl;
+					std::cout << this->ui_elements.size() << std::endl;
 					enemy_building.hp -= 40.0;
+
 					if(enemy_building.hp <= 0){
+						this->selected_unit->task = NONE;
 						this->transferBuilding(this->selected_hex->structure_index, enemy_building.owner_index, this->selected_unit->owner_index);
+						enemy_building.hp = 100.0;
+						enemy_building.owner_index = this->player_index;
 					}
+					this->escape();
 					break;
 				   }	
 			case SCROLL:{
@@ -672,10 +682,10 @@ void Game::popUnit(uint16_t rm_index){
 }
 
 void Game::transferBuilding(uint8_t building_index,int current_owner, int new_owner){
-	std::vector<uint8_t> &buildings = this->players[current_owner].buildings;
-	auto iterator = std::find(buildings.begin(), buildings.end(), building_index);
+	std::vector<uint8_t> &enemy_buildings = this->players[current_owner].buildings;
+	auto iterator = std::find(enemy_buildings.begin(), enemy_buildings.end(), building_index);
 
-	buildings.erase(iterator);
+	enemy_buildings.erase(iterator);
 	this->players[new_owner].buildings.push_back(building_index);
 	return;
 }
@@ -767,6 +777,7 @@ void Game::versus(){
 	if(!ui_collision) {
 		bool chng_state = this->collisionCheck();
 	}
+
 	//check_hexagon
 }
 
