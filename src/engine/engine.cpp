@@ -48,9 +48,29 @@ ScrollMenu::ScrollMenu(scroll_type menu_type, const Vector2 &mouse_position) : t
 	};
 };
 
+ScrollMenu::~ScrollMenu(){
+}
+
+UnitScrollMenu::UnitScrollMenu(const Vector2 &mouse_position): ScrollMenu(SCRLL_UNITS, mouse_position){
+	this->y_pos = 0;
+		for(int i = 0; i < 3; ++i){
+			this->elements.emplace_back((Rectangle){
+				.x = 0,
+				.y = i * grid::radius / 2,
+				.width  = (float)grid::inradius * 4,
+				.height = grid::radius / 2,
+			});
+	}
+} 
+
+UnitScrollMenu::~UnitScrollMenu(){
+}
+
+void UnitScrollMenu::handleScrollCollision(){}
+
 namespace engine {
 
-Game::Game(Camera2D &camera) : camera(camera), scrl_menu(ScrollMenu(SCRLL_UNITS, {0})) {
+Game::Game(Camera2D &camera) : camera(camera), scrl_menu(nullptr) {
 	players = std::vector<Player>();
 	player_count = 2;
 	player_index = 0;
@@ -190,8 +210,8 @@ void Game::createUiElem(uiElem ui_type){
 			}
 		case UNIT_SCRL:
 			// CREATE NEW SCROLL
-			this->scrl_menu = ScrollMenu(SCRLL_UNITS, this->MousePosition);
-			this->ui_elements.push_back(scrl_menu.dimensions);
+			this->scrl_menu = std::make_unique<UnitScrollMenu>(this->MousePosition);
+			this->ui_elements.push_back(scrl_menu->dimensions);
 			break;
 	}
 }
@@ -569,60 +589,59 @@ bool Game::uiCollisionCheck(){
 			//end turn
 			//this is for moving for now
 			case OPTIONS:
-					selected_unit->position.x = selected_hex2->x_position;
-					selected_unit->position.y = selected_hex2->y_position;
-					selected_unit->current_hex = selected_hex2;
+				selected_unit->position.x = selected_hex2->x_position;
+				selected_unit->position.y = selected_hex2->y_position;
+				selected_unit->current_hex = selected_hex2;
 
-					this->selected_hex2->occupier_index = selected_hex->occupier_index;
-					this->selected_hex->occupier_index = unused;
+				this->selected_hex2->occupier_index = selected_hex->occupier_index;
+				this->selected_hex->occupier_index = unused;
 
-					this->state = MOVING;
-					break;
+				this->state = MOVING;
+				break;
 			case FIRE:
-					assert("Number of atks Greater than 0" && this->selected_unit->atks_left > 0);
-					this->selected_unit->atks_left -= 1;
+				assert("Number of atks Greater than 0" && this->selected_unit->atks_left > 0);
+				this->selected_unit->atks_left -= 1;
 
-					this->dmg_taken = calcDamage();
-					this->selected_unit2->hp -= this->dmg_taken;
+				this->dmg_taken = calcDamage();
+				this->selected_unit2->hp -= this->dmg_taken;
 
-					this->createUiElem(UI_FIRING_TEXT);
-					this->state = FIRING;
-					break;
+				this->createUiElem(UI_FIRING_TEXT);
+				this->state = FIRING;
+				break;
 			case UNIT1:{
+				//a task is being performed or is available we can do this with a scroll bar right now the only task is capture
+				this->selected_unit->task = CAPTURING;
+				Building& enemy_building = this->buildings[selected_hex->structure_index];
 
-					//a task is being performed or is available we can do this with a scroll bar right now the only task is capture
-					this->selected_unit->task = CAPTURING;
-					Building& enemy_building = this->buildings[selected_hex->structure_index];
+				std::cout << "CAPTURING" << std::endl;
+				std::cout << this->ui_elements.size() << std::endl;
+				enemy_building.hp -= 40.0;
 
-					std::cout << "CAPTURING" << std::endl;
-					std::cout << this->ui_elements.size() << std::endl;
-					enemy_building.hp -= 40.0;
-
-					if(enemy_building.hp <= 0){
-						this->selected_unit->task = NONE;
-						this->transferBuilding(this->selected_hex->structure_index, enemy_building.owner_index, this->selected_unit->owner_index);
-						enemy_building.hp = 100.0;
-						enemy_building.owner_index = this->player_index;
-					}
-					this->escape();
-					break;
+				if(enemy_building.hp <= 0){
+					this->selected_unit->task = NONE;
+					this->transferBuilding(this->selected_hex->structure_index, enemy_building.owner_index, this->selected_unit->owner_index);
+					enemy_building.hp = 100.0;
+					enemy_building.owner_index = this->player_index;
+				}
+				this->escape();
+				break;
 				   }	
 			case SCROLL:{
-					//do linear search for mouse position within scroll menu
-					float target = wrld_point.y - this->scrl_menu.dimensions.y + this->scrl_menu.y_pos;
-					int collision_index = 0;
-					const std::vector<Rectangle> &elements = this->scrl_menu.elements;
-					for(int i = 0; i < elements.size(); ++i){	
-						Rectangle collision_rect = elements[i];
-						if(target >= collision_rect.y and target <= collision_rect.y + collision_rect.height){
-							collision_index = i;
-						}
-
+				//do linear search for mouse position within scroll menu
+				float target = wrld_point.y - this->scrl_menu->dimensions.y + this->scrl_menu->y_pos;
+				int collision_index = 0;
+				const std::vector<Rectangle> &elements = this->scrl_menu->elements;
+				for(int i = 0; i < elements.size(); ++i){	
+					Rectangle collision_rect = elements[i];
+					if(target >= collision_rect.y and target <= collision_rect.y + collision_rect.height){
+						collision_index = i;
 					}
-					std::cout << "COLLISION INDEX: " << collision_index << std::endl;
-					this->scrollCollision(collision_index, SCRLL_UNITS);
-					this->escape();
-					break;
+
+				}
+				std::cout << "COLLISION INDEX: " << collision_index << std::endl;
+				this->scrollCollision(collision_index, SCRLL_UNITS);
+				this->escape();
+				break;
 				    }
 			default:
 				//std::cerr << "UI element " << i << " Not Recognized" << std::endl;

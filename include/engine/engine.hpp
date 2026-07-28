@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <cstdint>
+#include <memory>
 
 class Player {
 	public:
@@ -38,7 +39,19 @@ class ScrollMenu {
 
 		scroll_type type;
 
+
 		ScrollMenu(scroll_type menu_type, const Vector2 &mouse_position);
+		virtual ~ScrollMenu();
+
+		virtual void handleScrollCollision() = 0;
+};
+
+class UnitScrollMenu : public ScrollMenu {
+	public: 
+
+		UnitScrollMenu(const Vector2 &mouse_position);
+		~UnitScrollMenu();
+		void handleScrollCollision() override;
 };
 
 namespace engine {
@@ -78,7 +91,7 @@ class Game{
 		std::vector<std::vector<HexSpace>> grid_space;
 		std::vector<Rectangle> ui_elements;
 		std::vector<Text> messages;
-		ScrollMenu scrl_menu;
+		std::unique_ptr<ScrollMenu> scrl_menu;
 
 		int player_index;
 		int player_count;

@@ -120,6 +120,7 @@ void renderBuildings(std::unordered_map<int, Texture2D> texture_map, const std::
 	const float draw_height = radius;
 
 	const Texture2D hq_texture = texture_map[HQ];
+	const Texture2D ware_house = texture_map[WAREHOUSE];
 	
 	Rectangle building_rectangle = {
 		.x = 0,
@@ -300,7 +301,8 @@ void initAssets(std::unordered_map<int, Texture2D> &texture_map){
 	const Texture2D move_button = LoadTexture("../assets/Move1.png");
 	const Texture2D info_rectangle = LoadTexture("../assets/Info_Rectangle.png");
 	const Texture2D hq = LoadTexture("../assets/HQ.png");
- 
+	const Texture2D warehouse = LoadTexture("../assets/Warehouse.png");
+
 	texture_map[grid::GRASS_HEX] = hex_grass;
 	texture_map[grid::GRASS_BORDER] = grass_border;
 	texture_map[grid::DARK_SOLIDER] = dark_solider;
@@ -308,6 +310,7 @@ void initAssets(std::unordered_map<int, Texture2D> &texture_map){
 	texture_map[grid::MOVE_BUTTON] = move_button;
 	texture_map[grid::INFO_RECT] = info_rectangle;
 	texture_map[grid::HQ] = hq;
+	texture_map[grid::WAREHOUSE] = warehouse;
 
 
 }

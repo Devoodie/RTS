@@ -58,6 +58,7 @@ enum textures {
 	MOVE_BUTTON,
 	INFO_RECT,
 	HQ,
+	WAREHOUSE,
 };
 
 void initGrid(const int row, const int col, std::vector<std::vector<HexSpace>> &grid);
