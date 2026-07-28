@@ -55,7 +55,8 @@ void renderOptions(const engine::Game &engine_instance, std::unordered_map<int, 
 				//TODO>> CHANGE THIS SHIT NEOW
 			BeginMode2D(engine_instance.camera);
 			Texture2D &elem_texture = texture_map[grid::MOVE_BUTTON];
-			UnitScrollMenu *scrl_menu = dynamic_cast<UnitScrollMenu*>(engine_instance.scrl_menu.get());
+			//how the fuck does cpp do this shit  without auto? (need verbosity)
+			auto *scrl_menu = engine_instance.scrl_menu.get();
 
 			Rectangle dest_rect = {
 			     .x = scrl_menu->dimensions.x,
@@ -124,13 +125,13 @@ void renderOptions(const engine::Game &engine_instance, std::unordered_map<int, 
 void renderText(const std::vector<Text> &messages){
 	for(Text message: messages){
 		DrawTextEx(
-				GetFontDefault(), 
-				message.content.c_str(), 
-				message.position, 
-				message.font_size,  //placeholder
-				5, 
-				message.text_color
-				);
+			GetFontDefault(), 
+			message.content.c_str(), 
+			message.position, 
+			message.font_size,  //placeholder
+			5, 
+			message.text_color
+			);
 	}
 }
 }

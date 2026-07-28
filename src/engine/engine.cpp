@@ -628,6 +628,8 @@ bool Game::uiCollisionCheck(){
 				   }	
 			case SCROLL:{
 				//do linear search for mouse position within scroll menu
+				assert(this->scrl_menu != nullptr && "SCROLL MENU REFERENCED BEFORE ALLOCATED");
+
 				float target = wrld_point.y - this->scrl_menu->dimensions.y + this->scrl_menu->y_pos;
 				int collision_index = 0;
 				const std::vector<Rectangle> &elements = this->scrl_menu->elements;
@@ -642,7 +644,7 @@ bool Game::uiCollisionCheck(){
 				this->scrollCollision(collision_index, SCRLL_UNITS);
 				this->escape();
 				break;
-				    }
+			    }
 			default:
 				//std::cerr << "UI element " << i << " Not Recognized" << std::endl;
 				return false;
