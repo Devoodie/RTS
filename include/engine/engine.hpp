@@ -2,15 +2,56 @@
 #define RTS_ENGINE_H
 
 #include "utils/grid.hpp"
+#include "entities.hpp"
+#include <string>
 #include <vector>
+#include <cstdint>
+#include <memory>
 
 class Player {
 	public:
-		std::vector<Unit*> units;
-	//structures Aidan ARRAYLIST
-	//resources
+		std::vector<uint16_t> units;
+		std::vector<uint8_t> buildings;
 
-		Player();
+		//creates a player with an index to its HQ
+		Player(int hq_index);
+};
+
+struct Text {
+	std::string content;
+	Color text_color;
+	Vector2 position;
+	float font_size;
+};
+
+//will provide information to autofill menus on creation
+enum scroll_type {
+	SCRLL_UNITS,
+	SCRLL_UPGRADES,
+};
+
+class ScrollMenu {
+	public:
+		std::vector<Rectangle> elements;
+		Rectangle dimensions;
+		float y_pos;
+		float internal_height;
+
+		scroll_type type;
+
+
+		ScrollMenu(scroll_type menu_type, const Vector2 &mouse_position);
+		virtual ~ScrollMenu();
+
+		virtual void handleScrollCollision() = 0;
+};
+
+class UnitScrollMenu : public ScrollMenu {
+	public: 
+
+		UnitScrollMenu(const Vector2 &mouse_position);
+		~UnitScrollMenu();
+		void handleScrollCollision() override;
 };
 
 namespace engine {
@@ -18,6 +59,7 @@ namespace engine {
 		TURNEND,
 		UNIT,
 		HEX,
+		BUILDING,
 		MOVE,
 	};
 
@@ -25,20 +67,38 @@ namespace engine {
 		IDLE,
 		UNIT1,
 		OPTIONS,
+		FIRE,
+		FIRING,
 		HEX_INFO,
 		UNIT_INFO,
 		MOVING,
+		SCROLL,
+	};
+
+	enum uiElem {
+		UI_OPTIONS_1,
+		UI_INFO,
+		UI_FIRING_TEXT,
+		UNIT_SCRL,
 	};
 
 class Game{
-	public:
-		int player_index;
-		int player_count;
+	public:	
 		std::vector<Player> players;
-		std::vector<Unit*> units;
+		std::vector<Unit> units;
+		std::vector<Building> buildings;
 
 		std::vector<std::vector<HexSpace>> grid_space;
 		std::vector<Rectangle> ui_elements;
+		std::vector<Text> messages;
+		std::unique_ptr<ScrollMenu> scrl_menu;
+
+		int player_index;
+		int player_count;
+
+		//Temporary
+		float dmg_taken;
+		uint8_t dmg_txt_index;
 
 		Unit *selected_unit;
 		Unit *selected_unit2;
@@ -47,30 +107,51 @@ class Game{
 		HexSpace *selected_hex2;
 		states state;
 
-		//REDUNDANT PROPERTY
 		Vector2 MousePosition;
+
+		Camera2D &camera;
 
 		void playerInit(int playerCount);
 		void endTurn();
 
-		//All Transition functions change state and state should only be changed in transition functions
+		//Helper functions that put the engine into a state available from idle state.
+		//ALL RETURN STATE TO SET
 		
-		void hexInfoTransition(inputAlphabet input, void *selection);
+		//CREATES UI ELEMENTS AND RETURNS STATE TO SET 
+		engine::states SelectBuilding(Building* building_ptr);
+
+		//CREATES UI ELEMENTS AND PUTS THE STATE INTO EITHER UNIT1 OR UNIT INFO
+		engine::states SelectUnit(Unit* unit_ptr);
+
+		//All Transition functions change state and state should only be changed in transition functions
+		//
 		//transitions fsm from idle to another state
 		void idleTransition(inputAlphabet input, void *selection);
 
-		//transitions fsm from option to another state
+		//transitions handles fire transitions option transitions
 		void optionTransition(inputAlphabet input, void *selection);
 
-		void unitInfoTransition(inputAlphabet input, void *selection);
+		void hexInfoTransition(inputAlphabet input, void *selection);
+
 		//transitions fsm from unit to another state
 		void unitTransition(inputAlphabet input, void *selection);
+
+		void unitInfoTransition(inputAlphabet input, void *selection);
+
+		void scrollTransition(inputAlphabet input, void *selection);
 
 		//handles state transition calls 
 		void transitionState(inputAlphabet input, void *selection);
 
 		//transitions to idle state or calls menu
 		void escape();
+
+		void scrollCollision(int index, scroll_type type);
+
+		//ui creation helper function
+		//May create options or scroll menus
+		//Mouse position must be set to adjust element position
+		void createUiElem(uiElem ui_type);
 
 		//searches for collisions with properties of a hexagon and potentially transitions state
 		void handleCollision(HexSpace *collided_hex, Vector2 mouse_point);
@@ -80,21 +161,23 @@ class Game{
 
 		bool uiCollisionCheck();
 
+		float calcDamage();
+
+		//removes unit at index and decrement all indexes 
+		void popUnit(uint16_t rm_index);
+
+		void transferBuilding(uint8_t building_index, int current_owner, int new_owner);
+
 		void Move();
+		
+		void Fire();
 
 		//main game loop
 		void versus();
 
-		//renders options menu
-		void renderOptions(std::unordered_map<int, Texture2D> texture_map);
-
-		Game();
-		
+		Game(Camera2D &camera);	
 };
-
-
 }
 
-//class Collider {};
 //
 #endif

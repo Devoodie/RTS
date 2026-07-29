@@ -3,10 +3,12 @@
 #include <vector>
 
 #include <raylib.h>
+#include <raymath.h>
 
 #include "include/utils/grid.hpp"
 #include <engine/entities.hpp>
 #include <engine/engine.hpp>
+#include <engine/ui.hpp>
 
 constexpr int grid_length = 8;
 constexpr int grid_height = 8;
@@ -17,6 +19,9 @@ int main(void){
 	
 	InitWindow(screenWidth, screenHeight, "RTS");
 
+	Camera2D camera = {0};
+	camera.zoom = 1.0;
+
 	SetExitKey(KEY_NULL);
 
 	//ASSETS
@@ -24,31 +29,36 @@ int main(void){
 	grid::initAssets(texture_map);
 
 	//init game class
-	engine::Game game;
+	engine::Game game(camera);
 
+	//initialize gridspace
+
+	std::cout << "initialize grid" << std::endl;
+	grid::initGrid(grid_height, grid_length, game.grid_space);
+
+	//initialize players
 	int player_index = 0;
 	game.playerInit(2);
 
 
-	//initialize gridspace
-	
-	std::cout << "initialize grid" << std::endl;
-	grid::initGrid(grid_height, grid_length, game.grid_space);
+	game.players[0].units.push_back(game.units.size());
+	game.grid_space[0][0].occupier_index = game.units.size();
+	game.units.emplace_back(&game.grid_space[0][0], INFANTRY, 0);
+		//
 
-	Unit testUnit(&game.grid_space[0][0], INFANTRY);
+	game.players[1].units.push_back(game.units.size());
+	game.grid_space[0][5].occupier_index = game.units.size();
+	game.units.emplace_back(&game.grid_space[0][5], INFANTRY, 1);
 
-	Unit enemytestUnit(&game.grid_space[0][7], INFANTRY);
+	//make warehouses
+	game.grid_space[1][1].structure_index = game.buildings.size();
+	game.players[0].buildings.push_back(game.buildings.size());
+	game.buildings.emplace_back(&game.grid_space[1][1], FACTORY, 0);
 
-	game.units.push_back(&testUnit);
-	game.units.push_back(&enemytestUnit);
+	game.grid_space[1][5].structure_index = game.buildings.size();
+	game.players[1].buildings.push_back(game.buildings.size());
+	game.buildings.emplace_back(&game.grid_space[1][5], FACTORY, 1);
 
-	game.players[0].units.push_back(&testUnit);
-	game.players[1].units.push_back(&enemytestUnit);
-	std::cout << "initialize grid" << std::endl;
-
-	game.grid_space[0][0].occupier = &testUnit;
-	game.grid_space[0][7].occupier = &enemytestUnit;
-	
 	//endturn
 	//Should this be in the constructor?
 	Rectangle textRect = {
@@ -67,12 +77,33 @@ int main(void){
 		game.versus();
 		BeginDrawing();
 
+		//DO ZOOMING
+		if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT)){
+			Vector2 delta = GetMouseDelta();
+			delta = Vector2Scale(delta, -1.0f/ camera.zoom);
+            		camera.target = Vector2Add(camera.target, delta);
+
+			//make clamp values dependant on grid size
+			camera.target.y = Clamp(camera.target.y, -600, 600);
+			camera.target.x = Clamp(camera.target.x, -600, 600);
+        	}
+
 		ClearBackground(RAYWHITE);
+
+		BeginMode2D(camera);
+
 		grid::renderGrid(texture_map, game.grid_space, false);
-		grid::renderUnits(texture_map, game.units);
+		grid::renderBuildings(texture_map, game.buildings, true);
+		grid::renderUnits(texture_map, game.units, true );
 		//render options
-		game.renderOptions(texture_map);
+		ui::renderText(game.messages);
+
+		EndMode2D();
+
+		//mixture of 2D and Screenspace mode
+		ui::renderOptions(game, texture_map);
 		DrawText("END TURN", textRect.x, textRect.y, 15, RED);
+
 
 		EndDrawing();
 	}

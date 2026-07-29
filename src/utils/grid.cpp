@@ -9,7 +9,9 @@
 HexSpace::HexSpace (){
 	x_position = 0;
 	y_position = 0;
-	occupier = nullptr;
+	occupier_index = 65535;
+	structure_index = 65535;
+	env_defense = 0;
 };
 
 namespace grid {
@@ -70,8 +72,9 @@ void initGrid(const int row, const int col, std::vector<std::vector<HexSpace>> &
 
 			CurrentHex->x_position = x;
 			CurrentHex->y_position = y;
-			CurrentHex->x_index = j;
-			CurrentHex->y_index = i;
+
+			CurrentHex->indices.x = j;
+			CurrentHex->indices.y = i;
 
 			float x_offset = (sqrt(3) / 2) * radius;
 			float y_offset = radius / 2;
@@ -112,12 +115,65 @@ void initGrid(const int row, const int col, std::vector<std::vector<HexSpace>> &
 	}
 }
 
+void renderBuildings(std::unordered_map<int, Texture2D> texture_map, const std::vector<Building> &buildings, const bool debug){
+	const float draw_width = inradius;
+	const float draw_height = radius;
+
+	const Texture2D hq_texture = texture_map[HQ];
+	const Texture2D warehouse = texture_map[WAREHOUSE];
+	
+	Rectangle building_rectangle = {
+		.x = 0,
+		.y = 0,
+		.width = draw_width, 
+		.height = draw_height,
+	};
+
+	Rectangle source_rectangle = {
+		.x = 0,
+		.y = 0,
+		.width = (float)hq_texture.width,
+		.height = (float)hq_texture.height,
+	};
+
+	Texture2D current_texture;
+	for(Building structure: buildings){
+		building_rectangle.x = structure.hex->x_position - inradius / 2;
+		building_rectangle.y = structure.hex->y_position - radius / 2;
+
+		if(structure.type == FACTORY){
+			current_texture = warehouse;
+		} else {
+			current_texture = hq_texture;
+		}
+
+		source_rectangle.width = (float)current_texture.width;
+		source_rectangle.height = (float)current_texture.height;
+
+		DrawTexturePro(current_texture, source_rectangle, building_rectangle, {.x = 0, .y = 0}, 0, RAYWHITE);
+
+		if(debug){
+		    DrawRectangleLines(
+			    building_rectangle.x, 
+			    building_rectangle.y, 
+			    building_rectangle.width, 
+			    building_rectangle.height, 
+			    RED
+			    );
+		}
+
+	}
+
+}
+
 //add visibility rules
-void renderUnits(std::unordered_map<int, Texture2D> texture_map, std::vector<Unit *> units){
+void renderUnits(std::unordered_map<int, Texture2D> texture_map, const std::vector<Unit> &units, bool debug){
 	const float draw_width = inradius * 2;
 	const float draw_height = radius * 2;
 
 	const Texture2D solider_texture = texture_map[DARK_SOLIDER]; 
+
+	Color color;
 
 	Rectangle unit_rectangle = {
 		.x = 0,
@@ -134,14 +190,31 @@ void renderUnits(std::unordered_map<int, Texture2D> texture_map, std::vector<Uni
 	};
 
 	for(int i = 0; i < units.size(); ++i){
-		Unit* CurrentUnit = units[i];
-		unit_rectangle.x = CurrentUnit->render_rect.x;
-		unit_rectangle.y = CurrentUnit->render_rect.y;
+		Unit CurrentUnit = units[i];
+
+		if(CurrentUnit.atks_left == 0){
+			color = GRAY;
+		} else {
+			color = RAYWHITE;
+		}
+
+		unit_rectangle.x = CurrentUnit.render_rect.x;
+		unit_rectangle.y = CurrentUnit.render_rect.y;
 
 		source_rectangle.width = float(texture_map[DARK_SOLIDER].width);
 		source_rectangle.height = float(texture_map[DARK_SOLIDER].height);
 
-		DrawTexturePro(solider_texture, source_rectangle, unit_rectangle, {.x = 0, .y = 0}, 0, RAYWHITE);
+		DrawTexturePro(solider_texture, source_rectangle, unit_rectangle, {.x = 0, .y = 0}, 0, color);
+
+		if(debug){
+		    DrawRectangleLines(
+			    CurrentUnit.render_rect.x, 
+			    CurrentUnit.render_rect.y, 
+			    CurrentUnit.render_rect.width, 
+			    CurrentUnit.render_rect.height, 
+			    RED
+			    );
+		}
 	}
 };
 
@@ -226,7 +299,6 @@ void renderGrid(
 			}
 		}
 	}
-
 }
 
 void initAssets(std::unordered_map<int, Texture2D> &texture_map){
@@ -237,13 +309,17 @@ void initAssets(std::unordered_map<int, Texture2D> &texture_map){
 	const Texture2D fire_button = LoadTexture("../assets/Fire1.png");
 	const Texture2D move_button = LoadTexture("../assets/Move1.png");
 	const Texture2D info_rectangle = LoadTexture("../assets/Info_Rectangle.png");
- 
+	const Texture2D hq = LoadTexture("../assets/HQ.png");
+	const Texture2D warehouse = LoadTexture("../assets/Warehouse.png");
+
 	texture_map[grid::GRASS_HEX] = hex_grass;
 	texture_map[grid::GRASS_BORDER] = grass_border;
 	texture_map[grid::DARK_SOLIDER] = dark_solider;
 	texture_map[grid::FIRE_BUTTON] = fire_button;
 	texture_map[grid::MOVE_BUTTON] = move_button;
 	texture_map[grid::INFO_RECT] = info_rectangle;
+	texture_map[grid::HQ] = hq;
+	texture_map[grid::WAREHOUSE] = warehouse;
 
 
 }
