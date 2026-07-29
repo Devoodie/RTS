@@ -56,11 +56,11 @@ void renderOptions(const engine::Game &engine_instance, std::unordered_map<int, 
 			BeginMode2D(engine_instance.camera);
 			Texture2D &elem_texture = texture_map[grid::MOVE_BUTTON];
 			//how the fuck does cpp do this shit  without auto? (need verbosity)
-			auto *scrl_menu = engine_instance.scrl_menu.get();
+			const auto &scrl_menu = *engine_instance.scrl_menu.get();
 
 			Rectangle dest_rect = {
-			     .x = scrl_menu->dimensions.x,
-			     .y = scrl_menu->dimensions.y,
+			     .x = scrl_menu.dimensions.x,
+			     .y = scrl_menu.dimensions.y,
 			     .width = (float)elem_texture.width,
 			     .height = (float)elem_texture.height,
 			};
@@ -72,13 +72,13 @@ void renderOptions(const engine::Game &engine_instance, std::unordered_map<int, 
 				.height = (float)elem_texture.height,
 			};
 
-			float target_y = scrl_menu->y_pos + scrl_menu->dimensions.height;
-			if(target_y > scrl_menu->internal_height) target_y = scrl_menu->internal_height;
+			float target_y = scrl_menu.y_pos + scrl_menu.dimensions.height;
+			if(target_y > scrl_menu.internal_height) target_y = scrl_menu.internal_height;
 
-			float current_y = scrl_menu->y_pos;
+			float current_y = scrl_menu.y_pos;
 			int elem_index = 0;
 
-			const std::vector<Rectangle> &elements = scrl_menu->elements;
+			const std::vector<Rectangle> &elements = scrl_menu.elements;
 
 			while(current_y < target_y){
 				const Rectangle &element = elements[elem_index];
@@ -95,7 +95,7 @@ void renderOptions(const engine::Game &engine_instance, std::unordered_map<int, 
 					draw_amount = target_y - current_y;
 				}
 
-				dest_rect.y = current_y + scrl_menu->dimensions.y;
+				dest_rect.y = current_y + scrl_menu.dimensions.y;
 				dest_rect.height = draw_amount;
 
 				source_rect.y = elem_texture.height = draw_amount;

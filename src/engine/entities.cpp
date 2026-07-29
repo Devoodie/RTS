@@ -34,16 +34,13 @@ Unit::Unit(HexSpace *hex, UnitType type, int player_index) : current_hex(hex), t
 }
 
 Building::Building(HexSpace *hex, BuildingType type, int player_index) : hex(hex), type(type), owner_index(player_index) {
-	switch(type){
-		case HQ:
-			hp = 100;
-			render_rect = {
-				.x = hex->x_position - grid::inradius / 2,
-				.y = hex->y_position - grid::radius / 2,
-				.width = grid::inradius,
-				.height = grid::radius,
-			};
-			break;
-	}
+	hp = 100;
+
+	render_rect = {
+		.x = hex->x_position - grid::inradius / 2,
+		.y = hex->y_position - grid::radius / 2,
+		.width = grid::inradius,
+		.height = grid::radius,
+	};
 }
 

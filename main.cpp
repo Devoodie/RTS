@@ -40,14 +40,24 @@ int main(void){
 	int player_index = 0;
 	game.playerInit(2);
 
+
 	game.players[0].units.push_back(game.units.size());
 	game.grid_space[0][0].occupier_index = game.units.size();
 	game.units.emplace_back(&game.grid_space[0][0], INFANTRY, 0);
+		//
 
 	game.players[1].units.push_back(game.units.size());
 	game.grid_space[0][5].occupier_index = game.units.size();
 	game.units.emplace_back(&game.grid_space[0][5], INFANTRY, 1);
 
+	//make warehouses
+	game.grid_space[1][1].structure_index = game.buildings.size();
+	game.players[0].buildings.push_back(game.buildings.size());
+	game.buildings.emplace_back(&game.grid_space[1][1], FACTORY, 0);
+
+	game.grid_space[1][5].structure_index = game.buildings.size();
+	game.players[1].buildings.push_back(game.buildings.size());
+	game.buildings.emplace_back(&game.grid_space[1][5], FACTORY, 1);
 
 	//endturn
 	//Should this be in the constructor?

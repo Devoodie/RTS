@@ -66,7 +66,17 @@ UnitScrollMenu::UnitScrollMenu(const Vector2 &mouse_position): ScrollMenu(SCRLL_
 UnitScrollMenu::~UnitScrollMenu(){
 }
 
-void UnitScrollMenu::handleScrollCollision(){}
+void UnitScrollMenu::handleScrollCollision(){
+	// std::cout << "PLAYER INDEX: " << this->player_index << std::endl;
+	// this->selected_hex->occupier_index = this->units.size();
+	// this->players[player_index].units.push_back(this->units.size());
+	// this->units.emplace_back(
+	// 		this->selected_hex,
+	// 		INFANTRY,
+	// 		this->player_index
+	// 		);
+	//
+}
 
 namespace engine {
 
@@ -123,7 +133,7 @@ engine::states Game::SelectBuilding(Building *building_ptr){
 	this->MousePosition = GetScreenToWorld2D(GetMousePosition(), this->camera);
 	this->selected_hex = building_ptr->hex;
 
-	if(building_ptr->owner_index != this->player_index){
+	if(building_ptr->owner_index != this->player_index or building_ptr->type != FACTORY){
 		this->createUiElem(UI_INFO);
 		return HEX_INFO;
 
@@ -227,7 +237,7 @@ void Game::hexInfoTransition(inputAlphabet input, void *selection){
 			this->selected_hex = (HexSpace*)selection;
 			break;
 			 }
-		case UNIT:
+		case UNIT:{
 			std::cout << "Unit Selected" << std::endl;
 			Unit *unit_ptr = (Unit*)selection;
 
@@ -243,7 +253,11 @@ void Game::hexInfoTransition(inputAlphabet input, void *selection){
 			this->state = UNIT1;
 			if(this->ui_elements.size() > 1) this->ui_elements.erase(ui_elements.begin() + 1);
 			break;
-
+			  }
+		case BUILDING:
+			Building *building_ptr = (Building*)selection;
+			this->state = this->SelectBuilding(building_ptr);
+			break;
 		defaut:
 			std::cerr << "STATE " << input << " NOT HANDLED (hexInfoTransition)" << std::endl;
 			break;
@@ -382,7 +396,6 @@ void Game::unitInfoTransition(inputAlphabet input, void *selection){
 		case BUILDING:{
 			Building *building_ptr = (Building*)selection;
 
-			this->selected_hex = building_ptr->hex;
 			this->state = this->SelectBuilding(building_ptr);
 			break;
 			}
@@ -637,6 +650,7 @@ bool Game::uiCollisionCheck(){
 					Rectangle collision_rect = elements[i];
 					if(target >= collision_rect.y and target <= collision_rect.y + collision_rect.height){
 						collision_index = i;
+						break;
 					}
 
 				}

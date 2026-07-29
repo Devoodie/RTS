@@ -120,7 +120,7 @@ void renderBuildings(std::unordered_map<int, Texture2D> texture_map, const std::
 	const float draw_height = radius;
 
 	const Texture2D hq_texture = texture_map[HQ];
-	const Texture2D ware_house = texture_map[WAREHOUSE];
+	const Texture2D warehouse = texture_map[WAREHOUSE];
 	
 	Rectangle building_rectangle = {
 		.x = 0,
@@ -136,12 +136,21 @@ void renderBuildings(std::unordered_map<int, Texture2D> texture_map, const std::
 		.height = (float)hq_texture.height,
 	};
 
-
+	Texture2D current_texture;
 	for(Building structure: buildings){
 		building_rectangle.x = structure.hex->x_position - inradius / 2;
 		building_rectangle.y = structure.hex->y_position - radius / 2;
 
-		DrawTexturePro(hq_texture, source_rectangle, building_rectangle, {.x = 0, .y = 0}, 0, RAYWHITE);
+		if(structure.type == FACTORY){
+			current_texture = warehouse;
+		} else {
+			current_texture = hq_texture;
+		}
+
+		source_rectangle.width = (float)current_texture.width;
+		source_rectangle.height = (float)current_texture.height;
+
+		DrawTexturePro(current_texture, source_rectangle, building_rectangle, {.x = 0, .y = 0}, 0, RAYWHITE);
 
 		if(debug){
 		    DrawRectangleLines(
