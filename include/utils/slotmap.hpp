@@ -20,8 +20,8 @@ class SlotMap {
 		SlotMap(int reserve_size);
 
 		//this is for quick access only insertion should be done with insertion function
-		const std::optional<T&> operator[](const Slot &slot);
+		const std::optional<T&> operator[](const Slot &key);
 
-		void erase(const Slot &slot);
+		void erase(const Slot &key);
 		Slot insert(const Slot slot);
 };

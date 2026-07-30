@@ -14,19 +14,32 @@ SlotMap<T>::SlotMap(int reserve_size) : size(reserve_size) {
 	}
 };
 
+//use the key to get the slot that will index the data array
 template <typename T>
-const std::optional<T&> SlotMap<T>::operator[](const Slot &slot){
-	assert(slot.index < size && "Desired index Greater than size!");
-	T &desired_data = this->data[slot.index];
+const std::optional<T&> SlotMap<T>::operator[](const Slot &key){
+	assert(key.index < size && "Desired index Greater than size!");
 
-	uint32_t metadeta_index = this->index_ref[slot.index];
-	Slot meta_data = this->indices[metadeta_index];
+	const Slot index_slot = this->indices[key.index];
+	T &desired_data = this->data[index_slot.index];
 
-	if(meta_data.generation != slot.generation or meta_data.index != slot.index){ 
+	if(index_slot.generation != key.generation){ 
 		return nullptr;
 	} else {
 		return desired_data;
 	}
+}
+
+//ok you need to override the deleted object with the last object in the data array
+//destroy the last element
+//use the index from the initial indices to delete from index
+template <typename T>
+void SlotMap<T>::erase(const Slot &key){
+	assert(key.index < size && "Desired index Greater than size!");
+
+	const Slot index_slot = this->indices[key.index];
+	int index = this->data[index_slot];
+
+	T &desired_data = this->data[index_slot.index];
 }
 
 template <typename T>
