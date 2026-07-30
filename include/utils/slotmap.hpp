@@ -1,6 +1,7 @@
 #include <vector>
 #include <cstdint>
 #include <optional>
+#include <list>
 
 struct Slot {
 	uint32_t index;
@@ -12,10 +13,15 @@ class SlotMap {
 	public:
 		std::vector<Slot> indices;
 		std::vector<T> data;
-		std::vector<uint32_t> erase; //names not very expressive but this maps directly onto the slotmap definition from the video i watched
+		std::list<Slot*> free_list;
+		std::vector<uint32_t> index_ref; 
 		uint32_t size;
 		
 		SlotMap(int reserve_size);
 
-		std::optional<T&> operator[](const Slot &slot);
+		//this is for quick access only insertion should be done with insertion function
+		const std::optional<T&> operator[](const Slot &slot);
+
+		void erase(const Slot &slot);
+		Slot insert(const Slot slot);
 };
