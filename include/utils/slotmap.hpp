@@ -15,7 +15,7 @@ class SlotMap {
 		std::vector<T> data;
 		std::list<Slot*> free_list;
 		std::vector<uint32_t> index_ref; 
-		uint32_t size;
+		uint32_t capacity;
 		
 		SlotMap(int reserve_size);
 
