@@ -1,5 +1,6 @@
 #ifndef RTS_SLOTMAP
 #define RTS_SLOTMAP
+
 #include <vector>
 #include <cstdint>
 #include <optional>
@@ -79,7 +80,7 @@ class SlotMap {
 			this->index_ref.pop_back();
 		}
 
-		Slot insert(T value){
+		Slot Insert(T value){
 			//WORKHERE
 			//check to see if freelist has elements
 			if(this->free_list.empty()){
