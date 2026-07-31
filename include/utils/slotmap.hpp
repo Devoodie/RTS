@@ -4,15 +4,18 @@
 #include <list>
 
 struct Slot {
-	uint32_t index;
-	uint32_t generation;
+	uint32_t index = 0;
+	uint32_t generation = 0;
+
+	Slot();
+	Slot(uint32_t ind, uint32_t gen) : index(ind), generation(gen){};
 };
 
 template <typename T> 
 class SlotMap {
 	public:
 		std::vector<Slot> indices;
-		std::vector<T> data;
+		std::vector<T> values;
 		std::list<Slot*> free_list;
 		std::vector<uint32_t> index_ref; 
 		uint32_t capacity;
@@ -23,5 +26,5 @@ class SlotMap {
 		const std::optional<T&> operator[](const Slot &key);
 
 		void erase(const Slot &key);
-		Slot insert(const Slot slot);
+		Slot insert(T value);
 };
