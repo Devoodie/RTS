@@ -21,12 +21,12 @@ const std::optional<T&> SlotMap<T>::operator[](const Slot &key){
 	assert(key.index < capacity && "Desired index Greater than size!");
 
 	const Slot index_slot = this->indices[key.index];
-	T &desired_values = this->values[index_slot.index];
+	T &desired_value = this->values[index_slot.index];
 
 	if(index_slot.generation != key.generation){ 
 		return nullptr;
 	} else {
-		return desired_values;
+		return desired_value;
 	}
 }
 
