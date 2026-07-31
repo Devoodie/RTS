@@ -50,9 +50,8 @@ TARGET_LINK_LIBRARIES(main PRIVATE grid engine ui)
 FIND_PACKAGE(GTest CONFIG REQUIRED)
 
 #Testing Suite
-# Test executable
 IF(RTS_BUILD_TESTS)
 	ADD_EXECUTABLE(tests "./test/test.cpp")
 	TARGET_INCLUDE_DIRECTORIES(tests PRIVATE "./include")
-	TARGET_LINK_LIBRARIES(tests PRIVATE GTest::gtest_main)
+	TARGET_LINK_LIBRARIES(tests PRIVATE GTest::gtest_main slotmap)
 ENDIF()
