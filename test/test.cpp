@@ -1,8 +1,6 @@
-#include <cassert>
-#include <gtest/gtest.h>
-#include <utils/slotmap.hpp>
+#include <test.hpp>
 #include <vector>
-
+#include <utils/slotmap.hpp>
 
 TEST(SlotMap, Insertion){
 	SlotMap<int> test_map(10);
@@ -42,5 +40,10 @@ TEST(SlotMap, Insertion){
 	ASSERT_EQ(test_map.free_list.size(), current_cap - 1) << "Free list did not add new elements after allocation";
 }
 
-TEST(SlotMap, Erase){
+TEST_F(SlotMapTestFixture, Erase){
+	//take slot from the middle index 
+	Slot key = slots[5];
+	Slot *deletion_slot = &test_map.indices[5];
+
+	int last_data_elem = test_map.values[9];
 }

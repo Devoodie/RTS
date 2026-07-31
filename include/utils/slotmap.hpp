@@ -1,3 +1,5 @@
+#ifndef RTS_SLOTMAP
+#define RTS_SLOTMAP
 #include <vector>
 #include <cstdint>
 #include <optional>
@@ -54,19 +56,19 @@ class SlotMap {
 			assert(key.index < capacity && "Desired index Greater than Capacity!");
 
 			Slot *deletion_slot = &this->indices[key.index];
-			T& deletion_values = this->values[deletion_slot->index];
-			uint32_t &del_slot_ref = this->index_ref[deletion_slot->index];
+			T& deletion_value = this->values[deletion_slot->index];
+			uint32_t &del_slot_index = this->index_ref[deletion_slot->index];
 
 			if(key.generation != deletion_slot->generation) return;
 
-			Slot &last_element = this->indices[this-> capacity - 1];
-			T elem_values = this->values[last_element.index];
-			uint32_t elem_slot_ref = this->index_ref[last_element.index];
+			uint32_t last_elem_index = this->index_ref[this->index_ref.size() - 1];
+			T elem_value = this->values[this->index_ref.size() - 1];
+			Slot &last_element_slot = this->indices[last_elem_index];
 
 			//overwrite the values and index ref to be deleted with the last elements values 
-			deletion_values = elem_values;
-			del_slot_ref = elem_slot_ref;
-			last_element.index = deletion_slot->index;
+			deletion_value = elem_value;
+			del_slot_index = last_elem_index;
+			last_element_slot.index = deletion_slot->index;
 
 			//push the deletion slots pointer onto the free list
 			deletion_slot->generation += 1;
@@ -115,3 +117,4 @@ class SlotMap {
 			return key;
 		}
 };
+#endif 
