@@ -2,6 +2,7 @@
 #define RTS_ENGINE_H
 
 #include "utils/grid.hpp"
+#include <utils/slotmap.hpp>
 #include "entities.hpp"
 #include <string>
 #include <vector>
@@ -10,11 +11,11 @@
 
 class Player {
 	public:
-		std::vector<uint16_t> units;
-		std::vector<uint8_t> buildings;
+		std::vector<Slot>units;
+		std::vector<Slot> buildings;
 
 		//creates a player with an index to its HQ
-		Player(int hq_index);
+		Player(Slot hq_key);
 };
 
 struct Text {
@@ -85,8 +86,8 @@ namespace engine {
 class Game{
 	public:	
 		std::vector<Player> players;
-		std::vector<Unit> units;
-		std::vector<Building> buildings;
+		SlotMap<Unit> units;
+		SlotMap<Building> buildings;
 
 		std::vector<std::vector<HexSpace>> grid_space;
 		std::vector<Rectangle> ui_elements;

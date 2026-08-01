@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <vector>
 #include <cstdint>
+#include <utils/slotmap.hpp>
 
 extern "C" {
 #include"raylib.h"
@@ -19,8 +20,8 @@ class HexSpace {
 
 		Vector2 indices;
 		// 16 may not be necessary 
-		uint16_t occupier_index;
-		uint16_t structure_index;
+		Slot occupier_key;
+		Slot structure_key;
 
 		float x_position;
 		float y_position;

@@ -6,13 +6,12 @@
 #include <raymath.h>
 #include <engine/engine.hpp>
 #include <engine/entities.hpp>
+#include <utils/slotmap.hpp>
 
 constexpr int unused = 65535;
 
-Player::Player(int hq_index){
-	units = std::vector<uint16_t>(12);
-	buildings = std::vector<uint8_t>(12);
-	buildings.emplace_back(hq_index);
+Player::Player(Slot hq_key) : units(50), buildings(50){
+	buildings.emplace_back(hq_key);
 }
 
 ScrollMenu::ScrollMenu(scroll_type menu_type, const Vector2 &mouse_position) : type(menu_type) {	
@@ -80,12 +79,11 @@ void UnitScrollMenu::handleScrollCollision(){
 
 namespace engine {
 
-Game::Game(Camera2D &camera) : camera(camera), scrl_menu(nullptr) {
+Game::Game(Camera2D &camera) : camera(camera), scrl_menu(nullptr), units(50), buildings(10){
 	players = std::vector<Player>();
 	player_count = 2;
 	player_index = 0;
 	grid_space = std::vector<std::vector<HexSpace>>(8, std::vector<HexSpace>(8));
-	units.reserve(50);
 	state = IDLE;
 }
 
@@ -100,10 +98,10 @@ void Game::playerInit(int playerCount){
 	int iter = 0;
 	while(players.size() < playerCount) {
 		HexSpace *hex = &this->grid_space[0][players.size() * row];
-		this->buildings.emplace_back(hex, HQ, this->players.size());
-
-		hex->structure_index = iter;
-		players.emplace_back(Player(iter));
+		Building hq(hex, HQ, this->players.size());
+		
+		Slot hq_key = this->buildings.Insert(hq);
+		players.emplace_back(Player(hq_key));
 		iter++;
 	}
 }
@@ -114,9 +112,15 @@ void Game::endTurn(){
 
 	this->escape();
 
-	for (uint16_t unit_index : this->players[player_index].units){
-		Unit &unit = this->units[unit_index];
-		unit.atks_left = 1;
+	std::vector<Slot> &player_units;
+	for (size_t i = 0; Slot unit_key: player_units){
+		std::optional<Unit&> unit = this->units[unit_key];
+		if(unit){
+			*unit->atks_left = 1; //change this to be its default value;
+		} else {
+			player_units.erase(player_units.begin() + i);
+		}
+		++i;
 	}
 
 	player_index = (player_index + 1) % player_count;
@@ -152,10 +156,10 @@ engine::states Game::SelectUnit(Unit* unit_ptr){
 		this->selected_unit = unit_ptr;
 		this->selected_hex = unit_ptr->current_hex;
 
-		bool exists = this->selected_hex->structure_index != unused; 
-		std::cout << "BUILDING INDEX: " << this->selected_hex->structure_index << std::endl;
+		Slot building_key = this->selected_hex->structure_key;
+		bool exists = this->buildings[building_key].has_value();
+		bool owned = (exists) ? *this->buildings[building_key].owner_index == this->player_index : false;
 
-		bool owned = (exists) ? this->buildings[this->selected_hex->structure_index].owner_index == this->player_index : false;
 		if(unit_ptr->task != NONE or (exists and !owned)) {
 			Vector2 button_position = unit_ptr->position;
 			this->MousePosition = GetScreenToWorld2D(GetMousePosition(), this->camera);
@@ -343,7 +347,7 @@ void Game::optionTransition(inputAlphabet input, void *selection){
 				this->selected_unit2 = nullptr;
 			}
 
-			if(hex_ptr->occupier_index != unused){ 
+			if(this->buildings[hex_ptr->structure_key].has_value()){ 
 				this->ui_elements[1].x = 16384;
 				this->ui_elements[1].y = 16384;
 				return;
@@ -383,7 +387,7 @@ void Game::unitInfoTransition(inputAlphabet input, void *selection){
 				return;
 			}
 
-			if(hex_ptr->occupier_index != unused) return; 
+			if(this->buildings[hex_ptr->structure_key].has_value()) return; 
 
 			this->selected_hex2 = hex_ptr;
 			this->MousePosition = GetScreenToWorld2D(GetMousePosition(), this->camera);
@@ -435,7 +439,7 @@ void Game::unitTransition(inputAlphabet input, void *selection){
 			std::cout << "Hex 2 Selected" << std::endl;
 			HexSpace *hex_ptr = (HexSpace*) selection;
 			
-			if(hex_ptr->occupier_index != unused) return;
+			if(this->buildings[hex_ptr->occupier_key].has_value()) return;
 
 			this->MousePosition = GetScreenToWorld2D(GetMousePosition(), this->camera);
 			this->selected_hex2 = hex_ptr;
@@ -513,9 +517,9 @@ void Game::transitionState(inputAlphabet input, void *selection){
 
 void Game::handleCollision(HexSpace *collided_hex, Vector2 mouse_point){
 	//add hovering
-	if(collided_hex->occupier_index != unused){
+	if(this->units[collided_hex->occupier_key].has_value() ){
 		//CHANGE ALL TO RELEASED OR DOWN (THEY MUST ALL BE THE SAME)
-		Unit* unit_ptr = &this->units[collided_hex->occupier_index];
+		Unit* unit_ptr = &this->units[collided_hex->occupier_key];
 		
 		if (CheckCollisionPointRec(mouse_point, unit_ptr->render_rect) and IsMouseButtonReleased(0)) {
 			//do unit stuff

@@ -1,5 +1,5 @@
-#ifndef RTS_SLOTMAP
-#define RTS_SLOTMAP
+#ifndef RTS_SLOTMAP_H
+#define RTS_SLOTMAP_H
 
 #include <vector>
 #include <cstdint>
