@@ -112,11 +112,11 @@ void Game::endTurn(){
 
 	this->escape();
 
-	std::vector<Slot> &player_units;
+	std::vector<Slot> &player_units = this->players[player_index].units;
 	for (size_t i = 0; Slot unit_key: player_units){
 		std::optional<Unit&> unit = this->units[unit_key];
 		if(unit){
-			*unit->atks_left = 1; //change this to be its default value;
+			unit->atks_left = 1; //change this to be its default value;
 		} else {
 			player_units.erase(player_units.begin() + i);
 		}
@@ -156,9 +156,9 @@ engine::states Game::SelectUnit(Unit* unit_ptr){
 		this->selected_unit = unit_ptr;
 		this->selected_hex = unit_ptr->current_hex;
 
-		Slot building_key = this->selected_hex->structure_key;
+		std::optional<Slot> building_key = this->selected_hex->structure_key;
 		bool exists = this->buildings[building_key].has_value();
-		bool owned = (exists) ? *this->buildings[building_key].owner_index == this->player_index : false;
+		bool owned = (exists) ? this->buildings[*building_key]->owner_index == this->player_index : false;
 
 		if(unit_ptr->task != NONE or (exists and !owned)) {
 			Vector2 button_position = unit_ptr->position;
@@ -519,7 +519,7 @@ void Game::handleCollision(HexSpace *collided_hex, Vector2 mouse_point){
 	//add hovering
 	if(this->units[collided_hex->occupier_key].has_value() ){
 		//CHANGE ALL TO RELEASED OR DOWN (THEY MUST ALL BE THE SAME)
-		Unit* unit_ptr = &this->units[collided_hex->occupier_key];
+		Unit* unit_ptr = &this->units[collided_hex->occupier_key].value();
 		
 		if (CheckCollisionPointRec(mouse_point, unit_ptr->render_rect) and IsMouseButtonReleased(0)) {
 			//do unit stuff
@@ -528,9 +528,9 @@ void Game::handleCollision(HexSpace *collided_hex, Vector2 mouse_point){
 		} else if(IsMouseButtonReleased(0)) {
 			this->transitionState(HEX, collided_hex);
 		}
-	} else if(collided_hex->structure_index != unused){
+	} else if(this->buildings[collided_hex->structure_key].has_value()){
 		//check for building collision
-		Building* building_ptr = &this->buildings[collided_hex->structure_index];
+		Building* building_ptr = &this->buildings[collided_hex->structure_key].value();
 
 		if(CheckCollisionPointRec(mouse_point, building_ptr->render_rect) and IsMouseButtonReleased(0)){
 			std::cout << "BUILDING DETECTED" << std::endl;
@@ -548,17 +548,15 @@ void Game::scrollCollision(int index, scroll_type type){
 	switch(type){
 		case SCRLL_UNITS:
 			switch(index) {
-				case 0:
+				case 0:{
 					//SPAWN INFANTRY
 					std::cout << "PLAYER INDEX: " << this->player_index << std::endl;
-					this->selected_hex->occupier_index = this->units.size();
-					this->players[player_index].units.push_back(this->units.size());
-					this->units.emplace_back(
-							this->selected_hex,
-							INFANTRY,
-							this->player_index
-							);
+					Slot key = this->units.Insert(Unit(this->selected_hex,INFANTRY,this->player_index));
+ 
+					this->selected_hex->occupier_key = key;
+					this->players[player_index].units.push_back(key);
 					//WORKHERE SUBTRACT MONEY AFTER
+				       }
 				default:
 					return;
 			}
@@ -610,8 +608,8 @@ bool Game::uiCollisionCheck(){
 				selected_unit->position.y = selected_hex2->y_position;
 				selected_unit->current_hex = selected_hex2;
 
-				this->selected_hex2->occupier_index = selected_hex->occupier_index;
-				this->selected_hex->occupier_index = unused;
+				this->selected_hex2->occupier_key = selected_hex->occupier_key;
+				this->selected_hex->occupier_key = std::nullopt;
 
 				this->state = MOVING;
 				break;
@@ -628,17 +626,17 @@ bool Game::uiCollisionCheck(){
 			case UNIT1:{
 				//a task is being performed or is available we can do this with a scroll bar right now the only task is capture
 				this->selected_unit->task = CAPTURING;
-				Building& enemy_building = this->buildings[selected_hex->structure_index];
+				std::optional<Building&> enemy_building = this->buildings[selected_hex->structure_key]; //URGENT check for nullopt
 
 				std::cout << "CAPTURING" << std::endl;
 				std::cout << this->ui_elements.size() << std::endl;
-				enemy_building.hp -= 40.0;
+				enemy_building->hp -= 40.0;
 
-				if(enemy_building.hp <= 0){
+				if(enemy_building->hp <= 0){
 					this->selected_unit->task = NONE;
-					this->transferBuilding(this->selected_hex->structure_index, enemy_building.owner_index, this->selected_unit->owner_index);
-					enemy_building.hp = 100.0;
-					enemy_building.owner_index = this->player_index;
+					this->transferBuilding(*this->selected_hex->structure_key, enemy_building->owner_index, this->selected_unit->owner_index);
+					enemy_building->hp = 100.0;
+					enemy_building->owner_index = this->player_index;
 				}
 				this->escape();
 				break;
@@ -708,26 +706,23 @@ float Game::calcDamage(){
 }
 
 //Change this to slotmap
-void Game::popUnit(uint16_t rm_index){
-	//pop
-	this->units.erase(units.begin() + rm_index);
-	for(uint16_t &unit_index : this->players[player_index].units){
-		if(unit_index >= rm_index) unit_index -= 1;
-	}
-
-	for(auto &hex_row: this->grid_space){
-		for(HexSpace &hex : hex_row){
-			if(hex.occupier_index != unused and hex.occupier_index >= rm_index) hex.occupier_index -= 1;
-		}
-	}
+void Game::eraseUnit(const Slot &key){
+	this->units.erase(key);
 }
 
-void Game::transferBuilding(uint8_t building_index,int current_owner, int new_owner){
-	std::vector<uint8_t> &enemy_buildings = this->players[current_owner].buildings;
-	auto iterator = std::find(enemy_buildings.begin(), enemy_buildings.end(), building_index);
+//this helper function might not be needed
+//the building key should have been checked before this function call so we know the key is not null
+void Game::transferBuilding(Slot &building_key, int current_owner, int new_owner){
+	std::vector<Slot> &owner_buildings = this->players[player_index].buildings;
+	this->buildings[building_key]->owner_index = new_owner;
 
-	enemy_buildings.erase(iterator);
-	this->players[new_owner].buildings.push_back(building_index);
+	for(size_t i = 0; Slot building : owner_buildings){
+		if(building_key == building){
+			owner_buildings.erase(owner_buildings.begin() + i);
+		}
+		++i;
+	}
+	this->players[new_owner].buildings.push_back(building_key);
 }
 
 //moves units
@@ -762,12 +757,7 @@ void Game::Fire(){
 	if(firing_text->position.y == y_dest) {
 		messages.erase(messages.begin() + dmg_txt_index);
 		if(this->selected_unit2->hp < 0){
-		// free the unit
-			this->selected_unit2 = nullptr;
-			this->popUnit(this->selected_hex2->occupier_index);
-
-			this->selected_hex2->occupier_index = unused;
-			this->selected_hex2 = nullptr;
+			this->eraseUnit(*this->selected_hex2->occupier_key); //URGENT CHECK OPTIONAL: this should invalidate the key on hex 2 
 		};
 		this->escape();
 	}

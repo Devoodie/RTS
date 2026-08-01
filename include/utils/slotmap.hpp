@@ -14,6 +14,14 @@ struct Slot {
 
 	Slot(){};
 	Slot(uint32_t ind, uint32_t gen) : index(ind), generation(gen){};
+
+	bool operator==(const Slot &rhs){
+		return this->index == rhs.index and this->generation == rhs.generation;
+	}
+	bool operator!=(const Slot &rhs){
+		return this->index != rhs.index or this->generation != rhs.generation;
+	}
+
 };
 
 template <typename T> 
@@ -36,13 +44,14 @@ class SlotMap {
 		};
 	
 		//this is for quick access only insertion should be done with insertion function
-		std::optional<T&> operator[](const Slot &key){
-			assert(key.index < capacity && "Desired index Greater than size!");
+		std::optional<T&> operator[](const std::optional<Slot&> key){
+			if(!key.has_value()) return std::nullopt;
+			assert(key->index < capacity && "Desired index Greater than size!");
 
-			const Slot index_slot = this->indices[key.index];
+			const Slot index_slot = this->indices[key->index];
 			T &desired_value = this->values[index_slot.index];
 
-			if(index_slot.generation != key.generation){ 
+			if(index_slot.generation != key->generation){ 
 				return std::nullopt;
 			} else {
 //				std::cout << "KEY INDEX: " << key.index << " DATA INDEX: " << index_slot.index << std::endl;

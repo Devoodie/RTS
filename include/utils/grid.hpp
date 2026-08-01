@@ -20,8 +20,8 @@ class HexSpace {
 
 		Vector2 indices;
 		// 16 may not be necessary 
-		Slot occupier_key;
-		Slot structure_key;
+		std::optional<Slot> occupier_key;
+		std::optional<Slot> structure_key;
 
 		float x_position;
 		float y_position;

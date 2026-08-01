@@ -165,9 +165,9 @@ class Game{
 		float calcDamage();
 
 		//removes unit at index and decrement all indexes 
-		void popUnit(uint16_t rm_index);
+		void eraseUnit(const Slot &key);
 
-		void transferBuilding(uint8_t building_index, int current_owner, int new_owner);
+		void transferBuilding(Slot &building_index, int current_owner, int new_owner);
 
 		void Move();
 		

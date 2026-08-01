@@ -9,8 +9,8 @@
 HexSpace::HexSpace (){
 	x_position = 0;
 	y_position = 0;
-	occupier_index = 65535;
-	structure_index = 65535;
+	occupier_key = std::nullopt;
+	structure_key = std::nullopt;
 	env_defense = 0;
 };
 
