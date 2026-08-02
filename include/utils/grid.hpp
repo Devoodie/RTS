@@ -64,9 +64,9 @@ enum textures {
 
 void initGrid(const int row, const int col, std::vector<std::vector<HexSpace>> &grid);
 
-void renderBuildings(std::unordered_map<int, Texture2D> texture_map, const std::vector<Building> &buildings, const bool debug);
+void renderBuildings(std::unordered_map<int, Texture2D> texture_map, const SlotMap<Building> &buildings, const bool debug);
 
-void renderUnits(std::unordered_map<int, Texture2D> texture_map, const std::vector<Unit> &units, const bool debug);
+void renderUnits(std::unordered_map<int, Texture2D> texture_map, const SlotMap<Unit> &units, const bool debug);
 
 void renderGrid(std::unordered_map<int, Texture2D> textures, std::vector<std::vector<HexSpace>> grid, const bool debug);
 

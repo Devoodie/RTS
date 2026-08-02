@@ -115,7 +115,8 @@ void initGrid(const int row, const int col, std::vector<std::vector<HexSpace>> &
 	}
 }
 
-void renderBuildings(std::unordered_map<int, Texture2D> texture_map, const std::vector<Building> &buildings, const bool debug){
+//iterate over building values in slotmap
+void renderBuildings(std::unordered_map<int, Texture2D> texture_map, const SlotMap<Building> &buildings, const bool debug){
 	const float draw_width = inradius;
 	const float draw_height = radius;
 
@@ -137,7 +138,7 @@ void renderBuildings(std::unordered_map<int, Texture2D> texture_map, const std::
 	};
 
 	Texture2D current_texture;
-	for(Building structure: buildings){
+	for(Building structure: buildings.values){
 		building_rectangle.x = structure.hex->x_position - inradius / 2;
 		building_rectangle.y = structure.hex->y_position - radius / 2;
 
@@ -167,7 +168,8 @@ void renderBuildings(std::unordered_map<int, Texture2D> texture_map, const std::
 }
 
 //add visibility rules
-void renderUnits(std::unordered_map<int, Texture2D> texture_map, const std::vector<Unit> &units, bool debug){
+//iterator over unit values in slotmap
+void renderUnits(std::unordered_map<int, Texture2D> texture_map, const SlotMap<Unit> &units, bool debug){
 	const float draw_width = inradius * 2;
 	const float draw_height = radius * 2;
 
@@ -189,8 +191,8 @@ void renderUnits(std::unordered_map<int, Texture2D> texture_map, const std::vect
 		.height = (float)solider_texture.height,
 	};
 
-	for(int i = 0; i < units.size(); ++i){
-		Unit CurrentUnit = units[i];
+	for(int i = 0; i < units.values.size(); ++i){
+		Unit CurrentUnit = units.values[i];
 
 		if(CurrentUnit.atks_left == 0){
 			color = GRAY;
