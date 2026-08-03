@@ -258,11 +258,12 @@ void Game::hexInfoTransition(inputAlphabet input, void *selection){
 			if(this->ui_elements.size() > 1) this->ui_elements.erase(ui_elements.begin() + 1);
 			break;
 			  }
-		case BUILDING:
+		case BUILDING:{
 			Building *building_ptr = (Building*)selection;
 			this->state = this->SelectBuilding(building_ptr);
 			break;
-		defaut:
+		        }
+		default:
 			std::cerr << "STATE " << input << " NOT HANDLED (hexInfoTransition)" << std::endl;
 			break;
 	}
@@ -587,6 +588,12 @@ bool Game::collisionCheck(){
 	return false;
 }
 
+//ui_manaager FLAGS/SIGNALS:
+//endturn
+//move
+//fire
+//TASK (capture)
+//ScrollCollision flag (SPAWN UNIT, RESEARCH UPRADE)
 bool Game::uiCollisionCheck(){
 	Vector2 mouse_point = GetMousePosition();
 	Vector2 wrld_point = GetScreenToWorld2D(GetMousePosition(), this->camera);

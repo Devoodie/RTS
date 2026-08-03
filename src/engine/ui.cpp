@@ -1,8 +1,98 @@
 #include <engine/ui.hpp> 
 #include <raylib.h>
 #include <iostream>
+#include <vector>
 
 namespace ui{
+
+UiManager::UiManager(Camera2D &camera): camera(camera){
+}
+
+UiSignal UiManager::CollisionCheck(engine::states engine_state){
+	Vector2 mouse_point = GetMousePosition();
+	Vector2 wrld_point = GetScreenToWorld2D(GetMousePosition(), this->camera);
+	//0 endturn button, 1 Others(????), 
+	//may need to change the way this works to switch on states instead of ui elements
+	
+	if(CheckCollisionPointRec(mouse_point, ui_elements[0]) and IsMouseButtonReleased(0)){
+		std::cout << "ENDTURN" << std::endl;
+		return kSigEndTurn;
+	}
+	if(this->ui_elements.size() < 2) return kSigNone;
+	if(CheckCollisionPointRec(wrld_point, ui_elements[1]) and IsMouseButtonReleased(0)){
+		switch(engine_state){
+			//end turn
+			//this is for moving for now
+			case engine::states::OPTIONS:
+				//move all this shit to a move function in engine
+				// selected_unit->position.x = selected_hex2->x_position;
+				// selected_unit->position.y = selected_hex2->y_position;
+				// selected_unit->current_hex = selected_hex2;
+				//
+				// this->selected_hex2->occupier_key = selected_hex->occupier_key;
+				// this->selected_hex->occupier_key = std::nullopt;
+
+				return kSigMove;
+				break;
+			case engine::states::FIRE:
+				//move this shit to a fire signal function
+				// assert("Number of atks Greater than 0" && this->selected_unit->atks_left > 0);
+				// this->selected_unit->atks_left -= 1;
+				//
+				// this->dmg_taken = calcDamage();
+				// this->selected_unit2->hp -= this->dmg_taken;
+				//
+				// this->createUiElem(UI_FIRING_TEXT);
+				// engine_state = FIRING;
+				return kSigFire;
+				break;
+			case engine::states::UNIT1:{
+					   //move this shit to task
+				// this->selected_unit->task = CAPTURING;
+				// std::optional<Building&> enemy_building = this->buildings[selected_hex->structure_key]; //URGENT check for nullopt
+				//
+				// std::cout << "CAPTURING" << std::endl;
+				// std::cout << this->ui_elements.size() << std::endl;
+				// enemy_building->hp -= 40.0;
+				//
+				// if(enemy_building->hp <= 0){
+				// 	this->selected_unit->task = NONE;
+				// 	this->transferBuilding(*this->selected_hex->structure_key, enemy_building->owner_index, this->selected_unit->owner_index);
+				// 	enemy_building->hp = 100.0;
+				// 	enemy_building->owner_index = this->player_index;
+				// }
+				// this->escape();
+				return kSigCapture;
+				break;
+				   }	
+			case engine::states::SCROLL:{
+				//do linear search for mouse position within scroll menu
+				// assert(this->scrl_menu != nullptr && "SCROLL MENU REFERENCED BEFORE ALLOCATED");
+				//
+				// float target = wrld_point.y - this->scrl_menu->dimensions.y + this->scrl_menu->y_pos;
+				// int collision_index = 0;
+				// const std::vector<Rectangle> &elements = this->scrl_menu->elements;
+				// for(int i = 0; i < elements.size(); ++i){	
+				// 	Rectangle collision_rect = elements[i];
+				// 	if(target >= collision_rect.y and target <= collision_rect.y + collision_rect.height){
+				// 		collision_index = i;
+				// 		break;
+				// 	}
+				//
+				// }
+				// std::cout << "COLLISION INDEX: " << collision_index << std::endl;
+				// this->scrollCollision(collision_index, SCRLL_UNITS);
+				// this->escape();
+				return kSigSpawn;
+				break;
+			    }
+			default:
+				//std::cerr << "UI element " << i << " Not Recognized" << std::endl;
+				return kSigNone;
+		}
+	}
+	return kSigNone;
+}
 	//THIS SHOULD BE CHANGED FROM RENDER OPTIONS TO RENDER UI
 void renderOptions(const engine::Game &engine_instance, std::unordered_map<int, Texture2D> texture_map){
 	switch(engine_instance.state){
