@@ -5,7 +5,70 @@
 
 namespace ui{
 
-UiManager::UiManager(Camera2D &camera): camera(camera){
+ScrollMenu::ScrollMenu(scroll_type menu_type, const Vector2 &mouse_position) : type(menu_type) {	
+	switch(menu_type){
+		case SCRLL_UNITS:
+			this->y_pos = 0;
+			for(int i = 0; i < 3; ++i){
+				this->elements.emplace_back((Rectangle){
+					.x = 0,
+					.y = i * grid::radius / 2,
+					.width  = (float)grid::inradius * 4,
+					.height = grid::radius / 2,
+				});
+			}
+			this->internal_height = elements[2].y + elements[2].height;
+			break;
+		case SCRLL_UPGRADES:
+			break;
+	}
+	float height;
+	//max height is 2 Hex's or 8 elements
+	if(elements.size() > 8){
+		height = grid::radius / 2 * 8;
+	} else {
+		height = grid::radius / 2 * elements.size();
+	}
+
+	this->dimensions = {
+		.x = mouse_position.x + grid::inradius / 4,
+		.y = mouse_position.y,
+		.width = grid::inradius * 4,
+		.height = height,
+	};
+};
+
+ScrollMenu::~ScrollMenu(){
+}
+
+UnitScrollMenu::UnitScrollMenu(const Vector2 &mouse_position): ScrollMenu(SCRLL_UNITS, mouse_position){
+	this->y_pos = 0;
+		for(int i = 0; i < 3; ++i){
+			this->elements.emplace_back((Rectangle){
+				.x = 0,
+				.y = i * grid::radius / 2,
+				.width  = (float)grid::inradius * 4,
+				.height = grid::radius / 2,
+			});
+	}
+} 
+
+UnitScrollMenu::~UnitScrollMenu(){
+}
+
+void UnitScrollMenu::handleScrollCollision(){
+	// std::cout << "PLAYER INDEX: " << this->player_index << std::endl;
+	// this->selected_hex->occupier_index = this->units.size();
+	// this->players[player_index].units.push_back(this->units.size());
+	// this->units.emplace_back(
+	// 		this->selected_hex,
+	// 		INFANTRY,
+	// 		this->player_index
+	// 		);
+	//
+}
+
+UiManager::UiManager(Camera2D &camera): camera(camera), scrl_menu(nullptr){
 }
 
 UiSignal UiManager::CollisionCheck(engine::states engine_state){
@@ -14,12 +77,12 @@ UiSignal UiManager::CollisionCheck(engine::states engine_state){
 	//0 endturn button, 1 Others(????), 
 	//may need to change the way this works to switch on states instead of ui elements
 	
-	if(CheckCollisionPointRec(mouse_point, ui_elements[0]) and IsMouseButtonReleased(0)){
+	if(CheckCollisionPointRec(mouse_point, ui_elements[0].render_rect) and IsMouseButtonReleased(0)){
 		std::cout << "ENDTURN" << std::endl;
 		return kSigEndTurn;
 	}
 	if(this->ui_elements.size() < 2) return kSigNone;
-	if(CheckCollisionPointRec(wrld_point, ui_elements[1]) and IsMouseButtonReleased(0)){
+	if(CheckCollisionPointRec(wrld_point, ui_elements[1].render_rect) and IsMouseButtonReleased(0)){
 		switch(engine_state){
 			//end turn
 			//this is for moving for now
@@ -94,7 +157,7 @@ UiSignal UiManager::CollisionCheck(engine::states engine_state){
 	return kSigNone;
 }
 	//THIS SHOULD BE CHANGED FROM RENDER OPTIONS TO RENDER UI
-void renderOptions(const engine::Game &engine_instance, std::unordered_map<int, Texture2D> texture_map){
+void UiManager::renderUi(const engine::Game &engine_instance, std::unordered_map<int, Texture2D> texture_map){
 	switch(engine_instance.state){
 		case engine::UNIT1:
 		case engine::FIRE:
@@ -146,7 +209,7 @@ void renderOptions(const engine::Game &engine_instance, std::unordered_map<int, 
 			BeginMode2D(engine_instance.camera);
 			Texture2D &elem_texture = texture_map[grid::MOVE_BUTTON];
 			//how the fuck does cpp do this shit  without auto? (need verbosity)
-			const auto &scrl_menu = *engine_instance.scrl_menu.get();
+			const auto &scrl_menu = *this->scrl_menu.get();
 
 			Rectangle dest_rect = {
 			     .x = scrl_menu.dimensions.x,

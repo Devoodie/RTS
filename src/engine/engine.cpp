@@ -14,72 +14,9 @@ Player::Player(Slot hq_key) : units(50), buildings(50){
 	buildings.emplace_back(hq_key);
 }
 
-ScrollMenu::ScrollMenu(scroll_type menu_type, const Vector2 &mouse_position) : type(menu_type) {	
-	switch(menu_type){
-		case SCRLL_UNITS:
-			this->y_pos = 0;
-			for(int i = 0; i < 3; ++i){
-				this->elements.emplace_back((Rectangle){
-					.x = 0,
-					.y = i * grid::radius / 2,
-					.width  = (float)grid::inradius * 4,
-					.height = grid::radius / 2,
-				});
-			}
-			this->internal_height = elements[2].y + elements[2].height;
-			break;
-		case SCRLL_UPGRADES:
-			break;
-	}
-	float height;
-	//max height is 2 Hex's or 8 elements
-	if(elements.size() > 8){
-		height = grid::radius / 2 * 8;
-	} else {
-		height = grid::radius / 2 * elements.size();
-	}
-
-	this->dimensions = {
-		.x = mouse_position.x + grid::inradius / 4,
-		.y = mouse_position.y,
-		.width = grid::inradius * 4,
-		.height = height,
-	};
-};
-
-ScrollMenu::~ScrollMenu(){
-}
-
-UnitScrollMenu::UnitScrollMenu(const Vector2 &mouse_position): ScrollMenu(SCRLL_UNITS, mouse_position){
-	this->y_pos = 0;
-		for(int i = 0; i < 3; ++i){
-			this->elements.emplace_back((Rectangle){
-				.x = 0,
-				.y = i * grid::radius / 2,
-				.width  = (float)grid::inradius * 4,
-				.height = grid::radius / 2,
-			});
-	}
-} 
-
-UnitScrollMenu::~UnitScrollMenu(){
-}
-
-void UnitScrollMenu::handleScrollCollision(){
-	// std::cout << "PLAYER INDEX: " << this->player_index << std::endl;
-	// this->selected_hex->occupier_index = this->units.size();
-	// this->players[player_index].units.push_back(this->units.size());
-	// this->units.emplace_back(
-	// 		this->selected_hex,
-	// 		INFANTRY,
-	// 		this->player_index
-	// 		);
-	//
-}
-
 namespace engine {
 
-Game::Game(Camera2D &camera) : camera(camera), scrl_menu(nullptr), units(50), buildings(10){
+Game::Game(Camera2D &camera) : camera(camera), units(50), buildings(10){
 	players = std::vector<Player>();
 	player_count = 2;
 	player_index = 0;

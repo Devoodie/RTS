@@ -4,9 +4,51 @@
 #include <unordered_map>
 #include <raylib.h>
 #include <engine/engine.hpp>
+#include <utils/slotmap.hpp>
 
 //contains ui rendering functions
 namespace ui {
+
+//will provide information to autofill menus on creation
+enum ScrollType{
+	kScrollUnits,
+	kScrollUpgrades,
+	kScrollOptions,
+	
+};
+
+class ScrollMenu {
+	public:
+		std::vector<Rectangle> elements;
+		Rectangle dimensions;
+		float y_pos;
+		float internal_height;
+
+		scroll_type type;
+
+
+		ScrollMenu(ScrollType menu_type, const Vector2 &mouse_position);
+		virtual ~ScrollMenu();
+
+		virtual void handleScrollCollision() = 0;
+};
+
+class UnitScrollMenu : public ScrollMenu {
+	public: 
+
+		UnitScrollMenu(const Vector2 &mouse_position);
+		~UnitScrollMenu();
+		void handleScrollCollision() override;
+};
+
+class OptionScrollMenu: public ScrollMenu {
+	public: 
+
+		OptionScrollMenu(const Vector2 &mouse_position);
+		~OptionScrollMenu();
+		void handleScrollCollision() override;
+};
+
 
 enum UiSignal{
 	kSigEndTurn,
@@ -17,23 +59,28 @@ enum UiSignal{
 	kSigNone,
 };
 
-class UiManager {
-	std::vector<Rectangle> ui_elements;
-	Camera2D &camera;
-
-	UiManager(Camera2D &camera);
-	UiSignal CollisionCheck(engine::states engine_state);
-};
-
-//renders options menu
-void renderOptions(const engine::Game &engine_instance, std::unordered_map<int, Texture2D> texture_map);
-void renderText(const std::vector<Text> &messages);
-
 class Element {
-	Rectangle renderRect;
+	public:
+	Rectangle render_rect;
 
 
 	Element();
 };
+
+class UiManager {
+	public:
+		std::vector<Element> ui_elements;
+		Camera2D &camera;
+		std::unique_ptr<ScrollMenu> scrl_menu; // only one scroll menu
+
+		UiManager(Camera2D &camera);
+		UiSignal CollisionCheck(engine::states engine_state);
+
+		//renders options menu
+		void renderUi(const engine::Game &engine_instance, std::unordered_map<int, Texture2D> texture_map);
+		void renderText(const std::vector<Text> &messages);
+};
+
+
 }
 #endif

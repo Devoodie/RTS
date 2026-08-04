@@ -27,32 +27,10 @@ struct Text {
 
 //will provide information to autofill menus on creation
 enum scroll_type {
-	SCRLL_UNITS,
-	SCRLL_UPGRADES,
-};
-
-class ScrollMenu {
-	public:
-		std::vector<Rectangle> elements;
-		Rectangle dimensions;
-		float y_pos;
-		float internal_height;
-
-		scroll_type type;
-
-
-		ScrollMenu(scroll_type menu_type, const Vector2 &mouse_position);
-		virtual ~ScrollMenu();
-
-		virtual void handleScrollCollision() = 0;
-};
-
-class UnitScrollMenu : public ScrollMenu {
-	public: 
-
-		UnitScrollMenu(const Vector2 &mouse_position);
-		~UnitScrollMenu();
-		void handleScrollCollision() override;
+	kSCRLL_UNITS,
+	kSCRLL_UPGRADES,
+	kScrollOptions,
+	
 };
 
 namespace engine {
@@ -92,7 +70,8 @@ class Game{
 		std::vector<std::vector<HexSpace>> grid_space;
 		std::vector<Rectangle> ui_elements;
 		std::vector<Text> messages;
-		std::unique_ptr<ScrollMenu> scrl_menu;
+
+		Slot state_element; //this is a state related element within ui_manager there should only be one at a time
 
 		int player_index;
 		int player_count;
