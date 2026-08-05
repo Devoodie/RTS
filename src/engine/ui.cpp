@@ -5,9 +5,9 @@
 
 namespace ui{
 
-ScrollMenu::ScrollMenu(scroll_type menu_type, const Vector2 &mouse_position) : type(menu_type) {	
+ScrollMenu::ScrollMenu(ScrollType menu_type, const Vector2 &mouse_position) : type(menu_type) {	
 	switch(menu_type){
-		case SCRLL_UNITS:
+		case ui::kScrollUnits:
 			this->y_pos = 0;
 			for(int i = 0; i < 3; ++i){
 				this->elements.emplace_back((Rectangle){
@@ -19,7 +19,7 @@ ScrollMenu::ScrollMenu(scroll_type menu_type, const Vector2 &mouse_position) : t
 			}
 			this->internal_height = elements[2].y + elements[2].height;
 			break;
-		case SCRLL_UPGRADES:
+		case ScrollType::kScrollUpgrades:
 			break;
 	}
 	float height;
@@ -41,7 +41,7 @@ ScrollMenu::ScrollMenu(scroll_type menu_type, const Vector2 &mouse_position) : t
 ScrollMenu::~ScrollMenu(){
 }
 
-UnitScrollMenu::UnitScrollMenu(const Vector2 &mouse_position): ScrollMenu(SCRLL_UNITS, mouse_position){
+UnitScrollMenu::UnitScrollMenu(const Vector2 &mouse_position): ScrollMenu(kScrollUnits, mouse_position){
 	this->y_pos = 0;
 		for(int i = 0; i < 3; ++i){
 			this->elements.emplace_back((Rectangle){
@@ -55,6 +55,15 @@ UnitScrollMenu::UnitScrollMenu(const Vector2 &mouse_position): ScrollMenu(SCRLL_
 
 UnitScrollMenu::~UnitScrollMenu(){
 }
+
+OptionScrollMenu::OptionScrollMenu(const Vector2 &mouse_position){
+	this->ui_elements.emplace_back((Rectangle){
+		.x = this->MousePosition.x + grid::inradius / 4,
+		.y = this->MousePosition.y,
+		.width = grid::inradius,
+		.height = grid::radius / 2,
+		});
+};
 
 void UnitScrollMenu::handleScrollCollision(){
 	// std::cout << "PLAYER INDEX: " << this->player_index << std::endl;

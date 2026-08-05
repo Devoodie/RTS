@@ -26,12 +26,6 @@ struct Text {
 };
 
 //will provide information to autofill menus on creation
-enum scroll_type {
-	kSCRLL_UNITS,
-	kSCRLL_UPGRADES,
-	kScrollOptions,
-	
-};
 
 namespace engine {
 	enum inputAlphabet {
@@ -126,7 +120,7 @@ class Game{
 		//transitions to idle state or calls menu
 		void escape();
 
-		void scrollCollision(int index, scroll_type type);
+//		void scrollCollision(int index, ui::ScrollType type);
 
 		//ui creation helper function
 		//May create options or scroll menus

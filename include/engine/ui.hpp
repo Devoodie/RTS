@@ -24,7 +24,7 @@ class ScrollMenu {
 		float y_pos;
 		float internal_height;
 
-		scroll_type type;
+		ScrollType type;
 
 
 		ScrollMenu(ScrollType menu_type, const Vector2 &mouse_position);
