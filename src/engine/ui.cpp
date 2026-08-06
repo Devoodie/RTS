@@ -6,24 +6,21 @@
 namespace ui{
 
 ScrollMenu::ScrollMenu(ScrollType menu_type, const Vector2 &mouse_position) : type(menu_type) {	
+	this-> y_pos = 0;
+	float width = 0.0;
 	switch(menu_type){
 		case ui::kScrollUnits:
-			this->y_pos = 0;
-			for(int i = 0; i < 3; ++i){
-				this->elements.emplace_back((Rectangle){
-					.x = 0,
-					.y = i * grid::radius / 2,
-					.width  = (float)grid::inradius * 4,
-					.height = grid::radius / 2,
-				});
-			}
-			this->internal_height = elements[2].y + elements[2].height;
+			width = grid::inradius * 4.0;
 			break;
 		case ScrollType::kScrollUpgrades:
 			break;
+		case ScrollType::kScrollOptions:
+			width = grid::inradius;
+			break;
 	}
-	float height;
-	//max height is 2 Hex's or 8 elements
+
+	//max height is 8 elements
+	float height = 0.0;
 	if(elements.size() > 8){
 		height = grid::radius / 2 * 8;
 	} else {
@@ -33,7 +30,7 @@ ScrollMenu::ScrollMenu(ScrollType menu_type, const Vector2 &mouse_position) : ty
 	this->dimensions = {
 		.x = mouse_position.x + grid::inradius / 4,
 		.y = mouse_position.y,
-		.width = grid::inradius * 4,
+		.width = width,
 		.height = height,
 	};
 };
@@ -42,27 +39,29 @@ ScrollMenu::~ScrollMenu(){
 }
 
 UnitScrollMenu::UnitScrollMenu(const Vector2 &mouse_position): ScrollMenu(kScrollUnits, mouse_position){
-	this->y_pos = 0;
-		for(int i = 0; i < 3; ++i){
-			this->elements.emplace_back((Rectangle){
-				.x = 0,
-				.y = i * grid::radius / 2,
-				.width  = (float)grid::inradius * 4,
-				.height = grid::radius / 2,
-			});
+	for(int i = 0; i < 3; ++i){
+		this->elements.emplace_back((Rectangle){
+			.x = 0,
+			.y = i * grid::radius / 2,
+			.width  = (float)grid::inradius * 4,
+			.height = grid::radius / 2,
+		});
 	}
+	this->internal_height = elements[2].y + elements[2].height;
 } 
 
 UnitScrollMenu::~UnitScrollMenu(){
 }
 
-OptionScrollMenu::OptionScrollMenu(const Vector2 &mouse_position){
-	this->ui_elements.emplace_back((Rectangle){
-		.x = this->MousePosition.x + grid::inradius / 4,
-		.y = this->MousePosition.y,
-		.width = grid::inradius,
-		.height = grid::radius / 2,
-		});
+OptionScrollMenu::OptionScrollMenu(const Vector2 &mouse_position): ScrollMenu(kScrollOptions, mouse_position){
+	for(int i = 0; i < 3; ++i){
+		this->elements.emplace_back((Rectangle){
+				.x = 0,
+				.y = i * grid::radius / 2,
+				.width = (float)grid::inradius,
+				.height = grid::radius / 2
+				});
+	}
 };
 
 void UnitScrollMenu::handleScrollCollision(){
