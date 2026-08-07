@@ -64,16 +64,14 @@ OptionScrollMenu::OptionScrollMenu(const Vector2 &mouse_position): ScrollMenu(kS
 	}
 };
 
-void UnitScrollMenu::handleScrollCollision(){
-	// std::cout << "PLAYER INDEX: " << this->player_index << std::endl;
-	// this->selected_hex->occupier_index = this->units.size();
-	// this->players[player_index].units.push_back(this->units.size());
-	// this->units.emplace_back(
-	// 		this->selected_hex,
-	// 		INFANTRY,
-	// 		this->player_index
-	// 		);
-	//
+UiSignal UnitScrollMenu::handleScrollCollision(int collision_index){
+	switch(collision_index){
+		case 0:
+			return kSigSpawnInfantry;
+		default:
+			return kSigSpawnInfantry;
+
+	}
 }
 
 UiManager::UiManager(Camera2D &camera): camera(camera), scrl_menu(nullptr){
@@ -90,6 +88,7 @@ UiSignal UiManager::CollisionCheck(engine::states engine_state){
 		return kSigEndTurn;
 	}
 	if(this->ui_elements.size() < 2) return kSigNone;
+	//this needs to change to iterations
 	if(CheckCollisionPointRec(wrld_point, ui_elements[1].render_rect) and IsMouseButtonReleased(0)){
 		switch(engine_state){
 			//end turn
@@ -104,7 +103,6 @@ UiSignal UiManager::CollisionCheck(engine::states engine_state){
 				// this->selected_hex->occupier_key = std::nullopt;
 
 				return kSigMove;
-				break;
 			case engine::states::FIRE:
 				//move this shit to a fire signal function
 				// assert("Number of atks Greater than 0" && this->selected_unit->atks_left > 0);
@@ -116,7 +114,6 @@ UiSignal UiManager::CollisionCheck(engine::states engine_state){
 				// this->createUiElem(UI_FIRING_TEXT);
 				// engine_state = FIRING;
 				return kSigFire;
-				break;
 			case engine::states::UNIT1:{
 					   //move this shit to task
 				// this->selected_unit->task = CAPTURING;
@@ -136,25 +133,23 @@ UiSignal UiManager::CollisionCheck(engine::states engine_state){
 				return kSigCapture;
 				break;
 				   }	
-			case engine::states::SCROLL:{
+			case engine::states::kBuildingOpt:{
 				//do linear search for mouse position within scroll menu
-				// assert(this->scrl_menu != nullptr && "SCROLL MENU REFERENCED BEFORE ALLOCATED");
-				//
-				// float target = wrld_point.y - this->scrl_menu->dimensions.y + this->scrl_menu->y_pos;
-				// int collision_index = 0;
-				// const std::vector<Rectangle> &elements = this->scrl_menu->elements;
-				// for(int i = 0; i < elements.size(); ++i){	
-				// 	Rectangle collision_rect = elements[i];
-				// 	if(target >= collision_rect.y and target <= collision_rect.y + collision_rect.height){
-				// 		collision_index = i;
-				// 		break;
-				// 	}
-				//
-				// }
-				// std::cout << "COLLISION INDEX: " << collision_index << std::endl;
-				// this->scrollCollision(collision_index, SCRLL_UNITS);
-				// this->escape();
-				return kSigSpawn;
+				assert(this->scrl_menu != nullptr && "SCROLL MENU REFERENCED BEFORE ALLOCATED");
+
+				float target = wrld_point.y - this->scrl_menu->dimensions.y + this->scrl_menu->y_pos;
+				int collision_index = 0;
+				const std::vector<Rectangle> &elements = this->scrl_menu->elements;
+				for(int i = 0; i < elements.size(); ++i){	
+					Rectangle collision_rect = elements[i];
+					if(target >= collision_rect.y and target <= collision_rect.y + collision_rect.height){
+						collision_index = i;
+						break;
+					}
+
+				}
+				std::cout << "COLLISION INDEX: " << collision_index << std::endl;
+				return this->scrl_menu->handleScrollCollision(collision_index);
 				break;
 			    }
 			default:
@@ -164,7 +159,8 @@ UiSignal UiManager::CollisionCheck(engine::states engine_state){
 	}
 	return kSigNone;
 }
-	//THIS SHOULD BE CHANGED FROM RENDER OPTIONS TO RENDER UI
+
+//MAKE THIS RENDER EVERYTHING
 void UiManager::renderUi(const engine::Game &engine_instance, std::unordered_map<int, Texture2D> texture_map){
 	switch(engine_instance.state){
 		case engine::UNIT1:

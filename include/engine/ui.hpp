@@ -17,6 +17,17 @@ enum ScrollType{
 	
 };
 
+//i would have to make a signal for each unit to spawn
+enum UiSignal{
+	kSigEndTurn,
+	kSigMove,
+	kSigFire,
+	kSigCapture,
+	kSigSpawnInfantry,
+	kSigNone,
+};
+
+
 class ScrollMenu {
 	public:
 		std::vector<Rectangle> elements;
@@ -30,7 +41,7 @@ class ScrollMenu {
 		ScrollMenu(ScrollType menu_type, const Vector2 &mouse_position);
 		virtual ~ScrollMenu();
 
-		virtual void handleScrollCollision() = 0;
+		virtual UiSignal handleScrollCollision(int collision_index) = 0;
 };
 
 class UnitScrollMenu : public ScrollMenu {
@@ -38,7 +49,7 @@ class UnitScrollMenu : public ScrollMenu {
 
 		UnitScrollMenu(const Vector2 &mouse_position);
 		~UnitScrollMenu();
-		void handleScrollCollision() override;
+		UiSignal handleScrollCollision(int collision_index) override;
 };
 
 class OptionScrollMenu: public ScrollMenu {
@@ -46,17 +57,7 @@ class OptionScrollMenu: public ScrollMenu {
 
 		OptionScrollMenu(const Vector2 &mouse_position);
 		~OptionScrollMenu();
-		void handleScrollCollision() override;
-};
-
-
-enum UiSignal{
-	kSigEndTurn,
-	kSigMove,
-	kSigFire,
-	kSigCapture,
-	kSigSpawn,
-	kSigNone,
+		UiSignal handleScrollCollision(int collision_index) override;
 };
 
 class Element {

@@ -80,7 +80,7 @@ engine::states Game::SelectBuilding(Building *building_ptr){
 
 	} else {
 		this->createUiElem(UNIT_SCRL);
-		return SCROLL;
+		return kBuildingOpt;
 	}
 }
 
@@ -160,7 +160,7 @@ void Game::createUiElem(uiElem ui_type){
 			break;
 			}
 		case UNIT_SCRL:
-			// CREATE NEW SCROLL
+			// CREATE NEW kBuildingOpt
 			this->scrl_menu = std::make_unique<UnitScrollMenu>(this->MousePosition);
 			this->ui_elements.push_back(scrl_menu->dimensions);
 			break;
@@ -444,7 +444,7 @@ void Game::transitionState(inputAlphabet input, void *selection){
 		case UNIT_INFO:
 			unitInfoTransition(input, selection);
 			break;
-		case SCROLL:
+		case kBuildingOpt:
 			scrollTransition(input, selection);
 			break;
 		default:
@@ -585,9 +585,9 @@ bool Game::uiCollisionCheck(){
 				this->escape();
 				break;
 				   }	
-			case SCROLL:{
+			case kBuildingOpt:{
 				//do linear search for mouse position within scroll menu
-				assert(this->scrl_menu != nullptr && "SCROLL MENU REFERENCED BEFORE ALLOCATED");
+				assert(this->scrl_menu != nullptr && "kBuildingOpt MENU REFERENCED BEFORE ALLOCATED");
 
 				float target = wrld_point.y - this->scrl_menu->dimensions.y + this->scrl_menu->y_pos;
 				int collision_index = 0;
