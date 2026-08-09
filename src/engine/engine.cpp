@@ -365,7 +365,7 @@ void Game::unitTransition(inputAlphabet input, void *selection){
 				this->createUiElem(UI_OPTIONS_1);
 				
 				//PROB DO FIRE ANIMATION
-				this->state = FIRE;
+				this->state = FIRE; //the fire state awaits another input from the handler or signal from uimanager to trigger firing
 
 				//i don't want to put this before every single append
 				//this->ui_elements.erase(ui_elements.begin() + 1);

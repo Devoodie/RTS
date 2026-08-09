@@ -57,6 +57,7 @@ enum textures {
 	DARK_SOLIDER,
 	FIRE_BUTTON,
 	MOVE_BUTTON,
+	kEndButton,
 	INFO_RECT,
 	HQ,
 	WAREHOUSE,

@@ -41,7 +41,8 @@ class ScrollMenu {
 		ScrollMenu(ScrollType menu_type, const Vector2 &mouse_position);
 		virtual ~ScrollMenu();
 
-		virtual UiSignal handleScrollCollision(int collision_index) = 0;
+		virtual UiSignal HandleScrollCollision(int collision_index) = 0;
+		virtual void renderElements(Camera2D &camera, std::unordered_map<int, Texture2D> texture_map);
 };
 
 class UnitScrollMenu : public ScrollMenu {
@@ -49,7 +50,7 @@ class UnitScrollMenu : public ScrollMenu {
 
 		UnitScrollMenu(const Vector2 &mouse_position);
 		~UnitScrollMenu();
-		UiSignal handleScrollCollision(int collision_index) override;
+		UiSignal HandleScrollCollision(int collision_index) override;
 };
 
 class OptionScrollMenu: public ScrollMenu {
@@ -57,7 +58,8 @@ class OptionScrollMenu: public ScrollMenu {
 
 		OptionScrollMenu(const Vector2 &mouse_position);
 		~OptionScrollMenu();
-		UiSignal handleScrollCollision(int collision_index) override;
+		UiSignal HandleScrollCollision(int collision_index) override;
+		void renderElements(Camera2D &camera, std::unordered_map<int, Texture2D> texture_map) override;
 };
 
 class Element {

@@ -310,6 +310,7 @@ void initAssets(std::unordered_map<int, Texture2D> &texture_map){
 	const Texture2D dark_solider = LoadTexture("../assets/Dark_Solider.png");
 	const Texture2D fire_button = LoadTexture("../assets/Fire1.png");
 	const Texture2D move_button = LoadTexture("../assets/Move1.png");
+	const Texture2D end_button = LoadTexture("../assets/End.png");
 	const Texture2D info_rectangle = LoadTexture("../assets/Info_Rectangle.png");
 	const Texture2D hq = LoadTexture("../assets/HQ.png");
 	const Texture2D warehouse = LoadTexture("../assets/Warehouse.png");
@@ -319,6 +320,7 @@ void initAssets(std::unordered_map<int, Texture2D> &texture_map){
 	texture_map[grid::DARK_SOLIDER] = dark_solider;
 	texture_map[grid::FIRE_BUTTON] = fire_button;
 	texture_map[grid::MOVE_BUTTON] = move_button;
+	texture_map[grid::kEndButton] = end_button;
 	texture_map[grid::INFO_RECT] = info_rectangle;
 	texture_map[grid::HQ] = hq;
 	texture_map[grid::WAREHOUSE] = warehouse;

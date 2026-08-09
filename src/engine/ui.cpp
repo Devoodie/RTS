@@ -64,7 +64,69 @@ OptionScrollMenu::OptionScrollMenu(const Vector2 &mouse_position): ScrollMenu(kS
 	}
 };
 
-UiSignal UnitScrollMenu::handleScrollCollision(int collision_index){
+void OptionScrollMenu::renderElements(Camera2D &camera, std::unordered_map<int, Texture2D> texture_map){
+	BeginMode2D(camera);
+	Texture2D &elem_texture = texture_map[grid::MOVE_BUTTON];
+	//how the fuck does cpp do this shit  without auto? (need verbosity)
+	Rectangle dest_rect = {
+	     .x = this->dimensions.x,
+	     .y = this->dimensions.y,
+	     .width = (float)elem_texture.width,
+	     .height = (float)elem_texture.height,
+	};
+
+	Rectangle source_rect = {
+		.x = 0,
+		.y = 0,
+		.width = (float)elem_texture.width,
+		.height = (float)elem_texture.height,
+	};
+
+	float target_y = this->y_pos + this->dimensions.height;
+	if(target_y > this->internal_height) target_y = this->internal_height;
+
+	float current_y = this->y_pos;
+	int elem_index = 0;
+
+	const std::vector<Rectangle> &elements = this->elements;
+
+	while(current_y < target_y){
+		const Rectangle &element = elements[elem_index];
+
+		if(current_y > element.y + element.height){
+			elem_index += 1;
+			continue;
+		}
+
+		//ratio of how much texture to draw according to how much of the rectangle is showing
+		float draw_amount = (element.y + element.height) - current_y;
+
+		if(current_y + draw_amount > target_y){
+			draw_amount = target_y - current_y;
+		}
+
+		dest_rect.y = current_y + this->dimensions.y;
+		dest_rect.height = draw_amount;
+
+		source_rect.y = elem_texture.height = draw_amount;
+		source_rect.height = draw_amount;
+
+		DrawTexturePro(
+				elem_texture,
+				source_rect, 
+				dest_rect, 
+				(Vector2){.x = 0, .y = 0}, 
+				0, 
+				RAYWHITE
+				);
+
+		current_y += draw_amount;
+		elem_index += 1;
+	}
+	EndMode2D();
+}
+
+UiSignal UnitScrollMenu::HandleScrollCollision(int collision_index){
 	switch(collision_index){
 		case 0:
 			return kSigSpawnInfantry;
@@ -149,7 +211,7 @@ UiSignal UiManager::CollisionCheck(engine::states engine_state){
 
 				}
 				std::cout << "COLLISION INDEX: " << collision_index << std::endl;
-				return this->scrl_menu->handleScrollCollision(collision_index);
+				return this->scrl_menu->HandleScrollCollision(collision_index);
 				break;
 			    }
 			default:
@@ -162,6 +224,30 @@ UiSignal UiManager::CollisionCheck(engine::states engine_state){
 
 //MAKE THIS RENDER EVERYTHING
 void UiManager::renderUi(const engine::Game &engine_instance, std::unordered_map<int, Texture2D> texture_map){
+	Texture2D selected_texture;
+
+	Rectangle texture_rect = {
+	     .x = 0,
+	     .y = 0,
+	     .width = 0,
+	     .height = 0,
+	};
+	//render static elements
+	for(int i = 0; Element elem : this->ui_elements){
+		switch(i){
+			case 0: 
+				selected_texture = texture_map[grid::kEndButton];
+				DrawTexturePro(selected_texture, texture_rect, elem.render_rect, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
+				break;
+			default:
+				break;
+		}
+		++i;
+	}
+
+	//render scroll menu 
+	this->scrl_menu->renderElements(this->camera, texture_map);
+
 	switch(engine_instance.state){
 		case engine::UNIT1:
 		case engine::FIRE:
@@ -176,12 +262,9 @@ void UiManager::renderUi(const engine::Game &engine_instance, std::unordered_map
 				opt_texture = texture_map[grid::MOVE_BUTTON];
 			}
 
-			Rectangle texture_rect = {
-			     .x = 0,
-			     .y = 0,
-			     .width = (float)opt_texture.width,
-			     .height = (float)opt_texture.height,
-			};
+			texture_rect.width = (float)opt_texture.width;
+			texture_rect.height = (float)opt_texture.height;
+ 
 
 			Rectangle options = engine_instance.ui_elements[1];
 			DrawTexturePro(opt_texture, texture_rect, options, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
@@ -189,9 +272,6 @@ void UiManager::renderUi(const engine::Game &engine_instance, std::unordered_map
 
 			break;
 			}
-		case engine::FIRING:
-//					  DrawText(const char *text, int posX, int posY, int fontSize, Color color);
-				  break;
 		case engine::UNIT_INFO:
 		case engine::HEX_INFO:{
 			Texture2D &info_rect = texture_map[grid::INFO_RECT];
