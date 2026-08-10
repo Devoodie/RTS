@@ -52,15 +52,19 @@ extern float radius;
 extern float inradius;
 
 enum textures {
-	GRASS_HEX = 0,
-	GRASS_BORDER,
-	DARK_SOLIDER,
-	FIRE_BUTTON,
-	MOVE_BUTTON,
+	kGrassHex = 0,
+	kGrassBorder,
+	kDarkSolider,
+	kFireButton,
+	kFireButtonUnusable,
+	kMoveButton,
+	kMoveButtonUnusable,
+	kCaptureButton,
+	kCaptureButtonUnusable,
 	kEndButton,
-	INFO_RECT,
-	HQ,
-	WAREHOUSE,
+	kInfoRect,
+	kHQ,
+	kWarehouse,
 };
 
 void initGrid(const int row, const int col, std::vector<std::vector<HexSpace>> &grid);

@@ -1,7 +1,6 @@
 #include <cmath>
 
-#include <iostream>
-
+// #include <iostream>
 #include "../../include/utils/grid.hpp"
 #include <engine/entities.hpp>
 #include <raylib.h>
@@ -29,8 +28,8 @@ void initGrid(const int row, const int col, std::vector<std::vector<HexSpace>> &
 	// j is our column (x) index
 	
 	//hexagon math
-	radius = ScreenWidth / 24;
-	inradius = (radius * std::sqrtf(3.0)) / 2;
+	radius = ScreenWidth / 24.0;
+	inradius = (radius * std::sqrtf(3.0)) / 2.0;
 
 	// decide whether positional values should be normalized or not
 	float x = inradius;
@@ -109,9 +108,9 @@ void initGrid(const int row, const int col, std::vector<std::vector<HexSpace>> &
 				.y = CurrentHex->y_position + y_offset,
 			};
 	
-			x += inradius * 2;
+			x += inradius * 2.0;
 		}
-		y += (int) (radius * 3) / 2;
+		y += (int) (radius * 3) / 2.0;
 	}
 }
 
@@ -120,8 +119,8 @@ void renderBuildings(std::unordered_map<int, Texture2D> texture_map, const SlotM
 	const float draw_width = inradius;
 	const float draw_height = radius;
 
-	const Texture2D hq_texture = texture_map[HQ];
-	const Texture2D warehouse = texture_map[WAREHOUSE];
+	const Texture2D hq_texture = texture_map[kHQ];
+	const Texture2D warehouse = texture_map[kWarehouse];
 	
 	Rectangle building_rectangle = {
 		.x = 0,
@@ -173,7 +172,7 @@ void renderUnits(std::unordered_map<int, Texture2D> texture_map, const SlotMap<U
 	const float draw_width = inradius * 2;
 	const float draw_height = radius * 2;
 
-	const Texture2D solider_texture = texture_map[DARK_SOLIDER]; 
+	const Texture2D solider_texture = texture_map[kDarkSolider]; 
 
 	Color color;
 
@@ -203,8 +202,8 @@ void renderUnits(std::unordered_map<int, Texture2D> texture_map, const SlotMap<U
 		unit_rectangle.x = CurrentUnit.render_rect.x;
 		unit_rectangle.y = CurrentUnit.render_rect.y;
 
-		source_rectangle.width = float(texture_map[DARK_SOLIDER].width);
-		source_rectangle.height = float(texture_map[DARK_SOLIDER].height);
+		source_rectangle.width = float(texture_map[kDarkSolider].width);
+		source_rectangle.height = float(texture_map[kDarkSolider].height);
 
 		DrawTexturePro(solider_texture, source_rectangle, unit_rectangle, {.x = 0, .y = 0}, 0, color);
 
@@ -264,14 +263,14 @@ void renderGrid(
 
 		for(int j = 0; j < grid_space[i].size(); ++j){
 			//draw hex
-			source_rectangle.width = float(texture_map[GRASS_HEX].width);
-			source_rectangle.height = float(texture_map[GRASS_HEX].height);
+			source_rectangle.width = float(texture_map[kGrassHex].width);
+			source_rectangle.height = float(texture_map[kGrassHex].height);
 
 			const HexSpace *CurrentHex = &grid_space[i][j];
 			hexagon_rectangle.x = CurrentHex->x_position - inradius; 
 			hexagon_rectangle.y = CurrentHex->y_position - radius - y_offset; 
 
-			DrawTexturePro(texture_map[GRASS_HEX], source_rectangle , hexagon_rectangle, hex_pos, 0, RAYWHITE);
+			DrawTexturePro(texture_map[kGrassHex], source_rectangle , hexagon_rectangle, hex_pos, 0, RAYWHITE);
 
 			//draw border
 			if(j == 0 or j == grid_space[i].size() - 1 or i == grid_space.size() - 1){
@@ -279,10 +278,10 @@ void renderGrid(
 				border_rectangle.x = hexagon_rectangle.x + inradius - (std::sqrt(3) / 2)  * radius;
 				border_rectangle.y = hexagon_rectangle.y + radius + radius / 2;
 
-				source_rectangle.width = float(texture_map[GRASS_BORDER].width);
-				source_rectangle.height = float(texture_map[GRASS_BORDER].height);
+				source_rectangle.width = float(texture_map[kGrassBorder].width);
+				source_rectangle.height = float(texture_map[kGrassBorder].height);
 
-				DrawTexturePro(texture_map[GRASS_BORDER], source_rectangle , border_rectangle, hex_pos, 0, RAYWHITE);
+				DrawTexturePro(texture_map[kGrassBorder], source_rectangle , border_rectangle, hex_pos, 0, RAYWHITE);
 
 			}
 
@@ -310,20 +309,22 @@ void initAssets(std::unordered_map<int, Texture2D> &texture_map){
 	const Texture2D dark_solider = LoadTexture("../assets/Dark_Solider.png");
 	const Texture2D fire_button = LoadTexture("../assets/Fire1.png");
 	const Texture2D move_button = LoadTexture("../assets/Move1.png");
+	const Texture2D cap_button = LoadTexture("../assets/Cap.png");
 	const Texture2D end_button = LoadTexture("../assets/End.png");
 	const Texture2D info_rectangle = LoadTexture("../assets/Info_Rectangle.png");
 	const Texture2D hq = LoadTexture("../assets/HQ.png");
 	const Texture2D warehouse = LoadTexture("../assets/Warehouse.png");
 
-	texture_map[grid::GRASS_HEX] = hex_grass;
-	texture_map[grid::GRASS_BORDER] = grass_border;
-	texture_map[grid::DARK_SOLIDER] = dark_solider;
-	texture_map[grid::FIRE_BUTTON] = fire_button;
-	texture_map[grid::MOVE_BUTTON] = move_button;
+	texture_map[grid::kGrassHex] = hex_grass;
+	texture_map[grid::kGrassBorder] = grass_border;
+	texture_map[grid::kDarkSolider] = dark_solider;
+	texture_map[grid::kFireButton] = fire_button;
+	texture_map[grid::kMoveButton] = move_button;
+	texture_map[grid::kCaptureButton] = cap_button;
 	texture_map[grid::kEndButton] = end_button;
-	texture_map[grid::INFO_RECT] = info_rectangle;
-	texture_map[grid::HQ] = hq;
-	texture_map[grid::WAREHOUSE] = warehouse;
+	texture_map[grid::kInfoRect] = info_rectangle;
+	texture_map[grid::kHQ] = hq;
+	texture_map[grid::kWarehouse] = warehouse;
 
 
 }

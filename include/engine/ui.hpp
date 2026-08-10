@@ -27,7 +27,6 @@ enum UiSignal{
 	kSigNone,
 };
 
-
 class ScrollMenu {
 	public:
 		std::vector<Rectangle> elements;
@@ -47,7 +46,6 @@ class ScrollMenu {
 
 class UnitScrollMenu : public ScrollMenu {
 	public: 
-
 		UnitScrollMenu(const Vector2 &mouse_position);
 		~UnitScrollMenu();
 		UiSignal HandleScrollCollision(int collision_index) override;
@@ -55,9 +53,13 @@ class UnitScrollMenu : public ScrollMenu {
 
 class OptionScrollMenu: public ScrollMenu {
 	public: 
+		bool fireable;
+		bool moveable;
+		bool captureable;
 
 		OptionScrollMenu(const Vector2 &mouse_position);
 		~OptionScrollMenu();
+
 		UiSignal HandleScrollCollision(int collision_index) override;
 		void renderElements(Camera2D &camera, std::unordered_map<int, Texture2D> texture_map) override;
 };
