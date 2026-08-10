@@ -53,6 +53,70 @@ UnitScrollMenu::UnitScrollMenu(const Vector2 &mouse_position): ScrollMenu(kScrol
 UnitScrollMenu::~UnitScrollMenu(){
 }
 
+//TODO >> Change this when we get assets
+void UnitScrollMenu::renderElements(Camera2D &camera, std::unordered_map<int, Texture2D> texture_map){
+	BeginMode2D(camera);
+	Texture2D &elem_texture = texture_map[grid::kMoveButton];
+	//how the fuck does cpp do this shit  without auto? (need verbosity)
+
+	Rectangle dest_rect = {
+	     .x = this->dimensions.x,
+	     .y = this->dimensions.y,
+	     .width = (float)elem_texture.width,
+	     .height = (float)elem_texture.height,
+	};
+
+	Rectangle source_rect = {
+		.x = 0,
+		.y = 0,
+		.width = (float)elem_texture.width,
+		.height = (float)elem_texture.height,
+	};
+
+	float target_y = this->y_pos + this->dimensions.height;
+	if(target_y > this->internal_height) target_y = this->internal_height;
+
+	float current_y = this->y_pos;
+	int elem_index = 0;
+
+	const std::vector<Rectangle> &elements = this->elements;
+
+	while(current_y < target_y){
+		const Rectangle &element = elements[elem_index];
+
+		if(current_y > element.y + element.height){
+			elem_index += 1;
+			continue;
+		}
+
+		//ratio of how much texture to draw according to how much of the rectangle is showing
+		float draw_amount = (element.y + element.height) - current_y;
+
+		if(current_y + draw_amount > target_y){
+			draw_amount = target_y - current_y;
+		}
+
+		dest_rect.y = current_y + this->dimensions.y;
+		dest_rect.height = draw_amount;
+
+		source_rect.y = elem_texture.height = draw_amount;
+		source_rect.height = draw_amount;
+
+		DrawTexturePro(
+				elem_texture,
+				source_rect, 
+				dest_rect, 
+				(Vector2){.x = 0, .y = 0}, 
+				0, 
+				RAYWHITE
+				);
+
+		current_y += draw_amount;
+		elem_index += 1;
+	}
+	EndMode2D();
+}
+
 OptionScrollMenu::OptionScrollMenu(const Vector2 &mouse_position): ScrollMenu(kScrollOptions, mouse_position){
 	for(int i = 0; i < 3; ++i){
 		this->elements.emplace_back((Rectangle){
