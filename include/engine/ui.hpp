@@ -14,7 +14,6 @@ enum ScrollType{
 	kScrollUnits,
 	kScrollUpgrades,
 	kScrollOptions,
-	
 };
 
 //i would have to make a signal for each unit to spawn
@@ -65,6 +64,10 @@ class OptionScrollMenu: public ScrollMenu {
 		UiSignal HandleScrollCollision(int collision_index) override;
 		void renderElements(Camera2D &camera, std::unordered_map<int, Texture2D> texture_map) override;
 };
+
+class InfoPanel {
+	std::vector<Rectangle> elements;
+}
 
 class Element {
 	public:
