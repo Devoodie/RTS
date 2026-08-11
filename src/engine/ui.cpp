@@ -4,6 +4,8 @@
 #include <vector>
 
 namespace ui{
+Element::Element(Rectangle rect) : render_rect(rect){
+}
 
 ScrollMenu::ScrollMenu(ScrollType menu_type, const Vector2 &mouse_position) : type(menu_type) {	
 	this-> y_pos = 0;
@@ -47,74 +49,20 @@ UnitScrollMenu::UnitScrollMenu(const Vector2 &mouse_position): ScrollMenu(kScrol
 			.height = grid::radius / 2,
 		});
 	}
-	this->internal_height = elements[2].y + elements[2].height;
+	this->internal_height = elements[2].render_rect.y + elements[2].render_rect.height;
 } 
 
 UnitScrollMenu::~UnitScrollMenu(){
 }
 
 //TODO >> Change this when we get assets
-void UnitScrollMenu::renderElements(Camera2D &camera, std::unordered_map<int, Texture2D> texture_map){
-	BeginMode2D(camera);
-	Texture2D &elem_texture = texture_map[grid::kMoveButton];
-	//how the fuck does cpp do this shit  without auto? (need verbosity)
-
-	Rectangle dest_rect = {
-	     .x = this->dimensions.x,
-	     .y = this->dimensions.y,
-	     .width = (float)elem_texture.width,
-	     .height = (float)elem_texture.height,
-	};
-
-	Rectangle source_rect = {
-		.x = 0,
-		.y = 0,
-		.width = (float)elem_texture.width,
-		.height = (float)elem_texture.height,
-	};
-
-	float target_y = this->y_pos + this->dimensions.height;
-	if(target_y > this->internal_height) target_y = this->internal_height;
-
-	float current_y = this->y_pos;
-	int elem_index = 0;
-
-	const std::vector<Rectangle> &elements = this->elements;
-
-	while(current_y < target_y){
-		const Rectangle &element = elements[elem_index];
-
-		if(current_y > element.y + element.height){
-			elem_index += 1;
-			continue;
-		}
-
-		//ratio of how much texture to draw according to how much of the rectangle is showing
-		float draw_amount = (element.y + element.height) - current_y;
-
-		if(current_y + draw_amount > target_y){
-			draw_amount = target_y - current_y;
-		}
-
-		dest_rect.y = current_y + this->dimensions.y;
-		dest_rect.height = draw_amount;
-
-		source_rect.y = elem_texture.height = draw_amount;
-		source_rect.height = draw_amount;
-
-		DrawTexturePro(
-				elem_texture,
-				source_rect, 
-				dest_rect, 
-				(Vector2){.x = 0, .y = 0}, 
-				0, 
-				RAYWHITE
-				);
-
-		current_y += draw_amount;
-		elem_index += 1;
-	}
-	EndMode2D();
+std::vector<Texture2D> UnitScrollMenu::GetTextures(std::unordered_map<int, Texture2D> texture_map){
+	std::vector<Texture2D> textures(3);
+	Texture2D elem_texture;
+	textures[0] = texture_map[grid::kMoveButton];
+	textures[1] = texture_map[grid::kMoveButton];
+	textures[2] = texture_map[grid::kMoveButton];
+	return textures;
 }
 
 OptionScrollMenu::OptionScrollMenu(const Vector2 &mouse_position): ScrollMenu(kScrollOptions, mouse_position){
@@ -139,77 +87,13 @@ UiSignal OptionScrollMenu::HandleScrollCollision(int collision_index){
 	}
 }
 
-void OptionScrollMenu::renderElements(Camera2D &camera, std::unordered_map<int, Texture2D> texture_map){
-	BeginMode2D(camera);
+std::vector<Texture2D> OptionScrollMenu::GetTextures(std::unordered_map<int, Texture2D> texture_map){
+	std::vector<Texture2D> textures(3);
 	Texture2D elem_texture;
-	//how the fuck does cpp do this shit  without auto? (need verbosity)
-	Rectangle dest_rect = {
-	     .x = this->dimensions.x,
-	     .y = this->dimensions.y,
-	     .width = (float)elem_texture.width,
-	     .height = (float)elem_texture.height,
-	};
-
-	Rectangle source_rect = {
-		.x = 0,
-		.y = 0,
-		.width = (float)elem_texture.width,
-		.height = (float)elem_texture.height,
-	};
-
-	float target_y = this->y_pos + this->dimensions.height;
-	if(target_y > this->internal_height) target_y = this->internal_height;
-
-	float current_y = this->y_pos;
-	int elem_index = 0;
-
-	const std::vector<Rectangle> &elements = this->elements;
-
-	while(current_y < target_y){
-		const Rectangle &element = elements[elem_index];
-
-		if(current_y > element.y + element.height){
-			elem_index += 1;
-			continue;
-		}
-		switch(elem_index){
-			case 0:
-				elem_texture = (this->moveable) ? texture_map[grid::kMoveButton] : texture_map[grid::kMoveButtonUnusable];
-				break;
-			case 1:
-				elem_texture = (this->fireable) ? texture_map[grid::kFireButton] : texture_map[grid::kFireButtonUnusable];
-				break;
-			case 2:
-				elem_texture = (this->captureable) ? texture_map [grid::kCaptureButton] : texture_map[grid::kCaptureButtonUnusable];
-				break;
-		};
-
-		//ratio of how much texture to draw according to how much of the rectangle is showing
-		float draw_amount = (element.y + element.height) - current_y;
-
-		if(current_y + draw_amount > target_y){
-			draw_amount = target_y - current_y;
-		}
-
-		dest_rect.y = current_y + this->dimensions.y;
-		dest_rect.height = draw_amount;
-
-		source_rect.y = elem_texture.height = draw_amount;
-		source_rect.height = draw_amount;
-
-		DrawTexturePro(
-				elem_texture,
-				source_rect, 
-				dest_rect, 
-				(Vector2){.x = 0, .y = 0}, 
-				0, 
-				RAYWHITE
-				);
-
-		current_y += draw_amount;
-		elem_index += 1;
-	}
-	EndMode2D();
+	textures[0] = ((this->moveable) ? texture_map[grid::kMoveButton] : texture_map[grid::kMoveButtonUnusable]);
+	textures[1] = ((this->fireable) ? texture_map[grid::kFireButton] : texture_map[grid::kFireButtonUnusable]);
+	textures[2] = ((this->captureable) ? texture_map [grid::kCaptureButton] : texture_map[grid::kCaptureButtonUnusable]);
+	return textures;
 }
 
 UiSignal UnitScrollMenu::HandleScrollCollision(int collision_index){
@@ -220,6 +104,9 @@ UiSignal UnitScrollMenu::HandleScrollCollision(int collision_index){
 			return kSigSpawnInfantry;
 
 	}
+}
+
+InfoPanel::InfoPanel(){
 }
 
 UiManager::UiManager(Camera2D &camera): camera(camera), scrl_menu(nullptr){
@@ -240,9 +127,9 @@ UiSignal UiManager::CollisionCheck(engine::states engine_state){
 	if(CheckCollisionPointRec(mouse_point, scrl_menu->dimensions)){
 		float target = wrld_point.y - this->scrl_menu->dimensions.y + this->scrl_menu->y_pos;
 		int collision_index = 0;
-		const std::vector<Rectangle> &elements = this->scrl_menu->elements;
+		const std::vector<Element> &elements = this->scrl_menu->elements;
 		for(int i = 0; i < elements.size(); ++i){	
-			Rectangle collision_rect = elements[i];
+			Rectangle collision_rect = elements[i].render_rect;
 			if(target >= collision_rect.y and target <= collision_rect.y + collision_rect.height){
 				collision_index = i;
 				break;
@@ -280,9 +167,75 @@ void UiManager::renderUi(const engine::Game &engine_instance, std::unordered_map
 		++i;
 	} 
 
-	if(this->scrl_menu == nullptr)
+	if(this->scrl_menu == nullptr) return;
 	//render scroll menu 
-	this->scrl_menu->renderElements(this->camera, texture_map);
+	std::vector<Texture2D> scrll_textures = this->scrl_menu->GetTextures(texture_map);
+
+	assert(scrll_textures.size() == this->scrl_menu->elements.size() && "Invalid Texture amount to Elements (Scroll Menu)");
+
+	BeginMode2D(camera);
+	Texture2D elem_texture;
+	//how the fuck does cpp do this shit  without auto? (need verbosity)
+	const auto &scrl_menu = this->scrl_menu.get();
+
+	Rectangle dest_rect = {
+	     .x = scrl_menu->dimensions.x,
+	     .y = scrl_menu->dimensions.y,
+	     .width = (float)elem_texture.width,
+	     .height = (float)elem_texture.height,
+	};
+
+	Rectangle source_rect = {
+		.x = 0,
+		.y = 0,
+		.width = (float)elem_texture.width,
+		.height = (float)elem_texture.height,
+	};
+
+	float target_y = scrl_menu->y_pos + scrl_menu->dimensions.height;
+	if(target_y > scrl_menu->internal_height) target_y = scrl_menu->internal_height;
+
+	float current_y = scrl_menu->y_pos;
+	int elem_index = 0;
+
+	const std::vector<Element> &elements = scrl_menu->elements;
+
+	while(current_y < target_y){
+		const Rectangle &element = elements[elem_index].render_rect;
+
+		if(current_y > element.y + element.height){
+			elem_index += 1;
+			continue;
+		}
+		elem_texture = scrll_textures[elem_index];
+
+		//ratio of how much texture to draw according to how much of the rectangle is showing
+		float draw_amount = (element.y + element.height) - current_y;
+
+		if(current_y + draw_amount > target_y){
+			draw_amount = target_y - current_y;
+		}
+
+		dest_rect.y = current_y + scrl_menu->dimensions.y;
+		dest_rect.height = draw_amount;
+
+		source_rect.y = elem_texture.height = draw_amount;
+		source_rect.height = draw_amount;
+
+		DrawTexturePro(
+				elem_texture,
+				source_rect, 
+				dest_rect, 
+				(Vector2){.x = 0, .y = 0}, 
+				0, 
+				RAYWHITE
+				);
+
+		current_y += draw_amount;
+		elem_index += 1;
+	}
+	EndMode2D();
+
 
 	switch(engine_instance.state){
 		case engine::UNIT_INFO:

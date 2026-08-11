@@ -26,9 +26,18 @@ enum UiSignal{
 	kSigNone,
 };
 
+//element will likely have types in the future that change rendering behavior
+class Element {
+	public:
+	Rectangle render_rect;
+
+
+	Element(Rectangle rect);
+};
+
 class ScrollMenu {
 	public:
-		std::vector<Rectangle> elements;
+		std::vector<Element> elements;
 		Rectangle dimensions;
 		float y_pos;
 		float internal_height;
@@ -40,7 +49,7 @@ class ScrollMenu {
 		virtual ~ScrollMenu();
 
 		virtual UiSignal HandleScrollCollision(int collision_index) = 0;
-		virtual void renderElements(Camera2D &camera, std::unordered_map<int, Texture2D> texture_map);
+		virtual std::vector<Texture2D> GetTextures(std::unordered_map<int, Texture2D> texture_map);
 };
 
 class UnitScrollMenu : public ScrollMenu {
@@ -49,7 +58,7 @@ class UnitScrollMenu : public ScrollMenu {
 		~UnitScrollMenu();
 
 		UiSignal HandleScrollCollision(int collision_index) override;
-		void renderElements(Camera2D &camera, std::unordered_map<int, Texture2D> texture_map) override;
+		std::vector<Texture2D> GetTextures(std::unordered_map<int, Texture2D> texture_map) override;
 };
 
 class OptionScrollMenu: public ScrollMenu {
@@ -62,19 +71,14 @@ class OptionScrollMenu: public ScrollMenu {
 		~OptionScrollMenu();
 
 		UiSignal HandleScrollCollision(int collision_index) override;
-		void renderElements(Camera2D &camera, std::unordered_map<int, Texture2D> texture_map) override;
+		std::vector<Texture2D> GetTextures(std::unordered_map<int, Texture2D> texture_map) override;
 };
 
 class InfoPanel {
-	std::vector<Rectangle> elements;
-}
-
-class Element {
-	public:
 	Rectangle render_rect;
-
-
-	Element();
+	std::vector<Rectangle> elements;
+	InfoPanel();
+	void renderElements(const engine::Game &engine_instance);
 };
 
 class UiManager {
