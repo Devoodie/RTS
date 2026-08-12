@@ -16,7 +16,7 @@ Player::Player(Slot hq_key) : units(50), buildings(50){
 
 namespace engine {
 
-Game::Game(Camera2D &camera) : camera(camera), units(50), buildings(10){
+Game::Game(Camera2D &camera) : camera(camera), units(50), buildings(10), ui_manager(camera){
 	players = std::vector<Player>();
 	player_count = 2;
 	player_index = 0;
@@ -75,11 +75,9 @@ engine::states Game::SelectBuilding(Building *building_ptr){
 	this->selected_hex = building_ptr->hex;
 
 	if(building_ptr->owner_index != this->player_index or building_ptr->type != FACTORY){
-		this->createUiElem(UI_INFO);
 		return HEX_INFO;
 
 	} else {
-		this->createUiElem(UNIT_SCRL);
 		return kBuildingOpt;
 	}
 }
@@ -100,14 +98,13 @@ engine::states Game::SelectUnit(Unit* unit_ptr){
 		if(unit_ptr->task != NONE or (exists and !owned)) {
 			Vector2 button_position = unit_ptr->position;
 			this->MousePosition = GetScreenToWorld2D(GetMousePosition(), this->camera);
-			this->createUiElem(UI_OPTIONS_1);
+			ui_manager.createUiElem(this->MousePosition, ui::ElemTypes::kTaskScroll, ui::CommandParams());
 		}
 		return UNIT1;
 
 	} else {
 		//SHOW COMPARISON
-		this-> selected_unit = unit_ptr;
-		this->createUiElem(UI_INFO);
+		this->selected_unit = unit_ptr;
 		return UNIT_INFO;
 	}
 }
@@ -178,7 +175,7 @@ void Game::idleTransition(inputAlphabet input, void *selection){
 		case HEX:
 			this->selected_hex = (HexSpace*)selection;
 			this->state = HEX_INFO;
-			this->createUiElem(UI_INFO);
+			ui_manager.createUiElem(UI_INFO);
 			break;
 		case BUILDING:{
 			Building *building_ptr = (Building*)selection;
@@ -289,7 +286,7 @@ void Game::unitInfoTransition(inputAlphabet input, void *selection){
 			this->state = OPTIONS;
 
 			if(this->ui_elements.size() > 1) this->ui_elements.erase(ui_elements.begin() + 1);
-			this->createUiElem(UI_OPTIONS_1);
+			ui_manager.createUiElem(UI_OPTIONS_1);
 			break;
 			 }
 		case BUILDING:{
@@ -319,7 +316,7 @@ void Game::unitTransition(inputAlphabet input, void *selection){
 
 				Vector2 button_position = unit_ptr->position;
 				this->MousePosition = GetScreenToWorld2D(GetMousePosition(), this->camera);
-				this->createUiElem(UI_OPTIONS_1);
+				ui_manager.createUiElem(UI_OPTIONS_1);
 				
 				//PROB DO FIRE ANIMATION
 				this->state = FIRE; //the fire state awaits another input from the handler or signal from uimanager to trigger firing
@@ -341,7 +338,7 @@ void Game::unitTransition(inputAlphabet input, void *selection){
 			this->state = OPTIONS;
 
 			//create ui element for options
-			this->createUiElem(UI_OPTIONS_1);
+			ui_manager.createUiElem(UI_OPTIONS_1);
 			break;
 			 }
 		case BUILDING:{
@@ -368,7 +365,7 @@ void Game::scrollTransition(inputAlphabet input, void *selection){
 			this->state = HEX_INFO;
 
 			if(this->ui_elements.size() > 1) this->ui_elements.erase(ui_elements.begin() + 1);
-			this->createUiElem(UI_INFO);
+			ui_manager.createUiElem(UI_INFO);
 			break;
 		case BUILDING:{
 			Building* building_ptr = (Building*)selection;
@@ -521,7 +518,7 @@ bool Game::uiCollisionCheck(){
 				this->dmg_taken = calcDamage();
 				this->selected_unit2->hp -= this->dmg_taken;
 
-				this->createUiElem(UI_FIRING_TEXT);
+				ui_manager.createUiElem(UI_FIRING_TEXT);
 				this->state = FIRING;
 				break;
 			case UNIT1:{

@@ -1,7 +1,8 @@
 #include <engine/ui.hpp> 
+
 #include <raylib.h>
 #include <iostream>
-#include <vector>
+#include <engine/engine.hpp>
 
 namespace ui{
 Element::Element(Rectangle rect) : render_rect(rect){
@@ -117,23 +118,21 @@ InfoPanel::InfoPanel(){
 
 void InfoPanel::renderElements(const engine::Game &engine_instance, std::unordered_map<int, Texture2D> texture_map){
 	//prob switch on info panel information
-	Texture2D &info_rect = texture_map[grid::kInfoRect];
+	Texture2D &info_texture = texture_map[grid::kInfoRect];
 
 	Rectangle texture_rect = {
 	     .x = 0,
 	     .y = 0,
-	     .width = (float)info_rect.width,
-	     .height = (float)info_rect.height,
+	     .width = (float)info_texture.width,
+	     .height = (float)info_texture.height,
 	};
-
-	Rectangle options = engine_instance.ui_elements[1];
-	DrawTexturePro(info_rect, texture_rect, options, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
+	DrawTexturePro(info_texture, texture_rect, this->render_rect, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
 }
 
 UiManager::UiManager(Camera2D &camera): camera(camera), scrl_menu(nullptr){
 }
 
-UiSignal UiManager::CollisionCheck(engine::states engine_state){
+UiSignal UiManager::CollisionCheck(){
 	Vector2 mouse_point = GetMousePosition();
 	Vector2 wrld_point = GetScreenToWorld2D(GetMousePosition(), this->camera);
 	//0 endturn button, 1 Others(????), 
@@ -164,45 +163,22 @@ UiSignal UiManager::CollisionCheck(engine::states engine_state){
 	return kSigNone;
 }
 
-void Game::createUiElem(uiElem ui_type){
-	switch(ui_type){
-		case UI_OPTIONS_1:
-			this->ui_elements.emplace_back((Rectangle){
-				.x = this->MousePosition.x + grid::inradius / 4,
-				.y = this->MousePosition.y,
-				.width = grid::inradius,
-				.height = grid::radius / 2,
-				});
-			break;
-		case UI_INFO:
-			this->ui_elements.emplace_back((Rectangle){
-				.x = float((grid::ScreenWidth * 3) / 4.0 ),
-				.y = 0,
-				.width = float(grid::ScreenWidth / 4.0),
-				.height = float(grid::ScreenHeight),
-				});
-			break;
-			//temporary
-		case UI_FIRING_TEXT:
+void UiManager::createUiElem(Vector2 position, ElemTypes type, CommandParams params){
+	switch(type){
+		case ElemTypes::kOptionScroll:
 			{
-			this->dmg_txt_index = this->messages.size();
-			Vector2 text_pos = {
-				.x = this->selected_unit2->position.x - grid::inradius / 2,
-				.y = this->selected_unit2->position.y - grid::radius,
-			};
+			this->scrl_menu = std::make_unique<OptionScrollMenu>(position);
+			OptionScrollMenu &options = *static_cast<OptionScrollMenu*>(this->scrl_menu.get());
 
-			this->messages.emplace_back((Text){
-					.content = TextFormat("-%.2f HP", this->dmg_taken),
-					.text_color = RED,
-					.position = text_pos,
-					.font_size = 15,
-					});
+			options.fireable = params.fireable;
+			options.moveable = params.movable;
+			options.captureable = params.capturable;
 			break;
 			}
-		case UNIT_SCRL:
-			// CREATE NEW kBuildingOpt
-			this->scrl_menu = std::make_unique<UnitScrollMenu>(this->MousePosition);
-			this->ui_elements.push_back(scrl_menu->dimensions);
+		case ElemTypes::kTaskScroll:
+			break;
+		case ElemTypes::kUnitScroll:
+			this->scrl_menu = std::make_unique<UnitScrollMenu>(position);
 			break;
 	}
 }
@@ -300,12 +276,7 @@ void UiManager::renderUi(const engine::Game &engine_instance, std::unordered_map
 	}
 	EndMode2D();
 
-
-	switch(engine_instance.state){
-		case engine::UNIT_INFO:
-		case engine::HEX_INFO:{
-					}
-	}
+	this->info.renderElements(engine_instance, texture_map);
 }
 
 void renderText(const std::vector<Text> &messages){
