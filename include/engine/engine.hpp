@@ -4,6 +4,8 @@
 #include "utils/grid.hpp"
 #include <utils/slotmap.hpp>
 #include "entities.hpp"
+#include "states.hpp"
+#include "ui.hpp"
 #include <string>
 #include <vector>
 #include <cstdint>
@@ -18,13 +20,6 @@ class Player {
 		Player(Slot hq_key);
 };
 
-struct Text {
-	std::string content;
-	Color text_color;
-	Vector2 position;
-	float font_size;
-};
-
 //will provide information to autofill menus on creation
 
 namespace engine {
@@ -36,18 +31,6 @@ namespace engine {
 		MOVE,
 	};
 
-	enum states {
-		IDLE,
-		UNIT1,
-		OPTIONS,
-		FIRE,
-		FIRING,
-		HEX_INFO,
-		UNIT_INFO,
-		MOVING,
-		kBuildingOpt,
-	};
-
 class Game{
 	public:	
 		std::vector<Player> players;
@@ -55,8 +38,7 @@ class Game{
 		SlotMap<Building> buildings;
 
 		std::vector<std::vector<HexSpace>> grid_space;
-		std::vector<Rectangle> ui_elements;
-		std::vector<Text> messages;
+		ui::UiManager ui_manager;
 
 		Slot state_element; //this is a state related element within ui_manager there should only be one at a time
 
@@ -112,13 +94,6 @@ class Game{
 
 		//transitions to idle state or calls menu
 		void escape();
-
-//		void scrollCollision(int index, ui::ScrollType type);
-
-		//ui creation helper function
-		//May create options or scroll menus
-		//Mouse position must be set to adjust element position
-		void createUiElem(uiElem ui_type);
 
 		//searches for collisions with properties of a hexagon and potentially transitions state
 		void handleCollision(HexSpace *collided_hex, Vector2 mouse_point);
