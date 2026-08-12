@@ -31,7 +31,6 @@ class Element {
 	public:
 	Rectangle render_rect;
 
-
 	Element(Rectangle rect);
 };
 
@@ -78,7 +77,7 @@ class InfoPanel {
 	Rectangle render_rect;
 	std::vector<Rectangle> elements;
 	InfoPanel();
-	void renderElements(const engine::Game &engine_instance);
+	void renderElements(const engine::Game &engine_instance, std::unordered_map<int, Texture2D> texture_map);
 };
 
 class UiManager {
@@ -94,7 +93,5 @@ class UiManager {
 		void renderUi(const engine::Game &engine_instance, std::unordered_map<int, Texture2D> texture_map);
 		void renderText(const std::vector<Text> &messages);
 };
-
-
 }
 #endif

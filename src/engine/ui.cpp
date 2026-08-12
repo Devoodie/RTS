@@ -107,6 +107,27 @@ UiSignal UnitScrollMenu::HandleScrollCollision(int collision_index){
 }
 
 InfoPanel::InfoPanel(){
+	this->render_rect = (Rectangle){
+		.x = float((grid::ScreenWidth * 3) / 4.0 ),
+		.y = 0,
+		.width = float(grid::ScreenWidth / 4.0),
+		.height = float(grid::ScreenHeight),
+	};
+}
+
+void InfoPanel::renderElements(const engine::Game &engine_instance, std::unordered_map<int, Texture2D> texture_map){
+	//prob switch on info panel information
+	Texture2D &info_rect = texture_map[grid::kInfoRect];
+
+	Rectangle texture_rect = {
+	     .x = 0,
+	     .y = 0,
+	     .width = (float)info_rect.width,
+	     .height = (float)info_rect.height,
+	};
+
+	Rectangle options = engine_instance.ui_elements[1];
+	DrawTexturePro(info_rect, texture_rect, options, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
 }
 
 UiManager::UiManager(Camera2D &camera): camera(camera), scrl_menu(nullptr){
@@ -240,19 +261,7 @@ void UiManager::renderUi(const engine::Game &engine_instance, std::unordered_map
 	switch(engine_instance.state){
 		case engine::UNIT_INFO:
 		case engine::HEX_INFO:{
-			Texture2D &info_rect = texture_map[grid::kInfoRect];
-
-			Rectangle texture_rect = {
-			     .x = 0,
-			     .y = 0,
-			     .width = (float)info_rect.width,
-			     .height = (float)info_rect.height,
-			};
-
-			Rectangle options = engine_instance.ui_elements[1];
-			DrawTexturePro(info_rect, texture_rect, options, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
-			break;
-		}
+					}
 	}
 }
 
