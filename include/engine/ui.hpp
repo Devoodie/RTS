@@ -105,22 +105,33 @@ struct CommandParams {
 	bool capturable = false;
 };
 
+template <typename T>
+class Transformation {
+	float target_pos;
+
+	T &element;
+};
+
 class UiManager {
 	public:
 		std::vector<Element> ui_elements;
 		Camera2D &camera;
 		std::unique_ptr<ScrollMenu> scrl_menu; // only one scroll menu
+		std::vector<Text> messages;
+		std::vector<float> target_positions; 
 		InfoPanel info;
 
 		UiManager(Camera2D &camera);
 		UiSignal CollisionCheck();
 
-		//overwrites scroll menus (Possibly info panels in the future)
+		//modifies/overwrites scroll menus (Possibly info panels in the future)
+		//if the new concrete class is equal to the old one, no allocation is made
 		void createUiElem(Vector2 position, ElemTypes type, CommandParams params);
+		void hideElements();
 
 		//renders options menu
 		void renderUi(const engine::Game &engine_instance, std::unordered_map<int, Texture2D> texture_map);
-		void renderText(const std::vector<Text> &messages);
+		void renderText();
 };
 }
 #endif

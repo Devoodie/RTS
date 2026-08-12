@@ -167,7 +167,10 @@ void UiManager::createUiElem(Vector2 position, ElemTypes type, CommandParams par
 	switch(type){
 		case ElemTypes::kOptionScroll:
 			{
-			this->scrl_menu = std::make_unique<OptionScrollMenu>(position);
+			if(typeid(this->scrl_menu) != typeid(std::unique<OptionScrollMenu>)){
+				this->scrl_menu = std::make_unique<OptionScrollMenu>(position);
+			};
+
 			OptionScrollMenu &options = *static_cast<OptionScrollMenu*>(this->scrl_menu.get());
 
 			options.fireable = params.fireable;
@@ -182,6 +185,10 @@ void UiManager::createUiElem(Vector2 position, ElemTypes type, CommandParams par
 			break;
 	}
 }
+
+void UiManager::hideElements(){
+	this->scrl_menu->dimensions.x = 65535;
+};
 
 //MAKE THIS RENDER EVERYTHING
 void UiManager::renderUi(const engine::Game &engine_instance, std::unordered_map<int, Texture2D> texture_map){
@@ -279,8 +286,8 @@ void UiManager::renderUi(const engine::Game &engine_instance, std::unordered_map
 	this->info.renderElements(engine_instance, texture_map);
 }
 
-void renderText(const std::vector<Text> &messages){
-	for(Text message: messages){
+void UiManager::renderText(){
+	for(Text message: this->messages){
 		DrawTextEx(
 			GetFontDefault(), 
 			message.content.c_str(), 
