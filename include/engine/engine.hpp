@@ -48,13 +48,6 @@ namespace engine {
 		kBuildingOpt,
 	};
 
-	enum uiElem {
-		UI_OPTIONS_1,
-		UI_INFO,
-		UI_FIRING_TEXT,
-		UNIT_SCRL,
-	};
-
 class Game{
 	public:	
 		std::vector<Player> players;

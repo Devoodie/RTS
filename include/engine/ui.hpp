@@ -85,9 +85,13 @@ class UiManager {
 		std::vector<Element> ui_elements;
 		Camera2D &camera;
 		std::unique_ptr<ScrollMenu> scrl_menu; // only one scroll menu
+		InfoPanel info;
 
 		UiManager(Camera2D &camera);
 		UiSignal CollisionCheck(engine::states engine_state);
+
+		//overwrites scroll menus or info panels
+		void createUiElem();
 
 		//renders options menu
 		void renderUi(const engine::Game &engine_instance, std::unordered_map<int, Texture2D> texture_map);

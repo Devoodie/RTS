@@ -164,6 +164,49 @@ UiSignal UiManager::CollisionCheck(engine::states engine_state){
 	return kSigNone;
 }
 
+void Game::createUiElem(uiElem ui_type){
+	switch(ui_type){
+		case UI_OPTIONS_1:
+			this->ui_elements.emplace_back((Rectangle){
+				.x = this->MousePosition.x + grid::inradius / 4,
+				.y = this->MousePosition.y,
+				.width = grid::inradius,
+				.height = grid::radius / 2,
+				});
+			break;
+		case UI_INFO:
+			this->ui_elements.emplace_back((Rectangle){
+				.x = float((grid::ScreenWidth * 3) / 4.0 ),
+				.y = 0,
+				.width = float(grid::ScreenWidth / 4.0),
+				.height = float(grid::ScreenHeight),
+				});
+			break;
+			//temporary
+		case UI_FIRING_TEXT:
+			{
+			this->dmg_txt_index = this->messages.size();
+			Vector2 text_pos = {
+				.x = this->selected_unit2->position.x - grid::inradius / 2,
+				.y = this->selected_unit2->position.y - grid::radius,
+			};
+
+			this->messages.emplace_back((Text){
+					.content = TextFormat("-%.2f HP", this->dmg_taken),
+					.text_color = RED,
+					.position = text_pos,
+					.font_size = 15,
+					});
+			break;
+			}
+		case UNIT_SCRL:
+			// CREATE NEW kBuildingOpt
+			this->scrl_menu = std::make_unique<UnitScrollMenu>(this->MousePosition);
+			this->ui_elements.push_back(scrl_menu->dimensions);
+			break;
+	}
+}
+
 //MAKE THIS RENDER EVERYTHING
 void UiManager::renderUi(const engine::Game &engine_instance, std::unordered_map<int, Texture2D> texture_map){
 	Texture2D selected_texture;
