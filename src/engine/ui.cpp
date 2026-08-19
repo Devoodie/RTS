@@ -131,6 +131,8 @@ void InfoPanel::renderElements(const engine::Game &engine_instance, std::unorder
 	DrawTexturePro(info_texture, texture_rect, this->render_rect, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
 }
 
+Transformation::Transformation(Rectangle &current_pos, Rectangle desired_pos) : target_pos(desired_pos), position(current_pos){};
+
 UiManager::UiManager(Camera2D &camera): camera(camera), scrl_menu(nullptr), transformations(10) {
 }
 
@@ -185,14 +187,43 @@ void UiManager::createUiElem(Vector2 position, ElemTypes type, CommandParams par
 		case ElemTypes::kUnitScroll:
 			this->scrl_menu = std::make_unique<UnitScrollMenu>(position);
 			break;
+		case ui::ElemTypes::kFiringText:
+			// can add logic to fit text into rectangle width
+			Rectangle text_pos;
+			text_pos.x = position.x;
+			text_pos.y = position.y;
+
+			Rectangle desired_pos = text_pos;
+			desired_pos.y = desired_pos.y - grid::radius * 2.5;	
+
+			Slot transf_key = this->transformations.Insert(Transformation(desired_pos, this->info.render_rect));
+			transformations[transf_key]->self_key = transf_key;
+
+			Text firing_text = Text(params.text_content, RED, text_pos, 15);
+			firing_text.transformation = transf_key;
+
+			this->messages.push_back(firing_text);
+			break;
 	}
 }
 
 void UiManager::hideElements(){
 	this->scrl_menu->dimensions.x = 65535;
+
+
+	Rectangle desired_pos = this->info.render_rect;
+	desired_pos.x = (float)grid::ScreenWidth + 1.0;
+	Slot transf_key = this->transformations.Insert(Transformation(desired_pos, this->info.render_rect));
+	transformations[transf_key]->self_key = transf_key;
 };
 
+void UiManager::animate(){
+	this->transform();
+	//other things like color will take place in this
+}
+
 void UiManager::transform(){
+	std::vector<Slot> del_list;
 	for(Transformation trans: this->transformations.values){
 		Vector2 target_pos = {.x = trans.position.x, .y = trans.position.y };
 		Vector2 new_pos = Vector2MoveTowards(
@@ -200,8 +231,16 @@ void UiManager::transform(){
 				target_pos,
 				250.0 * GetFrameTime()
 				);
+		trans.position.x = new_pos.x;
+		trans.position.y = new_pos.y;
+
 		if(new_pos.x == target_pos.x and new_pos.y == target_pos.y){
+			del_list.push_back(trans.self_key);
 		}
+	}
+
+	for(Slot key : del_list){
+		this->transformations.erase(key);
 	}
 }
 
@@ -306,7 +345,7 @@ void UiManager::renderText(){
 		DrawTextEx(
 			GetFontDefault(), 
 			message.content.c_str(), 
-			message.position, 
+			(Vector2){.x = message.position.x, .y = message.position.y}, 
 			message.font_size,  //placeholder
 			5, 
 			message.text_color

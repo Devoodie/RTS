@@ -42,9 +42,11 @@ class Element {
 struct Text {
 	std::string content;
 	Color text_color;
-	Vector2 position;
+	Rectangle position;
 	float font_size;
 	std::optional<Slot> transformation = std::nullopt;
+	
+	Text(std::string message, Color color, Rectangle pos, float size) :  content(message), text_color(color), position(pos), font_size(size){};
 };
 
 class ScrollMenu {
@@ -100,6 +102,7 @@ enum class ElemTypes {
 	kUnitScroll = 0,
 	kOptionScroll,
 	kTaskScroll,
+	kFiringText,
 	// kInfo,
 };
 
@@ -107,6 +110,8 @@ struct CommandParams {
 	bool fireable = false;
 	bool movable = false;
 	bool capturable = false;
+
+	std::string text_content;
 };
 
 // what if i want to cancel mid-animation I need a reference for which element has a trans
@@ -116,7 +121,7 @@ class Transformation {
 		const Rectangle target_pos;
 		Rectangle &position;
 
-		Transformation(Rectangle desired_pos, Rectangle &current_pos) : target_pos(desired_pos), position(current_pos){};
+		Transformation(Rectangle &current_pos, Rectangle desired_pos);
 };
 
 class UiManager {
