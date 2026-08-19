@@ -3,13 +3,14 @@
 #include <raylib.h>
 #include <iostream>
 #include <engine/engine.hpp>
+#include <raymath.h>
 
 namespace ui{
 Element::Element(Rectangle rect) : render_rect(rect){
 }
 
 ScrollMenu::ScrollMenu(ScrollType menu_type, const Vector2 &mouse_position) : type(menu_type) {	
-	this-> y_pos = 0;
+	this->y_pos = 0;
 	float width = 0.0;
 	switch(menu_type){
 		case ui::kScrollUnits:
@@ -86,6 +87,7 @@ UiSignal OptionScrollMenu::HandleScrollCollision(int collision_index){
 		case 3:
 			return kSigCapture;
 	}
+	return kSigNone;
 }
 
 std::vector<Texture2D> OptionScrollMenu::GetTextures(std::unordered_map<int, Texture2D> texture_map){
@@ -129,7 +131,7 @@ void InfoPanel::renderElements(const engine::Game &engine_instance, std::unorder
 	DrawTexturePro(info_texture, texture_rect, this->render_rect, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
 }
 
-UiManager::UiManager(Camera2D &camera): camera(camera), scrl_menu(nullptr){
+UiManager::UiManager(Camera2D &camera): camera(camera), scrl_menu(nullptr), transformations(10) {
 }
 
 UiSignal UiManager::CollisionCheck(){
@@ -189,6 +191,19 @@ void UiManager::createUiElem(Vector2 position, ElemTypes type, CommandParams par
 void UiManager::hideElements(){
 	this->scrl_menu->dimensions.x = 65535;
 };
+
+void UiManager::transform(){
+	for(Transformation trans: this->transformations.values){
+		Vector2 target_pos = {.x = trans.position.x, .y = trans.position.y };
+		Vector2 new_pos = Vector2MoveTowards(
+				(Vector2){ .x = trans.position.x, .y = trans.position.y }, 
+				target_pos,
+				250.0 * GetFrameTime()
+				);
+		if(new_pos.x == target_pos.x and new_pos.y == target_pos.y){
+		}
+	}
+}
 
 //MAKE THIS RENDER EVERYTHING
 void UiManager::renderUi(const engine::Game &engine_instance, std::unordered_map<int, Texture2D> texture_map){

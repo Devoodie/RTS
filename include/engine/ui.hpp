@@ -33,9 +33,10 @@ enum UiSignal{
 //element will likely have types in the future that change rendering behavior
 class Element {
 	public:
-	Rectangle render_rect;
+		Rectangle render_rect;
+		std::optional<Slot> transformation = std::nullopt;
 
-	Element(Rectangle rect);
+		Element(Rectangle rect);
 };
 
 struct Text {
@@ -43,6 +44,7 @@ struct Text {
 	Color text_color;
 	Vector2 position;
 	float font_size;
+	std::optional<Slot> transformation = std::nullopt;
 };
 
 class ScrollMenu {
@@ -88,6 +90,8 @@ class InfoPanel {
 	public:
 		Rectangle render_rect;
 		std::vector<Rectangle> elements;
+		std::optional<Slot> transformation = std::nullopt;
+
 		InfoPanel();
 		void renderElements(const engine::Game &engine_instance, std::unordered_map<int, Texture2D> texture_map);
 };
@@ -105,11 +109,14 @@ struct CommandParams {
 	bool capturable = false;
 };
 
-template <typename T>
+// what if i want to cancel mid-animation I need a reference for which element has a trans
 class Transformation {
-	float target_pos;
+	public:
+		Slot self_key;
+		const Rectangle target_pos;
+		Rectangle &position;
 
-	T &element;
+		Transformation(Rectangle desired_pos, Rectangle &current_pos) : target_pos(desired_pos), position(current_pos){};
 };
 
 class UiManager {
@@ -118,7 +125,7 @@ class UiManager {
 		Camera2D &camera;
 		std::unique_ptr<ScrollMenu> scrl_menu; // only one scroll menu
 		std::vector<Text> messages;
-		std::vector<float> target_positions; 
+		SlotMap<Transformation> transformations;
 		InfoPanel info;
 
 		UiManager(Camera2D &camera);
@@ -129,6 +136,8 @@ class UiManager {
 		void createUiElem(Vector2 position, ElemTypes type, CommandParams params);
 		void hideElements();
 
+		void animate();
+		void transform();
 		//renders options menu
 		void renderUi(const engine::Game &engine_instance, std::unordered_map<int, Texture2D> texture_map);
 		void renderText();
