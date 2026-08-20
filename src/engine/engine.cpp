@@ -497,88 +497,79 @@ bool Game::collisionCheck(){
 //TASK (capture)
 //ScrollCollision flag (SPAWN UNIT, RESEARCH UPRADE)
 
-// bool Game::uiCollisionCheck(){
-// 	Vector2 mouse_point = GetMousePosition();
-// 	Vector2 wrld_point = GetScreenToWorld2D(GetMousePosition(), this->camera);
-// 	//0 endturn button, 1 Others(????), 
-// 	//may need to change the way this works to switch on states instead of ui elements
-//
-// 	if(CheckCollisionPointRec(mouse_point, ui_elements[0]) and IsMouseButtonReleased(0)){
-// 		std::cout << "ENDTURN" << std::endl;
-// 		this->endTurn();
-// 		return true;
-// 	}
-// 	if(this->ui_elements.size() < 2) return false;
-// 	if(CheckCollisionPointRec(wrld_point, ui_elements[1]) and IsMouseButtonReleased(0)){
-// 		switch(this->state){
-// 			//end turn
-// 			//this is for moving for now
-// 			case OPTIONS:
-// 				selected_unit->position.x = selected_hex2->x_position;
-// 				selected_unit->position.y = selected_hex2->y_position;
-// 				selected_unit->current_hex = selected_hex2;
-//
-// 				this->selected_hex2->occupier_key = selected_hex->occupier_key;
-// 				this->selected_hex->occupier_key = std::nullopt;
-//
-// 				this->state = MOVING;
-// 				break;
-// 			case FIRE:
-// 				assert("Number of atks Greater than 0" && this->selected_unit->atks_left > 0);
-// 				this->selected_unit->atks_left -= 1;
-//
-// 				this->dmg_taken = calcDamage();
-// 				this->selected_unit2->hp -= this->dmg_taken;
-//
-// 				ui_manager.createUiElem(UI_FIRING_TEXT);
-// 				this->state = FIRING;
-// 				break;
-// 			case UNIT1:{
-// 				//a task is being performed or is available we can do this with a scroll bar right now the only task is capture
-// 				this->selected_unit->task = CAPTURING;
-// 				std::optional<Building&> enemy_building = this->buildings[selected_hex->structure_key]; //URGENT check for nullopt
-//
-// 				std::cout << "CAPTURING" << std::endl;
-// 				std::cout << this->ui_elements.size() << std::endl;
-// 				enemy_building->hp -= 40.0;
-//
-// 				if(enemy_building->hp <= 0){
-// 					this->selected_unit->task = NONE;
-// 					this->transferBuilding(*this->selected_hex->structure_key, enemy_building->owner_index, this->selected_unit->owner_index);
-// 					enemy_building->hp = 100.0;
-// 					enemy_building->owner_index = this->player_index;
-// 				}
-// 				this->escape();
-// 				break;
-// 				   }	
-// 			case kBuildingOpt:{
-// 				//do linear search for mouse position within scroll menu
-// 				assert(this->scrl_menu != nullptr && "kBuildingOpt MENU REFERENCED BEFORE ALLOCATED");
-//
-// 				float target = wrld_point.y - this->scrl_menu->dimensions.y + this->scrl_menu->y_pos;
-// 				int collision_index = 0;
-// 				const std::vector<Rectangle> &elements = this->scrl_menu->elements;
-// 				for(int i = 0; i < elements.size(); ++i){	
-// 					Rectangle collision_rect = elements[i];
-// 					if(target >= collision_rect.y and target <= collision_rect.y + collision_rect.height){
-// 						collision_index = i;
-// 						break;
-// 					}
-//
-// 				}
-// 				std::cout << "COLLISION INDEX: " << collision_index << std::endl;
-// 				this->scrollCollision(collision_index, SCRLL_UNITS);
-// 				this->escape();
-// 				break;
-// 			    }
-// 			default:
-// 				//std::cerr << "UI element " << i << " Not Recognized" << std::endl;
-// 				return false;
-// 		}
-// 		return true;
-// 	}
-// 	return false;
-// }
+void Game::handleSignal(ui::UiSignal signal){
+	Vector2 mouse_point = GetMousePosition();
+	Vector2 wrld_point = GetScreenToWorld2D(GetMousePosition(), this->camera);
+	//0 endturn button, 1 Others(????), 
+	//may need to change the way this works to switch on states instead of ui elements
+	switch(signal){
+		//end turn
+		//this is for moving for now
+		case ui::UiSignal::kSigMove:
+			selected_unit->position.x = selected_hex2->x_position;
+			selected_unit->position.y = selected_hex2->y_position;
+			selected_unit->current_hex = selected_hex2;
+
+			this->selected_hex2->occupier_key = selected_hex->occupier_key;
+			this->selected_hex->occupier_key = std::nullopt;
+
+			this->state = MOVING;
+			break;
+		case ui::UiSignal::kSigFire:
+			assert("Number of atks Greater than 0" && this->selected_unit->atks_left > 0);
+			this->selected_unit->atks_left -= 1;
+
+			float dmg_taken = calcDamage();
+			this->selected_unit2->hp -= this->dmg_taken;
+
+			ui::CommandParams params;
+			params.text_content = TextFormat("-%.2f HP", dmg_taken);
+
+			this->ui_manager.createUiElem(wrld_point,ui::ElemTypes::kFiringText, params);
+			this->Fire();
+			break;
+		case UNIT1:{
+			//a task is being performed or is available we can do this with a scroll bar right now the only task is capture
+			this->selected_unit->task = CAPTURING;
+			std::optional<Building&> enemy_building = this->buildings[selected_hex->structure_key]; //URGENT check for nullopt
+
+			std::cout << "CAPTURING" << std::endl;
+			std::cout << this->ui_elements.size() << std::endl;
+			enemy_building->hp -= 40.0;
+
+			if(enemy_building->hp <= 0){
+				this->selected_unit->task = NONE;
+				this->transferBuilding(*this->selected_hex->structure_key, enemy_building->owner_index, this->selected_unit->owner_index);
+				enemy_building->hp = 100.0;
+				enemy_building->owner_index = this->player_index;
+			}
+			this->escape();
+			break;
+			   }	
+		case kBuildingOpt:{
+			//do linear search for mouse position within scroll menu
+			assert(this->scrl_menu != nullptr && "kBuildingOpt MENU REFERENCED BEFORE ALLOCATED");
+
+			float target = wrld_point.y - this->scrl_menu->dimensions.y + this->scrl_menu->y_pos;
+			int collision_index = 0;
+			const std::vector<Rectangle> &elements = this->scrl_menu->elements;
+			for(int i = 0; i < elements.size(); ++i){	
+				Rectangle collision_rect = elements[i];
+				if(target >= collision_rect.y and target <= collision_rect.y + collision_rect.height){
+					collision_index = i;
+					break;
+				}
+
+			}
+			std::cout << "COLLISION INDEX: " << collision_index << std::endl;
+			this->scrollCollision(collision_index, SCRLL_UNITS);
+			this->escape();
+			break;
+		    }
+		default:
+			//std::cerr << "UI element " << i << " Not Recognized" << std::endl;
+	}
+}
 
 //can't decide if this belongs in engine or unit
 float Game::calcDamage(){
@@ -661,30 +652,11 @@ void Game::Move(){
 }
 
 void Game::Fire(){
-	float y_dest = this->selected_unit2->position.y - grid::radius * 2.5;
-	Text *firing_text = &this->messages[dmg_txt_index];
-
-	if(firing_text->position.y == y_dest) {
-		messages.erase(messages.begin() + dmg_txt_index);
-		if(this->selected_unit2->hp < 0){
-			this->eraseUnit(*this->selected_hex2->occupier_key); //URGENT CHECK OPTIONAL: this should invalidate the key on hex 2 
-		};
-		this->escape();
-	}
-	
-	Color &fire_text = firing_text->text_color;
-
-	Vector2 destination = {
-		.x = firing_text->position.x,
-		.y = y_dest,
+	if(this->selected_unit2->hp < 0){
+		this->eraseUnit(*this->selected_hex2->occupier_key); //URGENT CHECK OPTIONAL: this should invalidate the key on hex 2 
 	};
-
+	this->escape();
 	//edit color according to closeness to the y destination
-
-	//NEEDS CHANGES
-	float max_dist = GetFrameTime() * 40;
-	Vector2 new_coords = Vector2MoveTowards(firing_text->position, destination, max_dist);
-	firing_text->position = new_coords;
 }
 
 void Game::versus(){

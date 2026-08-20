@@ -196,20 +196,19 @@ void UiManager::createUiElem(Vector2 position, ElemTypes type, CommandParams par
 			Rectangle desired_pos = text_pos;
 			desired_pos.y = desired_pos.y - grid::radius * 2.5;	
 
-			Slot transf_key = this->transformations.Insert(Transformation(desired_pos, this->info.render_rect));
-			transformations[transf_key]->self_key = transf_key;
-
 			Text firing_text = Text(params.text_content, RED, text_pos, 15);
-			firing_text.transformation = transf_key;
-
+			int text_ind = this->messages.size();
 			this->messages.push_back(firing_text);
+
+			Slot transf_key = this->transformations.Insert(Transformation(desired_pos, this->messages[text_ind].position));
+			this->messages[text_ind].transformation = transf_key;
+			transformations[transf_key]->self_key = transf_key;
 			break;
 	}
 }
 
 void UiManager::hideElements(){
 	this->scrl_menu->dimensions.x = 65535;
-
 
 	Rectangle desired_pos = this->info.render_rect;
 	desired_pos.x = (float)grid::ScreenWidth + 1.0;
