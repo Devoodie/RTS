@@ -63,7 +63,7 @@ class ScrollMenu {
 		virtual ~ScrollMenu();
 
 		virtual UiSignal HandleScrollCollision(int collision_index) = 0;
-		virtual std::vector<Texture2D> GetTextures(std::unordered_map<int, Texture2D> texture_map);
+		virtual std::vector<Texture2D> GetTextures(std::unordered_map<int, Texture2D> texture_map) = 0;
 };
 
 class UnitScrollMenu : public ScrollMenu {
@@ -115,13 +115,16 @@ struct CommandParams {
 };
 
 // what if i want to cancel mid-animation I need a reference for which element has a trans
+// Transformations Are 1-1.
+// When an element is deleted the correlating transformation needs to be deleted.
 class Transformation {
 	public:
 		Slot self_key;
-		const Rectangle target_pos;
-		Rectangle &position;
+		Rectangle target_pos;
+		Rectangle *position;
 
-		Transformation(Rectangle &current_pos, Rectangle desired_pos);
+		Transformation(Rectangle *current_pos, Rectangle desired_pos);
+		Transformation(const Transformation& copy) : self_key(copy.self_key), target_pos(copy.target_pos), position(copy.position){};
 };
 
 class UiManager {

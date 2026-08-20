@@ -307,10 +307,17 @@ void initAssets(std::unordered_map<int, Texture2D> &texture_map){
 	const Texture2D hex_grass = LoadTexture("../assets/Hex_Grass_Single.png");
 	const Texture2D grass_border = LoadTexture("../assets/Hex_Grass_Offset.png");
 	const Texture2D dark_solider = LoadTexture("../assets/Dark_Solider.png");
-	const Texture2D fire_button = LoadTexture("../assets/Fire1.png");
-	const Texture2D move_button = LoadTexture("../assets/Move1.png");
-	const Texture2D cap_button = LoadTexture("../assets/Cap.png");
-	const Texture2D end_button = LoadTexture("../assets/End.png");
+	
+	const Texture2D fire_button = LoadTexture("../assets/Fire_Usable.png");
+	const Texture2D fire_unusable = LoadTexture("../assets/Fire_Unusable.png");
+
+	const Texture2D move_button = LoadTexture("../assets/Move_Usable.png");
+	const Texture2D move_unusable = LoadTexture("../assets/Move_Unusable.png");
+
+	const Texture2D cap_button = LoadTexture("../assets/Capture_Usable.png");
+	const Texture2D cap_unusable = LoadTexture("../assets/Capture_Unusable.png");
+
+	const Texture2D end_button = LoadTexture("../assets/End_Clicked.png");
 	const Texture2D info_rectangle = LoadTexture("../assets/Info_Rectangle.png");
 	const Texture2D hq = LoadTexture("../assets/HQ.png");
 	const Texture2D warehouse = LoadTexture("../assets/Warehouse.png");
@@ -318,14 +325,19 @@ void initAssets(std::unordered_map<int, Texture2D> &texture_map){
 	texture_map[grid::kGrassHex] = hex_grass;
 	texture_map[grid::kGrassBorder] = grass_border;
 	texture_map[grid::kDarkSolider] = dark_solider;
+
 	texture_map[grid::kFireButton] = fire_button;
+	texture_map[grid::kFireButtonUnusable] = fire_unusable;
+
 	texture_map[grid::kMoveButton] = move_button;
+	texture_map[grid::kCaptureButtonUnusable] = move_unusable;
+
 	texture_map[grid::kCaptureButton] = cap_button;
+	texture_map[grid::kCaptureButtonUnusable] = cap_unusable;
+
 	texture_map[grid::kEndButton] = end_button;
 	texture_map[grid::kInfoRect] = info_rectangle;
 	texture_map[grid::kHQ] = hq;
 	texture_map[grid::kWarehouse] = warehouse;
-
-
 }
 }

@@ -1,5 +1,4 @@
 #include <engine/ui.hpp> 
-
 #include <raylib.h>
 #include <iostream>
 #include <engine/engine.hpp>
@@ -42,7 +41,7 @@ ScrollMenu::ScrollMenu(ScrollType menu_type, const Vector2 &mouse_position) : ty
 ScrollMenu::~ScrollMenu(){
 }
 
-UnitScrollMenu::UnitScrollMenu(const Vector2 &mouse_position): ScrollMenu(kScrollUnits, mouse_position){
+UnitScrollMenu::UnitScrollMenu(const Vector2 &mouse_position) : ScrollMenu(kScrollUnits, mouse_position){
 	for(int i = 0; i < 3; ++i){
 		this->elements.emplace_back((Rectangle){
 			.x = 0,
@@ -54,8 +53,7 @@ UnitScrollMenu::UnitScrollMenu(const Vector2 &mouse_position): ScrollMenu(kScrol
 	this->internal_height = elements[2].render_rect.y + elements[2].render_rect.height;
 } 
 
-UnitScrollMenu::~UnitScrollMenu(){
-}
+UnitScrollMenu::~UnitScrollMenu(){}
 
 //TODO >> Change this when we get assets
 std::vector<Texture2D> UnitScrollMenu::GetTextures(std::unordered_map<int, Texture2D> texture_map){
@@ -67,7 +65,7 @@ std::vector<Texture2D> UnitScrollMenu::GetTextures(std::unordered_map<int, Textu
 	return textures;
 }
 
-OptionScrollMenu::OptionScrollMenu(const Vector2 &mouse_position): ScrollMenu(kScrollOptions, mouse_position){
+OptionScrollMenu::OptionScrollMenu(const Vector2 &mouse_position): ScrollMenu(ui::ScrollType::kScrollOptions, mouse_position) {
 	for(int i = 0; i < 3; ++i){
 		this->elements.emplace_back((Rectangle){
 				.x = 0,
@@ -76,7 +74,9 @@ OptionScrollMenu::OptionScrollMenu(const Vector2 &mouse_position): ScrollMenu(kS
 				.height = grid::radius / 2
 				});
 	}
-};
+}
+
+OptionScrollMenu::~OptionScrollMenu(){}
 
 UiSignal OptionScrollMenu::HandleScrollCollision(int collision_index){
 	switch(collision_index){
@@ -131,9 +131,16 @@ void InfoPanel::renderElements(const engine::Game &engine_instance, std::unorder
 	DrawTexturePro(info_texture, texture_rect, this->render_rect, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
 }
 
-Transformation::Transformation(Rectangle &current_pos, Rectangle desired_pos) : target_pos(desired_pos), position(current_pos){};
+Transformation::Transformation(Rectangle *current_pos, Rectangle desired_pos) : position(current_pos), target_pos(desired_pos){};
 
-UiManager::UiManager(Camera2D &camera): camera(camera), scrl_menu(nullptr), transformations(10) {
+UiManager::UiManager(Camera2D &camera): camera(camera), scrl_menu(new OptionScrollMenu(Vector2{.x = 65535, .y = 65535})), transformations(10) {
+	//endturn button
+	this->ui_elements.push_back((Rectangle){
+		.x = (float)grid::ScreenWidth * 7 / 8,
+		.y = (float)grid::ScreenHeight / 5,
+		.width = (float)grid::inradius,
+		.height = grid::radius / 2
+	});
 }
 
 UiSignal UiManager::CollisionCheck(){
@@ -171,9 +178,13 @@ void UiManager::createUiElem(Vector2 position, ElemTypes type, CommandParams par
 	switch(type){
 		case ElemTypes::kOptionScroll:
 			{
-			if(typeid(this->scrl_menu) != typeid(std::unique<OptionScrollMenu>)){
+			if(typeid(*this->scrl_menu) != typeid(OptionScrollMenu)){
 				this->scrl_menu = std::make_unique<OptionScrollMenu>(position);
-			};
+			} else {
+				this->scrl_menu->dimensions.x = position.x;
+				this->scrl_menu->dimensions.y = position.y;
+			}
+			std::cout << "SCROLL POSITION: " << position.x << ", " << position.y << std::endl;
 
 			OptionScrollMenu &options = *static_cast<OptionScrollMenu*>(this->scrl_menu.get());
 
@@ -200,7 +211,7 @@ void UiManager::createUiElem(Vector2 position, ElemTypes type, CommandParams par
 			int text_ind = this->messages.size();
 			this->messages.push_back(firing_text);
 
-			Slot transf_key = this->transformations.Insert(Transformation(desired_pos, this->messages[text_ind].position));
+			Slot transf_key = this->transformations.Insert(Transformation(&this->messages[text_ind].position, desired_pos));
 			this->messages[text_ind].transformation = transf_key;
 			transformations[transf_key]->self_key = transf_key;
 			break;
@@ -212,7 +223,7 @@ void UiManager::hideElements(){
 
 	Rectangle desired_pos = this->info.render_rect;
 	desired_pos.x = (float)grid::ScreenWidth + 1.0;
-	Slot transf_key = this->transformations.Insert(Transformation(desired_pos, this->info.render_rect));
+	Slot transf_key = this->transformations.Insert(Transformation(&this->info.render_rect, desired_pos));
 	transformations[transf_key]->self_key = transf_key;
 };
 
@@ -224,14 +235,14 @@ void UiManager::animate(){
 void UiManager::transform(){
 	std::vector<Slot> del_list;
 	for(Transformation trans: this->transformations.values){
-		Vector2 target_pos = {.x = trans.position.x, .y = trans.position.y };
+		Vector2 target_pos = {.x = trans.position->x, .y = trans.position->y };
 		Vector2 new_pos = Vector2MoveTowards(
-				(Vector2){ .x = trans.position.x, .y = trans.position.y }, 
+				(Vector2){ .x = trans.position->x, .y = trans.position->y }, 
 				target_pos,
 				250.0 * GetFrameTime()
 				);
-		trans.position.x = new_pos.x;
-		trans.position.y = new_pos.y;
+		trans.position->x = new_pos.x;
+		trans.position->y = new_pos.y;
 
 		if(new_pos.x == target_pos.x and new_pos.y == target_pos.y){
 			del_list.push_back(trans.self_key);

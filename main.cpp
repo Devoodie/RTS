@@ -60,18 +60,6 @@ int main(void){
 	game.players[1].buildings.push_back(plyr2_warehouse);
 	game.grid_space[1][5].structure_key = plyr2_warehouse;
 
-
-	//endturn
-	//Should this be in the constructor?
-	Rectangle textRect = {
-		.x = screenWidth * 7 / 8,
-		.y = screenHeight / 5,
-		.width = screenHeight / 16,
-		.height = screenWidth / 10,
-	};
-
-	game.ui_elements.push_back(textRect);
-
 	SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
 
 	while (!WindowShouldClose())    // Detect window close button or ESC key
@@ -97,15 +85,13 @@ int main(void){
 		grid::renderGrid(texture_map, game.grid_space, false);
 		grid::renderBuildings(texture_map, game.buildings, true);
 		grid::renderUnits(texture_map, game.units, true );
-		//render options
-		ui::renderText(game.messages);
 
 		EndMode2D();
 
 		//mixture of 2D and Screenspace mode
-		ui::renderOptions(game, texture_map);
-		DrawText("END TURN", textRect.x, textRect.y, 15, RED);
-
+		game.ui_manager.renderUi(game, texture_map);
+		game.ui_manager.renderText();
+		game.ui_manager.animate();
 
 		EndDrawing();
 	}

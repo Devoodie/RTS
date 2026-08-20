@@ -410,7 +410,7 @@ void Game::transitionState(inputAlphabet input, void *selection){
 			unitInfoTransition(input, selection);
 			break;
 		case kBuildingOpt:
-			scrollTransition(input, selection);
+			//scrollTransition(input, selection);
 			break;
 		default:
 			std::cerr << "ERR STATE " << input << " NOT FOUND (transitionState)" << std::endl;
@@ -471,6 +471,7 @@ void Game::handleCollision(HexSpace *collided_hex, Vector2 mouse_point){
 // 			}
 // 	}
 // }
+//
 
 //aidan optimize search (I THINK BINARY SEARCH WILL SHINE HERE)
 bool Game::collisionCheck(){
@@ -497,6 +498,29 @@ bool Game::collisionCheck(){
 //TASK (capture)
 //ScrollCollision flag (SPAWN UNIT, RESEARCH UPRADE)
 
+void Game::spawnUnit(ui::UiSignal signal){
+	switch(signal){
+		case ui::UiSignal::kSigSpawnInfantry:{
+			std::cout << "PLAYER INDEX: " << this->player_index << std::endl;
+			Slot key = this->units.Insert(Unit(this->selected_hex,INFANTRY,this->player_index));
+
+			this->selected_hex->occupier_key = key;
+			this->players[player_index].units.push_back(key);
+			//WORKHERE SUBTRACT MONEY AFTER
+			break;
+		           }
+		default:{
+			std::cout << "PLAYER INDEX: " << this->player_index << std::endl;
+			Slot key = this->units.Insert(Unit(this->selected_hex,INFANTRY,this->player_index));
+
+			this->selected_hex->occupier_key = key;
+			this->players[player_index].units.push_back(key);
+			break;
+			//workhere
+			  }
+	}
+}
+
 void Game::handleSignal(ui::UiSignal signal){
 	Vector2 mouse_point = GetMousePosition();
 	Vector2 wrld_point = GetScreenToWorld2D(GetMousePosition(), this->camera);
@@ -515,7 +539,7 @@ void Game::handleSignal(ui::UiSignal signal){
 
 			this->state = MOVING;
 			break;
-		case ui::UiSignal::kSigFire:
+		case ui::UiSignal::kSigFire:{
 			assert("Number of atks Greater than 0" && this->selected_unit->atks_left > 0);
 			this->selected_unit->atks_left -= 1;
 
@@ -528,13 +552,13 @@ void Game::handleSignal(ui::UiSignal signal){
 			this->ui_manager.createUiElem(wrld_point,ui::ElemTypes::kFiringText, params);
 			this->Fire();
 			break;
-		case UNIT1:{
+		    	    }
+		case ui::UiSignal::kSigCapture :{
 			//a task is being performed or is available we can do this with a scroll bar right now the only task is capture
 			this->selected_unit->task = CAPTURING;
 			std::optional<Building&> enemy_building = this->buildings[selected_hex->structure_key]; //URGENT check for nullopt
 
 			std::cout << "CAPTURING" << std::endl;
-			std::cout << this->ui_elements.size() << std::endl;
 			enemy_building->hp -= 40.0;
 
 			if(enemy_building->hp <= 0){
@@ -546,27 +570,14 @@ void Game::handleSignal(ui::UiSignal signal){
 			this->escape();
 			break;
 			   }	
-		case kBuildingOpt:{
-			//do linear search for mouse position within scroll menu
-			assert(this->scrl_menu != nullptr && "kBuildingOpt MENU REFERENCED BEFORE ALLOCATED");
-
-			float target = wrld_point.y - this->scrl_menu->dimensions.y + this->scrl_menu->y_pos;
-			int collision_index = 0;
-			const std::vector<Rectangle> &elements = this->scrl_menu->elements;
-			for(int i = 0; i < elements.size(); ++i){	
-				Rectangle collision_rect = elements[i];
-				if(target >= collision_rect.y and target <= collision_rect.y + collision_rect.height){
-					collision_index = i;
-					break;
-				}
-
-			}
-			std::cout << "COLLISION INDEX: " << collision_index << std::endl;
-			this->scrollCollision(collision_index, SCRLL_UNITS);
+		case ui::UiSignal::kSigSpawnInfantry :{
+		        //spawn unit
+			this->spawnUnit(signal);
 			this->escape();
 			break;
 		    }
 		default:
+			break;
 			//std::cerr << "UI element " << i << " Not Recognized" << std::endl;
 	}
 }
@@ -684,12 +695,13 @@ void Game::versus(){
 			break;
 	}
 
-	bool ui_collision = this->uiCollisionCheck();
+	ui::UiSignal ui_signal = this->ui_manager.CollisionCheck();
 	
-	if(!ui_collision) {
+	if(ui_signal == ui::UiSignal::kSigNone) {
 		bool chng_state = this->collisionCheck();
+	} else {
+		this->handleSignal(ui_signal);
 	}
-
 	//check_hexagon
 }
 

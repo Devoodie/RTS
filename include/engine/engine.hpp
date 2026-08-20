@@ -87,7 +87,7 @@ class Game{
 
 		void unitInfoTransition(inputAlphabet input, void *selection);
 
-		void scrollTransition(inputAlphabet input, void *selection);
+		// void scrollTransition(inputAlphabet input, void *selection);
 
 		//handles state transition calls 
 		void transitionState(inputAlphabet input, void *selection);
@@ -101,7 +101,10 @@ class Game{
 		//checks for collisions with hexagons then calls handle collision
 		bool collisionCheck();
 
-		void handleSignal();
+		//spawn unit depending on signal
+		void spawnUnit(ui::UiSignal signal);
+
+		void handleSignal(ui::UiSignal signal);
 
 		float calcDamage();
 
