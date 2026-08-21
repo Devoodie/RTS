@@ -5,6 +5,7 @@
 #include <vector>
 #include <cstdint>
 #include <utils/slotmap.hpp>
+#include <cmath>
 
 extern "C" {
 #include"raylib.h"
@@ -46,10 +47,11 @@ enum cardinals {
 	NORTH_WEST = 5,
 };
 
-extern int ScreenWidth;
-extern int ScreenHeight;
-extern float radius;
-extern float inradius;
+constexpr int ScreenWidth = 1920;  
+constexpr int ScreenHeight = 1080;
+
+static float radius = ScreenWidth / 24.0;
+static float inradius = (radius * std::sqrtf(3.0) / 2.0);
 
 enum textures {
 	kGrassHex = 0,

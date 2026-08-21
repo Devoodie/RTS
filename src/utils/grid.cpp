@@ -15,21 +15,13 @@ HexSpace::HexSpace (){
 
 namespace grid {
 
-int ScreenWidth = 1920;  
-int ScreenHeight = 1080;
-
-
-float radius = 0;
-float inradius = 0;
-
-
 void initGrid(const int row, const int col, std::vector<std::vector<HexSpace>> &grid_space){
 	// i is our row (y) index
 	// j is our column (x) index
 	
 	//hexagon math
-	radius = ScreenWidth / 24.0;
-	inradius = (radius * std::sqrtf(3.0)) / 2.0;
+	// radius = ScreenWidth / 24.0;
+	// inradius = (radius * std::sqrtf(3.0)) / 2.0;
 
 	// decide whether positional values should be normalized or not
 	float x = inradius;

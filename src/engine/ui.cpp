@@ -267,13 +267,13 @@ void UiManager::renderUi(const engine::Game &engine_instance, std::unordered_map
 	};
 
 	//render static elements
-	for(int i = 0; Element elem : this->ui_elements){
+	for(int i = 0; const Element &elem : this->ui_elements){
 		switch(i){
 			case 0: 
 				selected_texture = texture_map[grid::kEndButton];
 				texture_rect.width = selected_texture.width;
 				texture_rect.height = selected_texture.height;
-				std::cout << "Texture Width: " << elem.render_rect.width << ", Texture Height: " << elem.render_rect.height << std::endl;
+				// std::cout << "Texture Width: " << elem.render_rect.width << ", Texture Height: " << elem.render_rect.height << std::endl;
 				DrawTexturePro(selected_texture, texture_rect, elem.render_rect, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
 				break;
 			default:
@@ -288,7 +288,7 @@ void UiManager::renderUi(const engine::Game &engine_instance, std::unordered_map
 	assert(scrll_textures.size() == this->scrl_menu->elements.size() && "Invalid Texture amount to Elements (Scroll Menu)");
 
 	BeginMode2D(camera);
-	Texture2D elem_texture;
+	Texture2D elem_texture = scrll_textures[0];
 	//how the fuck does cpp do this shit  without auto? (need verbosity)
 	const auto &scrl_menu = this->scrl_menu.get();
 
