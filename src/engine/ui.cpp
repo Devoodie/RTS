@@ -140,7 +140,7 @@ UiManager::UiManager(Camera2D &camera): camera(camera), scrl_menu(new OptionScro
 		.x = (float)grid::ScreenWidth * 7 / 8,
 		.y = (float)grid::ScreenHeight / 5,
 		.width = (float)grid::inradius,
-		.height = grid::radius / 2
+		.height = (float)grid::radius / 2
 	});
 }
 
@@ -273,7 +273,7 @@ void UiManager::renderUi(const engine::Game &engine_instance, std::unordered_map
 				selected_texture = texture_map[grid::kEndButton];
 				texture_rect.width = selected_texture.width;
 				texture_rect.height = selected_texture.height;
-				// std::cout << "End Turn Location: X: " << elem.render_rect.x << ", Y: " << elem.render_rect.y << std::endl;
+				std::cout << "Texture Width: " << elem.render_rect.width << ", Texture Height: " << elem.render_rect.height << std::endl;
 				DrawTexturePro(selected_texture, texture_rect, elem.render_rect, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
 				break;
 			default:
