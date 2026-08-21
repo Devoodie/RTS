@@ -111,7 +111,8 @@ UiSignal UnitScrollMenu::HandleScrollCollision(int collision_index){
 
 InfoPanel::InfoPanel(){
 	this->render_rect = (Rectangle){
-		.x = float((grid::ScreenWidth * 3) / 4.0 ),
+//		.x = float((grid::ScreenWidth * 3) / 4.0 ),
+		.x = float(grid::ScreenWidth + 1),
 		.y = 0,
 		.width = float(grid::ScreenWidth / 4.0),
 		.height = float(grid::ScreenHeight),
@@ -270,6 +271,9 @@ void UiManager::renderUi(const engine::Game &engine_instance, std::unordered_map
 		switch(i){
 			case 0: 
 				selected_texture = texture_map[grid::kEndButton];
+				texture_rect.width = selected_texture.width;
+				texture_rect.height = selected_texture.height;
+				// std::cout << "End Turn Location: X: " << elem.render_rect.x << ", Y: " << elem.render_rect.y << std::endl;
 				DrawTexturePro(selected_texture, texture_rect, elem.render_rect, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
 				break;
 			default:
@@ -278,7 +282,6 @@ void UiManager::renderUi(const engine::Game &engine_instance, std::unordered_map
 		++i;
 	} 
 
-	if(this->scrl_menu == nullptr) return;
 	//render scroll menu 
 	std::vector<Texture2D> scrll_textures = this->scrl_menu->GetTextures(texture_map);
 
