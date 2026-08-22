@@ -537,6 +537,7 @@ void Game::handleSignal(ui::UiSignal signal){
 			this->selected_hex2->occupier_key = selected_hex->occupier_key;
 			this->selected_hex->occupier_key = std::nullopt;
 
+			this->ui_manager.hideElements();
 			this->state = MOVING;
 			break;
 		case ui::UiSignal::kSigFire:{

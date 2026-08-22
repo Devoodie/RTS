@@ -10,38 +10,22 @@ Element::Element(Rectangle rect) : render_rect(rect){
 
 ScrollMenu::ScrollMenu(ScrollType menu_type, const Vector2 &mouse_position) : type(menu_type) {	
 	this->y_pos = 0;
-	float width = 0.0;
 	switch(menu_type){
 		case ui::kScrollUnits:
-			width = grid::inradius * 4.0;
 			break;
 		case ScrollType::kScrollUpgrades:
 			break;
 		case ScrollType::kScrollOptions:
-			width = grid::inradius;
 			break;
 	}
 
-	//max height is 8 elements
-	float height = 0.0;
-	if(elements.size() > 8){
-		height = grid::radius / 2 * 8;
-	} else {
-		height = grid::radius / 2 * elements.size();
-	}
-
-	this->dimensions = {
-		.x = mouse_position.x + grid::inradius / 4,
-		.y = mouse_position.y,
-		.width = width,
-		.height = height,
-	};
 };
 
 ScrollMenu::~ScrollMenu(){
 }
 
 UnitScrollMenu::UnitScrollMenu(const Vector2 &mouse_position) : ScrollMenu(kScrollUnits, mouse_position){
+	float width = grid::inradius * 4.0;
 	for(int i = 0; i < 3; ++i){
 		this->elements.emplace_back((Rectangle){
 			.x = 0,
@@ -50,6 +34,22 @@ UnitScrollMenu::UnitScrollMenu(const Vector2 &mouse_position) : ScrollMenu(kScro
 			.height = grid::radius / 2,
 		});
 	}
+
+	float height = 0.0;
+	if(elements.size() > 8){
+		height = grid::radius / 2 * 8;
+	} else {
+		height = grid::radius / 2 * elements.size();
+	}
+
+	std::cout << "Height: " << height << std::endl;
+	this->dimensions = {
+		.x = mouse_position.x + grid::inradius / 4,
+		.y = mouse_position.y,
+		.width = width,
+		.height = height,
+	};
+
 	this->internal_height = elements[2].render_rect.y + elements[2].render_rect.height;
 } 
 
@@ -66,6 +66,7 @@ std::vector<Texture2D> UnitScrollMenu::GetTextures(std::unordered_map<int, Textu
 }
 
 OptionScrollMenu::OptionScrollMenu(const Vector2 &mouse_position): ScrollMenu(ui::ScrollType::kScrollOptions, mouse_position) {
+	float width = grid::inradius;
 	for(int i = 0; i < 3; ++i){
 		this->elements.emplace_back((Rectangle){
 				.x = 0,
@@ -74,6 +75,23 @@ OptionScrollMenu::OptionScrollMenu(const Vector2 &mouse_position): ScrollMenu(ui
 				.height = grid::radius / 2
 				});
 	}
+
+	float height = 0.0;
+	if(elements.size() > 8){
+		height = grid::radius / 2 * 8;
+	} else {
+		height = grid::radius / 2 * elements.size();
+	}
+
+	std::cout << "Height: " << height << std::endl;
+	this->dimensions = {
+		.x = mouse_position.x + grid::inradius / 4,
+		.y = mouse_position.y,
+		.width = width,
+		.height = height,
+	};
+
+	this->internal_height = elements[2].render_rect.y + elements[2].render_rect.height;
 }
 
 OptionScrollMenu::~OptionScrollMenu(){}
@@ -156,7 +174,7 @@ UiSignal UiManager::CollisionCheck(){
 //	assert(this->scrl_menu != nullptr && "SCROLL MENU REFERENCED BEFORE ALLOCATED");
 	if(this->scrl_menu == nullptr) return kSigNone;
 
-	if(CheckCollisionPointRec(mouse_point, scrl_menu->dimensions)){
+	if(CheckCollisionPointRec(mouse_point, scrl_menu->dimensions) and IsMouseButtonReleased(0)){
 		float target = wrld_point.y - this->scrl_menu->dimensions.y + this->scrl_menu->y_pos;
 		int collision_index = 0;
 		const std::vector<Element> &elements = this->scrl_menu->elements;
@@ -179,12 +197,13 @@ void UiManager::createUiElem(Vector2 position, ElemTypes type, CommandParams par
 	switch(type){
 		case ElemTypes::kOptionScroll:
 			{
-			if(typeid(*this->scrl_menu) != typeid(OptionScrollMenu)){
-				this->scrl_menu = std::make_unique<OptionScrollMenu>(position);
-			} else {
-				this->scrl_menu->dimensions.x = position.x;
-				this->scrl_menu->dimensions.y = position.y;
-			}
+			// if(typeid(*this->scrl_menu) != typeid(OptionScrollMenu)){
+			// 	this->scrl_menu = std::make_unique<OptionScrollMenu>(position);
+			// } else {
+			// 	this->scrl_menu->dimensions.x = position.x;
+			// 	this->scrl_menu->dimensions.y = position.y;
+			// }
+			this->scrl_menu = std::make_unique<OptionScrollMenu>(position);
 			std::cout << "SCROLL POSITION: " << position.x << ", " << position.y << std::endl;
 
 			OptionScrollMenu &options = *static_cast<OptionScrollMenu*>(this->scrl_menu.get());
@@ -287,17 +306,12 @@ void UiManager::renderUi(const engine::Game &engine_instance, std::unordered_map
 
 	assert(scrll_textures.size() == this->scrl_menu->elements.size() && "Invalid Texture amount to Elements (Scroll Menu)");
 
-	BeginMode2D(camera);
 	Texture2D elem_texture = scrll_textures[0];
 	//how the fuck does cpp do this shit  without auto? (need verbosity)
 	const auto &scrl_menu = this->scrl_menu.get();
 
-	Rectangle dest_rect = {
-	     .x = scrl_menu->dimensions.x,
-	     .y = scrl_menu->dimensions.y,
-	     .width = (float)elem_texture.width,
-	     .height = (float)elem_texture.height,
-	};
+	Rectangle dest_rect = this->scrl_menu->dimensions;
+	dest_rect.height = grid::radius / 2;
 
 	Rectangle source_rect = {
 		.x = 0,
@@ -307,13 +321,15 @@ void UiManager::renderUi(const engine::Game &engine_instance, std::unordered_map
 	};
 
 	float target_y = scrl_menu->y_pos + scrl_menu->dimensions.height;
-	if(target_y > scrl_menu->internal_height) target_y = scrl_menu->internal_height;
+	if(target_y >= scrl_menu->internal_height) target_y = scrl_menu->internal_height;
 
 	float current_y = scrl_menu->y_pos;
 	int elem_index = 0;
 
 	const std::vector<Element> &elements = scrl_menu->elements;
 
+	BeginMode2D(camera);
+	// std::cout << "Current Y: " << current_y << ", " <<  "Target Y: " << target_y << std::endl;
 	while(current_y < target_y){
 		const Rectangle &element = elements[elem_index].render_rect;
 
@@ -336,6 +352,7 @@ void UiManager::renderUi(const engine::Game &engine_instance, std::unordered_map
 		source_rect.y = elem_texture.height = draw_amount;
 		source_rect.height = draw_amount;
 
+		//std::cout << "DRAWING SCROLL ELEMENT:\n  " << "X: " << dest_rect.x << "\nY: " << dest_rect.y << "\nWIDTH: " << dest_rect.width << "\nHEIGHT: " << dest_rect.height << std::endl;
 		DrawTexturePro(
 				elem_texture,
 				source_rect, 
