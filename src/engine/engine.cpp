@@ -323,8 +323,11 @@ void Game::unitTransition(inputAlphabet input, void *selection){
 				this->selected_unit2 = unit_ptr;
 				this->selected_hex2 = hex_ptr;
 
-				Vector2 button_position = unit_ptr->position;
-				this->MousePosition = GetScreenToWorld2D(GetMousePosition(), this->camera);
+				Vector2 text_position = {
+					.x = this->selected_unit2->position.x - grid::inradius / 2,
+					.y = this->selected_unit2->position.y -	grid::radius
+				};
+				this->MousePosition = GetScreenToWorld2D(text_position, this->camera); //INCORRECT!
 
 				ui::CommandParams params;
 				params.fireable = true;
