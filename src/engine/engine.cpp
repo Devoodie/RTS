@@ -79,6 +79,7 @@ engine::states Game::SelectBuilding(Building *building_ptr){
 		return HEX_INFO;
 
 	} else {
+		this->ui_manager.createUiElem(this->MousePosition, ui::ElemTypes::kUnitScroll, ui::CommandParams());
 		return kBuildingOpt;
 	}
 }
