@@ -323,11 +323,11 @@ void Game::unitTransition(inputAlphabet input, void *selection){
 				this->selected_unit2 = unit_ptr;
 				this->selected_hex2 = hex_ptr;
 
-				Vector2 text_position = {
-					.x = this->selected_unit2->position.x - grid::inradius / 2,
-					.y = this->selected_unit2->position.y -	grid::radius
-				};
-				this->MousePosition = GetScreenToWorld2D(text_position, this->camera); //INCORRECT!
+				//WORKHRE
+				this->MousePosition = {
+					.x = selected_unit2->position.x + grid::inradius * 3 / 4,
+					.y = selected_unit2->position.y,
+				}; //unit position is already world 
 
 				ui::CommandParams params;
 				params.fireable = true;
@@ -554,7 +554,12 @@ void Game::handleSignal(ui::UiSignal signal){
 			ui::CommandParams params;
 			params.text_content = TextFormat("-%.2f HP", dmg_taken);
 
-			this->ui_manager.createUiElem(wrld_point,ui::ElemTypes::kFiringText, params);
+			Vector2 text_position = {
+				.x = this->selected_unit2->position.x - grid::inradius / 2,
+				.y = this->selected_unit2->position.y -	grid::radius
+			};
+
+			this->ui_manager.createUiElem(text_position,ui::ElemTypes::kFiringText, params);
 			this->Fire();
 			break;
 		    	    }

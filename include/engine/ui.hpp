@@ -34,9 +34,12 @@ enum UiSignal{
 class Element {
 	public:
 		Rectangle render_rect;
+		Texture2D texture;
+		Color color;
 		std::optional<Slot> transformation = std::nullopt;
 
 		Element(Rectangle rect);
+
 };
 
 struct Text {
