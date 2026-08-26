@@ -1,3 +1,4 @@
+#include "utils/grid.hpp"
 #include <engine/ui.hpp> 
 #include <raylib.h>
 #include <iostream>
@@ -5,7 +6,7 @@
 #include <raymath.h>
 
 namespace ui{
-Element::Element(Rectangle rect) : render_rect(rect){
+Element::Element(Rectangle rect, Texture2D &text, Color elem_color) : render_rect(rect), texture(text), color(elem_color){
 }
 
 ScrollMenu::ScrollMenu(ScrollType menu_type, const Vector2 &mouse_position) : type(menu_type) {	
@@ -32,7 +33,10 @@ UnitScrollMenu::UnitScrollMenu(const Vector2 &mouse_position) : ScrollMenu(kScro
 			.y = i * grid::radius / 2,
 			.width  = (float)grid::inradius * 4,
 			.height = grid::radius / 2,
-		});
+			},
+			grid::texture_map[grid::kMoveButton],
+			RAYWHITE
+			);
 	}
 
 	float height = 0.0;
@@ -65,15 +69,68 @@ std::vector<Texture2D> UnitScrollMenu::GetTextures(std::unordered_map<int, Textu
 	return textures;
 }
 
-OptionScrollMenu::OptionScrollMenu(const Vector2 &mouse_position): ScrollMenu(ui::ScrollType::kScrollOptions, mouse_position) {
+OptionScrollMenu::OptionScrollMenu(const Vector2 &mouse_position, CommandParams params): ScrollMenu(ui::ScrollType::kScrollOptions, mouse_position) {
 	float width = grid::inradius;
+	Texture2D selected_texture;
+	Color selected_color;
 	for(int i = 0; i < 3; ++i){
-		this->elements.emplace_back((Rectangle){
-				.x = 0,
-				.y = i * grid::radius / 2,
-				.width = (float)grid::inradius,
-				.height = grid::radius / 2
-				});
+		switch(i){
+			case 0:
+				if(params.movable){
+					selected_texture = grid::texture_map[grid::kMoveButton];
+					selected_color = RAYWHITE;
+				} else {
+					selected_texture = grid::texture_map[grid::kMoveButtonUnusable];
+					selected_color = GRAY;
+				}
+				this->elements.emplace_back((Rectangle){
+					.x = 0,
+					.y = i * grid::radius / 2,
+					.width = (float)grid::inradius,
+					.height = grid::radius / 2
+					},
+					selected_texture,
+					selected_color
+					);
+				break;
+			case 1:
+				if(params.fireable) {
+					selected_texture = grid::texture_map[grid::kFireButton];
+					selected_color = RAYWHITE;
+				
+				} else {
+					selected_texture = grid::texture_map[grid::kFireButtonUnusable];
+					selected_color = GRAY;
+				 }
+				this->elements.emplace_back((Rectangle){
+					.x = 0,
+					.y = i * grid::radius / 2,
+					.width = (float)grid::inradius,
+					.height = grid::radius / 2
+					},
+					selected_texture,
+					selected_color
+					);
+				break;
+			case 2:
+				if(params.capturable){
+					selected_texture = grid::texture_map[grid::kCaptureButton];
+					selected_color = RAYWHITE;
+				} else {
+					selected_texture = grid::texture_map[grid::kCaptureButtonUnusable];
+					selected_color = GRAY;
+				}
+				this->elements.emplace_back((Rectangle){
+					.x = 0,
+					.y = i * grid::radius / 2,
+					.width = (float)grid::inradius,
+					.height = grid::radius / 2
+					},
+					selected_texture,
+					selected_color
+					);
+				break;
+		}
 	}
 
 	float height = 0.0;
@@ -137,9 +194,9 @@ InfoPanel::InfoPanel(){
 	};
 }
 
-void InfoPanel::renderElements(const engine::Game &engine_instance, std::unordered_map<int, Texture2D> texture_map){
+void InfoPanel::renderElements(const engine::Game &engine_instance){
 	//prob switch on info panel information
-	Texture2D &info_texture = texture_map[grid::kInfoRect];
+	Texture2D &info_texture = grid::texture_map[grid::kInfoRect];
 
 	Rectangle texture_rect = {
 	     .x = 0,
@@ -152,14 +209,18 @@ void InfoPanel::renderElements(const engine::Game &engine_instance, std::unorder
 
 Transformation::Transformation(Rectangle *current_pos, Rectangle desired_pos) : position(current_pos), target_pos(desired_pos){};
 
-UiManager::UiManager(Camera2D &camera): camera(camera), scrl_menu(new OptionScrollMenu(Vector2{.x = 65535, .y = 65535})), transformations(10) {
+UiManager::UiManager(Camera2D &camera): camera(camera), scrl_menu(new OptionScrollMenu(Vector2{.x = 65535, .y = 65535}, CommandParams())), transformations(10) {
 	//endturn button
-	this->ui_elements.push_back((Rectangle){
+	this->ui_elements.emplace_back(
+		(Rectangle){
 		.x = (float)grid::ScreenWidth * 7 / 8,
 		.y = (float)grid::ScreenHeight / 5,
 		.width = (float)grid::inradius,
 		.height = (float)grid::radius / 2
-	});
+		},
+		grid::texture_map[grid::kEndButton], 
+		RAYWHITE
+		);
 }
 
 UiSignal UiManager::CollisionCheck(){
@@ -203,7 +264,7 @@ void UiManager::createUiElem(Vector2 position, ElemTypes type, CommandParams par
 			// 	this->scrl_menu->dimensions.x = position.x;
 			// 	this->scrl_menu->dimensions.y = position.y;
 			// }
-			this->scrl_menu = std::make_unique<OptionScrollMenu>(position);
+			this->scrl_menu = std::make_unique<OptionScrollMenu>(position, params);
 			std::cout << "SCROLL POSITION: " << position.x << ", " << position.y << std::endl;
 
 			OptionScrollMenu &options = *static_cast<OptionScrollMenu*>(this->scrl_menu.get());
@@ -254,7 +315,7 @@ void UiManager::animate(){
 
 void UiManager::transform(){
 	std::vector<Slot> del_list;
-	for(Transformation trans: this->transformations.values){
+	for(Transformation &trans: this->transformations.values){
 		Vector2 target_pos = {.x = trans.position->x, .y = trans.position->y };
 		Vector2 new_pos = Vector2MoveTowards(
 				(Vector2){ .x = trans.position->x, .y = trans.position->y }, 
@@ -275,7 +336,7 @@ void UiManager::transform(){
 }
 
 //MAKE THIS RENDER EVERYTHING
-void UiManager::renderUi(const engine::Game &engine_instance, std::unordered_map<int, Texture2D> texture_map){
+void UiManager::renderUi(const engine::Game &engine_instance){
 	Texture2D selected_texture;
 
 	Rectangle texture_rect = {
@@ -289,7 +350,7 @@ void UiManager::renderUi(const engine::Game &engine_instance, std::unordered_map
 	for(int i = 0; const Element &elem : this->ui_elements){
 		switch(i){
 			case 0: 
-				selected_texture = texture_map[grid::kEndButton];
+				selected_texture = grid::texture_map[grid::kEndButton];
 				texture_rect.width = selected_texture.width;
 				texture_rect.height = selected_texture.height;
 				// std::cout << "Texture Width: " << elem.render_rect.width << ", Texture Height: " << elem.render_rect.height << std::endl;
@@ -302,11 +363,10 @@ void UiManager::renderUi(const engine::Game &engine_instance, std::unordered_map
 	} 
 
 	//render scroll menu 
-	std::vector<Texture2D> scrll_textures = this->scrl_menu->GetTextures(texture_map);
 
-	assert(scrll_textures.size() == this->scrl_menu->elements.size() && "Invalid Texture amount to Elements (Scroll Menu)");
+//	assert(scrll_textures.size() == this->scrl_menu->elements.size() && "Invalid Texture amount to Elements (Scroll Menu)");
 
-	Texture2D elem_texture = scrll_textures[0];
+	Texture2D elem_texture = this->scrl_menu->elements[0].texture;
 	//how the fuck does cpp do this shit  without auto? (need verbosity)
 	const auto &scrl_menu = this->scrl_menu.get();
 
@@ -331,30 +391,31 @@ void UiManager::renderUi(const engine::Game &engine_instance, std::unordered_map
 	BeginMode2D(camera);
 	// std::cout << "Current Y: " << current_y << ", " <<  "Target Y: " << target_y << std::endl;
 	while(current_y < target_y){
-		const Rectangle &element = elements[elem_index].render_rect;
+		const Element &element = elements[elem_index];
+		const Rectangle &elem_rec = element.render_rect;
 
-		if(current_y > element.y + element.height){
+		if(current_y > elem_rec.y + elem_rec.height){
 			elem_index += 1;
 			continue;
 		}
-		elem_texture = scrll_textures[elem_index];
 
 		//ratio of how much texture to draw according to how much of the rectangle is showing
-		float draw_amount = (element.y + element.height) - current_y;
+		float draw_amount = (elem_rec.y + elem_rec.height) - current_y;
 
 		if(current_y + draw_amount > target_y){
+			std::cout << "TRUE" << std::endl;
 			draw_amount = target_y - current_y;
 		}
 
 		dest_rect.y = current_y + scrl_menu->dimensions.y;
 		dest_rect.height = draw_amount;
 
-		source_rect.y = elem_texture.height = draw_amount;
+		source_rect.y = elem_texture.height - draw_amount;
 		source_rect.height = draw_amount;
 
-		//std::cout << "DRAWING SCROLL ELEMENT:\n  " << "X: " << dest_rect.x << "\nY: " << dest_rect.y << "\nWIDTH: " << dest_rect.width << "\nHEIGHT: " << dest_rect.height << std::endl;
+		// std::cout << "DRAWING SOURCE RECT:\n  " << "X: " << source_rect.x << "\nY: " << source_rect.y << "\nWIDTH: " << source_rect.width << "\nHEIGHT: " << source_rect.height << std::endl;
 		DrawTexturePro(
-				elem_texture,
+				element.texture,
 				source_rect, 
 				dest_rect, 
 				(Vector2){.x = 0, .y = 0}, 
@@ -367,7 +428,7 @@ void UiManager::renderUi(const engine::Game &engine_instance, std::unordered_map
 	}
 	EndMode2D();
 
-	this->info.renderElements(engine_instance, texture_map);
+	this->info.renderElements(engine_instance);
 }
 
 void UiManager::renderText(){

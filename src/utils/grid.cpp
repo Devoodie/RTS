@@ -15,6 +15,8 @@ HexSpace::HexSpace (){
 
 namespace grid {
 
+std::unordered_map<int, Texture2D> texture_map = std::unordered_map<int, Texture2D>();
+
 void initGrid(const int row, const int col, std::vector<std::vector<HexSpace>> &grid_space){
 	// i is our row (y) index
 	// j is our column (x) index
@@ -107,7 +109,7 @@ void initGrid(const int row, const int col, std::vector<std::vector<HexSpace>> &
 }
 
 //iterate over building values in slotmap
-void renderBuildings(std::unordered_map<int, Texture2D> texture_map, const SlotMap<Building> &buildings, const bool debug){
+void renderBuildings(const SlotMap<Building> &buildings, const bool debug){
 	const float draw_width = inradius;
 	const float draw_height = radius;
 
@@ -160,7 +162,7 @@ void renderBuildings(std::unordered_map<int, Texture2D> texture_map, const SlotM
 
 //add visibility rules
 //iterator over unit values in slotmap
-void renderUnits(std::unordered_map<int, Texture2D> texture_map, const SlotMap<Unit> &units, bool debug){
+void renderUnits(const SlotMap<Unit> &units, bool debug){
 	const float draw_width = inradius * 2;
 	const float draw_height = radius * 2;
 
@@ -212,7 +214,6 @@ void renderUnits(std::unordered_map<int, Texture2D> texture_map, const SlotMap<U
 };
 
 void renderGrid(
-		std::unordered_map<int, Texture2D> texture_map, 
 		std::vector<std::vector<HexSpace>> grid_space, 
 		const bool debug
 		){
@@ -294,7 +295,7 @@ void renderGrid(
 	}
 }
 
-void initAssets(std::unordered_map<int, Texture2D> &texture_map){
+void initAssets(){
 
 	const Texture2D hex_grass = LoadTexture("../assets/Hex_Grass_Single.png");
 	const Texture2D grass_border = LoadTexture("../assets/Hex_Grass_Offset.png");

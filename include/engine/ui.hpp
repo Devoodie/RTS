@@ -34,11 +34,11 @@ enum UiSignal{
 class Element {
 	public:
 		Rectangle render_rect;
-		Texture2D texture;
+		Texture2D &texture;
 		Color color;
 		std::optional<Slot> transformation = std::nullopt;
 
-		Element(Rectangle rect);
+		Element(Rectangle rect, Texture2D& text, Color elem_color);
 
 };
 
@@ -78,13 +78,21 @@ class UnitScrollMenu : public ScrollMenu {
 		std::vector<Texture2D> GetTextures(std::unordered_map<int, Texture2D> texture_map) override;
 };
 
+struct CommandParams {
+	bool fireable = false;
+	bool movable = false;
+	bool capturable = false;
+
+	std::string text_content;
+};
+
 class OptionScrollMenu: public ScrollMenu {
 	public: 
 		bool fireable;
 		bool moveable;
 		bool captureable;
 
-		OptionScrollMenu(const Vector2 &mouse_position);
+		OptionScrollMenu(const Vector2 &mouse_position, CommandParams params);
 		~OptionScrollMenu();
 
 		UiSignal HandleScrollCollision(int collision_index) override;
@@ -98,7 +106,7 @@ class InfoPanel {
 		std::optional<Slot> transformation = std::nullopt;
 
 		InfoPanel();
-		void renderElements(const engine::Game &engine_instance, std::unordered_map<int, Texture2D> texture_map);
+		void renderElements(const engine::Game &engine_instance);
 };
 
 enum class ElemTypes {
@@ -109,13 +117,6 @@ enum class ElemTypes {
 	// kInfo,
 };
 
-struct CommandParams {
-	bool fireable = false;
-	bool movable = false;
-	bool capturable = false;
-
-	std::string text_content;
-};
 
 // what if i want to cancel mid-animation I need a reference for which element has a trans
 // Transformations Are 1-1.
@@ -150,7 +151,7 @@ class UiManager {
 		void animate();
 		void transform();
 		//renders options menu
-		void renderUi(const engine::Game &engine_instance, std::unordered_map<int, Texture2D> texture_map);
+		void renderUi(const engine::Game &engine_instance);
 		void renderText();
 };
 }

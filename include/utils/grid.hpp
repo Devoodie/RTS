@@ -52,6 +52,7 @@ constexpr int ScreenHeight = 1080;
 
 static float radius = ScreenWidth / 24.0;
 static float inradius = (radius * std::sqrtf(3.0) / 2.0);
+extern std::unordered_map<int, Texture2D> texture_map;
 
 enum textures {
 	kGrassHex = 0,
@@ -71,13 +72,13 @@ enum textures {
 
 void initGrid(const int row, const int col, std::vector<std::vector<HexSpace>> &grid);
 
-void renderBuildings(std::unordered_map<int, Texture2D> texture_map, const SlotMap<Building> &buildings, const bool debug);
+void renderBuildings(const SlotMap<Building> &buildings, const bool debug);
 
-void renderUnits(std::unordered_map<int, Texture2D> texture_map, const SlotMap<Unit> &units, const bool debug);
+void renderUnits(const SlotMap<Unit> &units, const bool debug);
 
-void renderGrid(std::unordered_map<int, Texture2D> textures, std::vector<std::vector<HexSpace>> grid, const bool debug);
+void renderGrid(std::vector<std::vector<HexSpace>> grid, const bool debug);
 
-void initAssets(std::unordered_map<int , Texture2D> &texture_map);
+void initAssets();
 
 }
 #endif

@@ -26,7 +26,7 @@ int main(void){
 
 	//ASSETS
 	std::unordered_map <int, Texture2D> texture_map;
-	grid::initAssets(texture_map);
+	grid::initAssets();
 
 	//init game class
 	engine::Game game(camera);
@@ -82,14 +82,14 @@ int main(void){
 
 		BeginMode2D(camera);
 
-		grid::renderGrid(texture_map, game.grid_space, false);
-		grid::renderBuildings(texture_map, game.buildings, true);
-		grid::renderUnits(texture_map, game.units, true );
+		grid::renderGrid(game.grid_space, false);
+		grid::renderBuildings(game.buildings, true);
+		grid::renderUnits(game.units, true );
 
 		EndMode2D();
 
 		//mixture of 2D and Screenspace mode
-		game.ui_manager.renderUi(game, texture_map);
+		game.ui_manager.renderUi(game);
 		game.ui_manager.renderText();
 		game.ui_manager.animate();
 		// DrawTexturePro(texture_map[grid::kEndButton], (Rectangle){.x = 0, .y = 0, .width = (float)texture_map[grid::kEndButton].width, .height = (float)texture_map[grid::kEndButton].height}, game.ui_manager.ui_elements[0].render_rect, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
