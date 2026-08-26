@@ -27,6 +27,7 @@ enum UiSignal{
 	kSigFire,
 	kSigCapture,
 	kSigSpawnInfantry,
+	kSigInvalid,
 	kSigNone,
 };
 
@@ -38,7 +39,7 @@ class Element {
 		Color color;
 		std::optional<Slot> transformation = std::nullopt;
 
-		Element(Rectangle rect, Texture2D& text, Color elem_color);
+		Element(Rectangle rect, Texture2D& text, Color elem_color = RAYWHITE);
 
 };
 

@@ -31,7 +31,7 @@ UnitScrollMenu::UnitScrollMenu(const Vector2 &mouse_position) : ScrollMenu(kScro
 		this->elements.emplace_back((Rectangle){
 			.x = 0,
 			.y = i * grid::radius / 2,
-			.width  = (float)grid::inradius * 4,
+			.width  = width,
 			.height = grid::radius / 2,
 			},
 			grid::texture_map[grid::kMoveButton],
@@ -71,62 +71,71 @@ std::vector<Texture2D> UnitScrollMenu::GetTextures(std::unordered_map<int, Textu
 
 OptionScrollMenu::OptionScrollMenu(const Vector2 &mouse_position, CommandParams params): ScrollMenu(ui::ScrollType::kScrollOptions, mouse_position) {
 	float width = grid::inradius;
-	Texture2D selected_texture;
+
+	Texture2D *selected_texture;
 	Color selected_color;
+
 	for(int i = 0; i < 3; ++i){
 		switch(i){
 			case 0:
 				if(params.movable){
-					selected_texture = grid::texture_map[grid::kMoveButton];
+					selected_texture = &grid::texture_map[grid::kMoveButton];
 					selected_color = RAYWHITE;
 				} else {
-					selected_texture = grid::texture_map[grid::kMoveButtonUnusable];
+					selected_texture = &grid::texture_map[grid::kMoveButtonUnusable];
 					selected_color = GRAY;
 				}
+
+				std::cout << "Source Rect Width: "<< selected_texture->width << ", Source Rect Height: " << selected_texture->height << std::endl;
+
 				this->elements.emplace_back((Rectangle){
 					.x = 0,
 					.y = i * grid::radius / 2,
 					.width = (float)grid::inradius,
 					.height = grid::radius / 2
 					},
-					selected_texture,
+					*selected_texture,
 					selected_color
 					);
 				break;
 			case 1:
 				if(params.fireable) {
-					selected_texture = grid::texture_map[grid::kFireButton];
+					selected_texture = &grid::texture_map[grid::kFireButton];
 					selected_color = RAYWHITE;
 				
 				} else {
-					selected_texture = grid::texture_map[grid::kFireButtonUnusable];
+					selected_texture = &grid::texture_map[grid::kFireButtonUnusable];
 					selected_color = GRAY;
 				 }
+				std::cout << "Source Rect Width: "<< selected_texture->width << ", Source Rect Height: " << selected_texture->height << std::endl;
+
 				this->elements.emplace_back((Rectangle){
 					.x = 0,
 					.y = i * grid::radius / 2,
 					.width = (float)grid::inradius,
 					.height = grid::radius / 2
 					},
-					selected_texture,
+					*selected_texture,
 					selected_color
 					);
 				break;
 			case 2:
 				if(params.capturable){
-					selected_texture = grid::texture_map[grid::kCaptureButton];
+					selected_texture = &grid::texture_map[grid::kCaptureButton];
 					selected_color = RAYWHITE;
 				} else {
-					selected_texture = grid::texture_map[grid::kCaptureButtonUnusable];
+					selected_texture = &grid::texture_map[grid::kCaptureButtonUnusable];
 					selected_color = GRAY;
 				}
+				std::cout << "Source Rect Width: "<< selected_texture->width << ", Source Rect Height: " << selected_texture->height << std::endl;
+
 				this->elements.emplace_back((Rectangle){
 					.x = 0,
 					.y = i * grid::radius / 2,
 					.width = (float)grid::inradius,
 					.height = grid::radius / 2
 					},
-					selected_texture,
+					*selected_texture,
 					selected_color
 					);
 				break;
@@ -156,11 +165,11 @@ OptionScrollMenu::~OptionScrollMenu(){}
 UiSignal OptionScrollMenu::HandleScrollCollision(int collision_index){
 	switch(collision_index){
 		case 0:
-			return kSigMove;
+			return (moveable) ? kSigMove : kSigInvalid;
 		case 1:
-			return kSigFire;
+			return (fireable) ? kSigFire : kSigInvalid;
 		case 3:
-			return kSigCapture;
+			return (captureable) ? kSigCapture : kSigInvalid;
 	}
 	return kSigNone;
 }
@@ -247,7 +256,7 @@ UiSignal UiManager::CollisionCheck(){
 			}
 
 		}
-		std::cout << "COLLISION INDEX: " << collision_index << std::endl;
+		std::cout << "COLLISION INDEX: " << collision_index << "\nRectangle WIDTH: " << elements[collision_index].render_rect.width << ", Rectangle Height: " << elements[collision_index].render_rect.height <<std::endl;
 		return this->scrl_menu->HandleScrollCollision(collision_index);
 	}
 
@@ -407,21 +416,24 @@ void UiManager::renderUi(const engine::Game &engine_instance){
 			draw_amount = target_y - current_y;
 		}
 
+		float texture_height_ratio = draw_amount / elem_rec.height;
+
 		dest_rect.y = current_y + scrl_menu->dimensions.y;
 		dest_rect.height = draw_amount;
 
-		source_rect.y = elem_texture.height - draw_amount;
-		source_rect.height = draw_amount;
+		source_rect.height = elem_texture.height * texture_height_ratio;
 
-		// std::cout << "DRAWING SOURCE RECT:\n  " << "X: " << source_rect.x << "\nY: " << source_rect.y << "\nWIDTH: " << source_rect.width << "\nHEIGHT: " << source_rect.height << std::endl;
+		// std::cout << "Source Rect Width: "<< elem_texture.width <<", Source Rect Height: " << elem_texture.height << std::endl;
 		DrawTexturePro(
 				element.texture,
 				source_rect, 
 				dest_rect, 
 				(Vector2){.x = 0, .y = 0}, 
 				0, 
-				RAYWHITE
+				element.color
 				);
+
+		DrawRectangleLines(dest_rect.x, dest_rect.y, dest_rect.width, dest_rect.height, RED);
 
 		current_y += draw_amount;
 		elem_index += 1;

@@ -323,6 +323,8 @@ void initAssets(){
 	texture_map[grid::kFireButtonUnusable] = fire_unusable;
 
 	texture_map[grid::kMoveButton] = move_button;
+	texture_map[grid::kMoveButtonUnusable] = move_unusable;
+
 	texture_map[grid::kCaptureButtonUnusable] = move_unusable;
 
 	texture_map[grid::kCaptureButton] = cap_button;
