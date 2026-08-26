@@ -283,11 +283,22 @@ void UiManager::createUiElem(Vector2 position, ElemTypes type, CommandParams par
 			options.captureable = params.capturable;
 			break;
 			}
-		case ElemTypes::kTaskScroll:
+		case ElemTypes::kTaskScroll:{
+
 			break;
+		     	}
 		case ElemTypes::kUnitScroll:
 			this->scrl_menu = std::make_unique<UnitScrollMenu>(position);
 			break;
+		case ElemTypes::kInfo: {
+			Rectangle desired_pos = this->info.render_rect;
+			desired_pos.x = float((grid::ScreenWidth * 3) / 4.0 );
+
+			Slot transf_key = this->transformations.Insert(Transformation(&this->info.render_rect, desired_pos));
+			this->info.transformation = transf_key;
+			transformations[transf_key]->self_key = transf_key;
+			break;
+		        }
 		case ui::ElemTypes::kFiringText:
 			// can add logic to fit text into rectangle width
 			Rectangle text_pos;
@@ -329,8 +340,11 @@ void UiManager::transform(){
 		Vector2 new_pos = Vector2MoveTowards(
 				(Vector2){ .x = trans.position->x, .y = trans.position->y }, 
 				target_pos,
-				250.0 * GetFrameTime()
+				50.0 * GetFrameTime()
 				);
+		std::cout << "Current X: " << transformations[trans.self_key]->position->x << " Desired X: " << transformations[trans.self_key]->target_pos.x << std::endl;
+		std::cout << "Current Y: " << transformations[trans.self_key]->position->y << " Desired Y: " << transformations[trans.self_key]->target_pos.y << std::endl;
+
 		trans.position->x = new_pos.x;
 		trans.position->y = new_pos.y;
 

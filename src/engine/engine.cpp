@@ -76,6 +76,7 @@ engine::states Game::SelectBuilding(Building *building_ptr){
 	this->selected_hex = building_ptr->hex;
 
 	if(building_ptr->owner_index != this->player_index or building_ptr->type != FACTORY){
+		this->ui_manager.createUiElem(Vector2(), ui::ElemTypes::kInfo, ui::CommandParams());
 		return HEX_INFO;
 
 	} else {
@@ -107,6 +108,7 @@ engine::states Game::SelectUnit(Unit* unit_ptr){
 	} else {
 		//SHOW COMPARISON
 		this->selected_unit = unit_ptr;
+		this->ui_manager.createUiElem(Vector2(), ui::ElemTypes::kInfo, ui::CommandParams());
 		return UNIT_INFO;
 	}
 }
@@ -141,6 +143,8 @@ void Game::hexInfoTransition(inputAlphabet input, void *selection){
 			if(unit_ptr->owner_index != this->player_index){
 				this->selected_unit = unit_ptr;
 				this->selected_hex = unit_ptr->current_hex;
+
+				this->ui_manager.createUiElem(Vector2(), ui::ElemTypes::kInfo, ui::CommandParams());
 				this->state = UNIT_INFO;
 				return;
 			}
@@ -176,6 +180,8 @@ void Game::idleTransition(inputAlphabet input, void *selection){
 			   }
 		case HEX:
 			this->selected_hex = (HexSpace*)selection;
+
+			this->ui_manager.createUiElem(Vector2(), ui::ElemTypes::kInfo, ui::CommandParams());
 			this->state = HEX_INFO;
 			break;
 		case BUILDING:{
@@ -281,6 +287,8 @@ void Game::unitInfoTransition(inputAlphabet input, void *selection){
 			if(this->selected_unit->owner_index != this->player_index){
 				this->selected_unit = nullptr;
 				this->selected_hex = hex_ptr;
+
+				this->ui_manager.createUiElem(Vector2(), ui::ElemTypes::kInfo, ui::CommandParams());
 				this->state = HEX_INFO;
 				return;
 			}
@@ -586,6 +594,10 @@ void Game::handleSignal(ui::UiSignal signal){
 			this->escape();
 			break;
 		    }
+		case ui::UiSignal::kSigEndTurn :{
+			this->endTurn();
+			break;
+						}
 		default:
 			break;
 			//std::cerr << "UI element " << i << " Not Recognized" << std::endl;

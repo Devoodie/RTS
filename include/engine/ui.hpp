@@ -115,7 +115,7 @@ enum class ElemTypes {
 	kOptionScroll,
 	kTaskScroll,
 	kFiringText,
-	// kInfo,
+	kInfo,
 };
 
 

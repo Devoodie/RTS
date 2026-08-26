@@ -6,7 +6,7 @@
 #include <optional>
 #include <list>
 #include <assert.h>
-//#include <iostream>
+#include <iostream>
 
 struct Slot {
 	uint32_t index = 0;
