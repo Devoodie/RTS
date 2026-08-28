@@ -336,14 +336,12 @@ void UiManager::animate(){
 void UiManager::transform(){
 	std::vector<Slot> del_list;
 	for(Transformation &trans: this->transformations.values){
-		Vector2 target_pos = {.x = trans.position->x, .y = trans.position->y };
+		Vector2 target_pos = {.x = trans.target_pos.x, .y = trans.target_pos.y };
 		Vector2 new_pos = Vector2MoveTowards(
 				(Vector2){ .x = trans.position->x, .y = trans.position->y }, 
 				target_pos,
-				50.0 * GetFrameTime()
+				1500 * GetFrameTime()
 				);
-		std::cout << "Current X: " << transformations[trans.self_key]->position->x << " Desired X: " << transformations[trans.self_key]->target_pos.x << std::endl;
-		std::cout << "Current Y: " << transformations[trans.self_key]->position->y << " Desired Y: " << transformations[trans.self_key]->target_pos.y << std::endl;
 
 		trans.position->x = new_pos.x;
 		trans.position->y = new_pos.y;
