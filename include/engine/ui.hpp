@@ -127,9 +127,9 @@ class Transformation {
 		Slot self_key;
 		Rectangle target_pos;
 		Rectangle *position;
+		float speed;
 
-		Transformation(Rectangle *current_pos, Rectangle desired_pos);
-		Transformation(const Transformation& copy) : self_key(copy.self_key), target_pos(copy.target_pos), position(copy.position){};
+		Transformation(Rectangle *current_pos, Rectangle desired_pos, float anim_speed);
 };
 
 class UiManager {

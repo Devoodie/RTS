@@ -216,7 +216,7 @@ void InfoPanel::renderElements(const engine::Game &engine_instance){
 	DrawTexturePro(info_texture, texture_rect, this->render_rect, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
 }
 
-Transformation::Transformation(Rectangle *current_pos, Rectangle desired_pos) : position(current_pos), target_pos(desired_pos){};
+Transformation::Transformation(Rectangle *current_pos, Rectangle desired_pos, float anim_speed) : position(current_pos), target_pos(desired_pos) ,speed(anim_speed) {};
 
 UiManager::UiManager(Camera2D &camera): camera(camera), scrl_menu(new OptionScrollMenu(Vector2{.x = 65535, .y = 65535}, CommandParams())), transformations(10) {
 	//endturn button
@@ -294,7 +294,7 @@ void UiManager::createUiElem(Vector2 position, ElemTypes type, CommandParams par
 			Rectangle desired_pos = this->info.render_rect;
 			desired_pos.x = float((grid::ScreenWidth * 3) / 4.0 );
 
-			Slot transf_key = this->transformations.Insert(Transformation(&this->info.render_rect, desired_pos));
+			Slot transf_key = this->transformations.Insert(Transformation(&this->info.render_rect, desired_pos, 1500));
 			this->info.transformation = transf_key;
 			transformations[transf_key]->self_key = transf_key;
 			break;
@@ -312,7 +312,7 @@ void UiManager::createUiElem(Vector2 position, ElemTypes type, CommandParams par
 			int text_ind = this->messages.size();
 			this->messages.push_back(firing_text);
 
-			Slot transf_key = this->transformations.Insert(Transformation(&this->messages[text_ind].position, desired_pos));
+			Slot transf_key = this->transformations.Insert(Transformation(&this->messages[text_ind].position, desired_pos, 250));
 			this->messages[text_ind].transformation = transf_key;
 			transformations[transf_key]->self_key = transf_key;
 			break;
@@ -324,7 +324,9 @@ void UiManager::hideElements(){
 
 	Rectangle desired_pos = this->info.render_rect;
 	desired_pos.x = (float)grid::ScreenWidth + 1.0;
-	Slot transf_key = this->transformations.Insert(Transformation(&this->info.render_rect, desired_pos));
+
+	this->transformations.erase(this->info.transformation.value()); //DOUBLE FREE DO THE PROPER CHECKING FIRST
+	Slot transf_key = this->transformations.Insert(Transformation(&this->info.render_rect, desired_pos, 1500));
 	transformations[transf_key]->self_key = transf_key;
 };
 
@@ -340,7 +342,7 @@ void UiManager::transform(){
 		Vector2 new_pos = Vector2MoveTowards(
 				(Vector2){ .x = trans.position->x, .y = trans.position->y }, 
 				target_pos,
-				1500 * GetFrameTime()
+				trans.speed * GetFrameTime()
 				);
 
 		trans.position->x = new_pos.x;
