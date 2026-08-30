@@ -298,6 +298,7 @@ void UiManager::createUiElem(Vector2 position, ElemTypes type, CommandParams par
 			desired_pos.y = desired_pos.y - grid::radius * 2.5;	
 
 			Text firing_text = Text(params.text_content, RED, text_pos, 15);
+			firing_text.is_firing_text = true;
 			int text_ind = this->messages.size();
 			this->messages.push_back(firing_text);
 
@@ -468,6 +469,20 @@ void UiManager::renderText(){
 			5, 
 			message.text_color
 			);
+	}
+}
+
+void UiManager::cleanUp(){
+	std::vector<int> del_ind;
+	for(int i = 0; i < this->messages.size(); ++i){
+		Text &message = this->messages[i];
+		if(message.is_firing_text and this->transformations[message.transformation.value()] == std::nullopt){
+			del_ind.push_back(i);
+		}
+	}
+
+	for(const int &i : del_ind){
+		this->messages.erase( this->messages.begin() + i);
 	}
 }
 }

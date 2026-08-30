@@ -49,7 +49,7 @@ struct Text {
 	Color text_color;
 	float font_size;
 	std::optional<Slot> transformation = std::nullopt;
-	bool firing_text = false; // this is going to hurt me until i find a better solution
+	bool is_firing_text = false; // this is going to hurt me until i find a better solution
 	
 	Text(std::string message, Color color, Rectangle pos, float size) :  content(message), text_color(color), position(pos), font_size(size){};
 };
@@ -133,7 +133,6 @@ class Transformation {
 class UiManager {
 	public:
 		std::vector<Element> ui_elements;
-		SlotMap<Element> transient_elements;
 		Camera2D &camera;
 		std::unique_ptr<ScrollMenu> scrl_menu; // only one scroll menu
 		std::vector<Text> messages;
@@ -153,6 +152,8 @@ class UiManager {
 		//renders options menu
 		void renderUi(const engine::Game &engine_instance);
 		void renderText();
+
+		void cleanUp();
 };
 }
 #endif
