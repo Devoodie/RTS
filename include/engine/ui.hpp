@@ -44,11 +44,12 @@ class Element {
 };
 
 struct Text {
+	Rectangle position;
 	std::string content;
 	Color text_color;
-	Rectangle position;
 	float font_size;
 	std::optional<Slot> transformation = std::nullopt;
+	bool firing_text = false; // this is going to hurt me until i find a better solution
 	
 	Text(std::string message, Color color, Rectangle pos, float size) :  content(message), text_color(color), position(pos), font_size(size){};
 };
@@ -67,7 +68,6 @@ class ScrollMenu {
 		virtual ~ScrollMenu();
 
 		virtual UiSignal HandleScrollCollision(int collision_index) = 0;
-		virtual std::vector<Texture2D> GetTextures(std::unordered_map<int, Texture2D> texture_map) = 0;
 };
 
 class UnitScrollMenu : public ScrollMenu {
@@ -76,7 +76,6 @@ class UnitScrollMenu : public ScrollMenu {
 		~UnitScrollMenu();
 
 		UiSignal HandleScrollCollision(int collision_index) override;
-		std::vector<Texture2D> GetTextures(std::unordered_map<int, Texture2D> texture_map) override;
 };
 
 struct CommandParams {
@@ -97,7 +96,6 @@ class OptionScrollMenu: public ScrollMenu {
 		~OptionScrollMenu();
 
 		UiSignal HandleScrollCollision(int collision_index) override;
-		std::vector<Texture2D> GetTextures(std::unordered_map<int, Texture2D> texture_map) override;
 };
 //shows when engine state is in UNIT_INFO or HEX_INFO 
 class InfoPanel {
@@ -135,6 +133,7 @@ class Transformation {
 class UiManager {
 	public:
 		std::vector<Element> ui_elements;
+		SlotMap<Element> transient_elements;
 		Camera2D &camera;
 		std::unique_ptr<ScrollMenu> scrl_menu; // only one scroll menu
 		std::vector<Text> messages;

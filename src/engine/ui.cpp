@@ -59,16 +59,6 @@ UnitScrollMenu::UnitScrollMenu(const Vector2 &mouse_position) : ScrollMenu(kScro
 
 UnitScrollMenu::~UnitScrollMenu(){}
 
-//TODO >> Change this when we get assets
-std::vector<Texture2D> UnitScrollMenu::GetTextures(std::unordered_map<int, Texture2D> texture_map){
-	std::vector<Texture2D> textures(3);
-	Texture2D elem_texture;
-	textures[0] = texture_map[grid::kMoveButton];
-	textures[1] = texture_map[grid::kMoveButton];
-	textures[2] = texture_map[grid::kMoveButton];
-	return textures;
-}
-
 OptionScrollMenu::OptionScrollMenu(const Vector2 &mouse_position, CommandParams params): ScrollMenu(ui::ScrollType::kScrollOptions, mouse_position) {
 	float width = grid::inradius;
 
@@ -168,15 +158,6 @@ UiSignal OptionScrollMenu::HandleScrollCollision(int collision_index){
 			return (captureable) ? kSigCapture : kSigInvalid;
 	}
 	return kSigNone;
-}
-
-std::vector<Texture2D> OptionScrollMenu::GetTextures(std::unordered_map<int, Texture2D> texture_map){
-	std::vector<Texture2D> textures(3);
-	Texture2D elem_texture;
-	textures[0] = ((this->moveable) ? texture_map[grid::kMoveButton] : texture_map[grid::kMoveButtonUnusable]);
-	textures[1] = ((this->fireable) ? texture_map[grid::kFireButton] : texture_map[grid::kFireButtonUnusable]);
-	textures[2] = ((this->captureable) ? texture_map [grid::kCaptureButton] : texture_map[grid::kCaptureButtonUnusable]);
-	return textures;
 }
 
 UiSignal UnitScrollMenu::HandleScrollCollision(int collision_index){
@@ -291,7 +272,7 @@ void UiManager::createUiElem(Vector2 position, ElemTypes type, CommandParams par
 			info_desired_pos.x = float((grid::ScreenWidth * 3) / 4.0 );
 
 			Element &end_turn = this->ui_elements[0];
-			Rectangle end_desired_pos= end_turn.render_rect;
+			Rectangle end_desired_pos = end_turn.render_rect;
 			end_desired_pos.x = info_desired_pos.x - (grid::ScreenWidth - grid::ScreenWidth * 7 / 8);
 
 			if(this->info.transformation.has_value()) this->transformations.erase(this->info.transformation.value());
