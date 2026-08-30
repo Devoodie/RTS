@@ -66,10 +66,11 @@ class SlotMap {
 			assert(key.index < capacity && "Desired index Greater than Capacity!");
 
 			Slot *deletion_slot = &this->indices[key.index];
-			T& deletion_value = this->values[deletion_slot->index];
-			uint32_t &del_slot_index = this->index_ref[deletion_slot->index];
 
 			if(key.generation != deletion_slot->generation) return;
+
+			T& deletion_value = this->values[deletion_slot->index];
+			uint32_t &del_slot_index = this->index_ref[deletion_slot->index];
 
 			uint32_t last_elem_index = this->index_ref[this->index_ref.size() - 1];
 			T elem_value = this->values[this->index_ref.size() - 1];

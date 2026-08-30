@@ -640,7 +640,7 @@ float Game::calcDamage(){
 }
 
 //Change this to slotmap
-void Game::eraseUnit(const Slot &key){
+void Game::eraseUnit(Slot key){
 	this->units.erase(key);
 }
 

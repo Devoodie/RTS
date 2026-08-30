@@ -86,8 +86,6 @@ OptionScrollMenu::OptionScrollMenu(const Vector2 &mouse_position, CommandParams 
 					selected_color = GRAY;
 				}
 
-				std::cout << "Source Rect Width: "<< selected_texture->width << ", Source Rect Height: " << selected_texture->height << std::endl;
-
 				this->elements.emplace_back((Rectangle){
 					.x = 0,
 					.y = i * grid::radius / 2,
@@ -107,7 +105,6 @@ OptionScrollMenu::OptionScrollMenu(const Vector2 &mouse_position, CommandParams 
 					selected_texture = &grid::texture_map[grid::kFireButtonUnusable];
 					selected_color = GRAY;
 				 }
-				std::cout << "Source Rect Width: "<< selected_texture->width << ", Source Rect Height: " << selected_texture->height << std::endl;
 
 				this->elements.emplace_back((Rectangle){
 					.x = 0,
@@ -127,7 +124,6 @@ OptionScrollMenu::OptionScrollMenu(const Vector2 &mouse_position, CommandParams 
 					selected_texture = &grid::texture_map[grid::kCaptureButtonUnusable];
 					selected_color = GRAY;
 				}
-				std::cout << "Source Rect Width: "<< selected_texture->width << ", Source Rect Height: " << selected_texture->height << std::endl;
 
 				this->elements.emplace_back((Rectangle){
 					.x = 0,
@@ -291,12 +287,24 @@ void UiManager::createUiElem(Vector2 position, ElemTypes type, CommandParams par
 			this->scrl_menu = std::make_unique<UnitScrollMenu>(position);
 			break;
 		case ElemTypes::kInfo: {
-			Rectangle desired_pos = this->info.render_rect;
-			desired_pos.x = float((grid::ScreenWidth * 3) / 4.0 );
+			Rectangle info_desired_pos = this->info.render_rect;
+			info_desired_pos.x = float((grid::ScreenWidth * 3) / 4.0 );
 
-			Slot transf_key = this->transformations.Insert(Transformation(&this->info.render_rect, desired_pos, 1500));
+			Element &end_turn = this->ui_elements[0];
+			Rectangle end_desired_pos= end_turn.render_rect;
+			end_desired_pos.x = info_desired_pos.x - (grid::ScreenWidth - grid::ScreenWidth * 7 / 8);
+
+			if(this->info.transformation.has_value()) this->transformations.erase(this->info.transformation.value());
+
+			Slot transf_key = this->transformations.Insert(Transformation(&this->info.render_rect, info_desired_pos, 1500));
 			this->info.transformation = transf_key;
-			transformations[transf_key]->self_key = transf_key;
+			this->transformations[transf_key]->self_key = transf_key;
+
+			if(end_turn.transformation.has_value()) this->transformations.erase(end_turn.transformation.value());
+
+			transf_key = this->transformations.Insert(Transformation(&end_turn.render_rect, end_desired_pos, 1500));
+			end_turn.transformation = transf_key;
+			this->transformations[transf_key]->self_key = transf_key;
 			break;
 		        }
 		case ui::ElemTypes::kFiringText:
@@ -322,12 +330,24 @@ void UiManager::createUiElem(Vector2 position, ElemTypes type, CommandParams par
 void UiManager::hideElements(){
 	this->scrl_menu->dimensions.x = 65535;
 
-	Rectangle desired_pos = this->info.render_rect;
-	desired_pos.x = (float)grid::ScreenWidth + 1.0;
+	Rectangle info_desired_pos = this->info.render_rect;
+	info_desired_pos.x = (float)grid::ScreenWidth + 1.0;
 
-	this->transformations.erase(this->info.transformation.value()); //DOUBLE FREE DO THE PROPER CHECKING FIRST
-	Slot transf_key = this->transformations.Insert(Transformation(&this->info.render_rect, desired_pos, 1500));
-	transformations[transf_key]->self_key = transf_key;
+	if(this->info.transformation.has_value()) this->transformations.erase(this->info.transformation.value()); 
+	Slot transf_key = this->transformations.Insert(Transformation(&this->info.render_rect, info_desired_pos, 1500));
+	this->info.transformation = transf_key;
+	this->transformations[transf_key]->self_key = transf_key;
+
+	Element &end_turn = this->ui_elements[0];
+
+	if(end_turn.transformation.has_value()) this->transformations.erase(end_turn.transformation.value());
+
+	Rectangle end_desired_pos = end_turn.render_rect;
+	end_desired_pos.x = (float) grid::ScreenWidth * 7 / 8;
+	transf_key = this->transformations.Insert(Transformation(&end_turn.render_rect, end_desired_pos, 1500));
+	end_turn.transformation = transf_key;
+	this->transformations[transf_key]->self_key = transf_key;
+
 };
 
 void UiManager::animate(){
