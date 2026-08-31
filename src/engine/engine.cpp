@@ -558,6 +558,7 @@ void Game::handleSignal(ui::UiSignal signal){
 
 			float dmg_taken = calcDamage();
 			this->selected_unit2->hp -= this->dmg_taken;
+			std::cout << "DAMAGE: " << dmg_taken << std::endl;
 
 			ui::CommandParams params;
 			params.text_content = TextFormat("-%.2f HP", dmg_taken);
@@ -718,7 +719,8 @@ void Game::versus(){
 	}
 
 	ui::UiSignal ui_signal = this->ui_manager.CollisionCheck();
-	
+
+	// std::cout << "UI SIGNAL:" << ui_signal << std::endl;
 	if(ui_signal == ui::UiSignal::kSigNone) {
 		bool chng_state = this->collisionCheck();
 	} else {

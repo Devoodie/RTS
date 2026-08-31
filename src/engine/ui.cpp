@@ -153,6 +153,7 @@ UiSignal OptionScrollMenu::HandleScrollCollision(int collision_index){
 		case 0:
 			return (moveable) ? kSigMove : kSigInvalid;
 		case 1:
+			std::cout << "FIRE!" << std::endl;
 			return (fireable) ? kSigFire : kSigInvalid;
 		case 3:
 			return (captureable) ? kSigCapture : kSigInvalid;
@@ -219,9 +220,11 @@ UiSignal UiManager::CollisionCheck(){
 		return kSigEndTurn;
 	}
 //	assert(this->scrl_menu != nullptr && "SCROLL MENU REFERENCED BEFORE ALLOCATED");
-	if(this->scrl_menu == nullptr) return kSigNone;
+	if(this->scrl_menu == nullptr) {
+		return kSigNone;
+	}
 
-	if(CheckCollisionPointRec(mouse_point, scrl_menu->dimensions) and IsMouseButtonReleased(0)){
+	if(CheckCollisionPointRec(wrld_point, scrl_menu->dimensions) and IsMouseButtonReleased(0)){
 		float target = wrld_point.y - this->scrl_menu->dimensions.y + this->scrl_menu->y_pos;
 		int collision_index = 0;
 		const std::vector<Element> &elements = this->scrl_menu->elements;
@@ -460,6 +463,7 @@ void UiManager::renderUi(const engine::Game &engine_instance){
 }
 
 void UiManager::renderText(){
+	BeginMode2D(this->camera);
 	for(Text message: this->messages){
 		DrawTextEx(
 			GetFontDefault(), 
@@ -470,6 +474,7 @@ void UiManager::renderText(){
 			message.text_color
 			);
 	}
+	EndMode2D();
 }
 
 void UiManager::cleanUp(){

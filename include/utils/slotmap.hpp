@@ -49,6 +49,9 @@ class SlotMap {
 			assert(key->index < capacity && "Desired index Greater than size!");
 
 			const Slot index_slot = this->indices[key->index];
+
+			if(index_slot.index >= this->values.size()) return std::nullopt;
+
 			T &desired_value = this->values[index_slot.index];
 
 			if(index_slot.generation != key->generation){ 
