@@ -305,7 +305,7 @@ void UiManager::createUiElem(Vector2 position, ElemTypes type, CommandParams par
 			int text_ind = this->messages.size();
 			this->messages.push_back(firing_text);
 
-			Slot transf_key = this->transformations.Insert(Transformation(&this->messages[text_ind].position, desired_pos, 250));
+			Slot transf_key = this->transformations.Insert(Transformation(&this->messages[text_ind].position, desired_pos, 150));
 			this->messages[text_ind].transformation = transf_key;
 			transformations[transf_key]->self_key = transf_key;
 			break;

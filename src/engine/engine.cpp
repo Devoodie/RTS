@@ -557,7 +557,7 @@ void Game::handleSignal(ui::UiSignal signal){
 			this->selected_unit->atks_left -= 1;
 
 			float dmg_taken = calcDamage();
-			this->selected_unit2->hp -= this->dmg_taken;
+			this->selected_unit2->hp -= dmg_taken;
 			std::cout << "DAMAGE: " << dmg_taken << std::endl;
 
 			ui::CommandParams params;
