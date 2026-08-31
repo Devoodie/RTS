@@ -19,7 +19,6 @@ ScrollMenu::ScrollMenu(ScrollType menu_type, const Vector2 &mouse_position) : ty
 		case ScrollType::kScrollOptions:
 			break;
 	}
-
 };
 
 ScrollMenu::~ScrollMenu(){
@@ -153,9 +152,8 @@ UiSignal OptionScrollMenu::HandleScrollCollision(int collision_index){
 		case 0:
 			return (moveable) ? kSigMove : kSigInvalid;
 		case 1:
-			std::cout << "FIRE!" << std::endl;
 			return (fireable) ? kSigFire : kSigInvalid;
-		case 3:
+		case 2:
 			return (captureable) ? kSigCapture : kSigInvalid;
 	}
 	return kSigNone;
@@ -192,6 +190,22 @@ void InfoPanel::renderElements(const engine::Game &engine_instance){
 	     .height = (float)info_texture.height,
 	};
 	DrawTexturePro(info_texture, texture_rect, this->render_rect, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
+
+	switch(engine_instance.state){
+		case engine::HEX_INFO: {
+			//draw the hex in the middle
+			Texture2D hex_texture = grid::texture_map[grid::kGrassHex];  //Change this to select the hex based on the type
+			Rectangle source = {
+				.x = 0,
+				.y = 0,
+				.width = (float)hex_texture.width,
+				.height = (float)hex_texture.height,
+			};
+
+			DrawTexturePro(hex_texture, source, this->elements[0].render_rect, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
+			break;
+		}
+	}
 }
 
 Transformation::Transformation(Rectangle *current_pos, Rectangle desired_pos, float anim_speed) : position(current_pos), target_pos(desired_pos) ,speed(anim_speed) {};
@@ -230,7 +244,6 @@ UiSignal UiManager::CollisionCheck(){
 		const std::vector<Element> &elements = this->scrl_menu->elements;
 		for(int i = 0; i < elements.size(); ++i){	
 			Rectangle collision_rect = elements[i].render_rect;
-			std::cout << elements.size() << std::endl;
 			if(target >= collision_rect.y and target <= collision_rect.y + collision_rect.height){
 				collision_index = i;
 				break;

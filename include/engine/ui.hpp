@@ -101,7 +101,7 @@ class OptionScrollMenu: public ScrollMenu {
 class InfoPanel {
 	public:
 		Rectangle render_rect;
-		std::vector<Rectangle> elements;
+		std::vector<Element> elements;
 		std::optional<Slot> transformation = std::nullopt;
 
 		InfoPanel();
