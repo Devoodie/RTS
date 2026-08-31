@@ -230,6 +230,7 @@ UiSignal UiManager::CollisionCheck(){
 		const std::vector<Element> &elements = this->scrl_menu->elements;
 		for(int i = 0; i < elements.size(); ++i){	
 			Rectangle collision_rect = elements[i].render_rect;
+			std::cout << elements.size() << std::endl;
 			if(target >= collision_rect.y and target <= collision_rect.y + collision_rect.height){
 				collision_index = i;
 				break;
