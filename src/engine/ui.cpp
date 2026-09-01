@@ -190,9 +190,25 @@ InfoPanel::InfoPanel(){
 	//first element contains the sprite for hex or unit selected
 	block.x = block.width * 2;
 	block.y = block.height * 2;
-	// this->elements.emplace_back(
-	// 		Rectangle
-	// 		);
+	this->elements.emplace_back(
+			block,
+			&grid::texture_map[grid::kGrassHex] //placholder
+			);
+
+	block.x = block.width;
+	block.y = block.height * 3;
+	this->elements.emplace_back(
+			block,
+			&grid::texture_map[grid::kGrassHex] //placeholder
+			);
+
+	block.x = block.width * 3;
+	block.y = block.height * 3;
+
+	this->elements.emplace_back(
+			block,
+			&grid::texture_map[grid::kGrassHex] //placeholder
+			);
 }
 
 void InfoPanel::renderElements(const engine::Game &engine_instance){
