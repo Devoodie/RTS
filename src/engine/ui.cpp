@@ -202,7 +202,7 @@ void InfoPanel::renderElements(const engine::Game &engine_instance){
 				.height = (float)hex_texture.height,
 			};
 
-			DrawTexturePro(hex_texture, source, this->elements[0].render_rect, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
+			DrawTexturePro(hex_texture, source, this->elements[0].render_rect, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE); //WRONG FIXNOW 
 			break;
 		}
 	}

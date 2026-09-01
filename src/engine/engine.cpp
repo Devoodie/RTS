@@ -374,34 +374,6 @@ void Game::unitTransition(inputAlphabet input, void *selection){
 	}
 }
 
-//scroll should no longer be a state
-// void Game::scrollTransition(inputAlphabet input, void *selection){
-// 	switch(input){
-// 		case UNIT:{
-// 			Unit* unit_ptr = (Unit*)selection;
-// 			this->state = this->SelectUnit(unit_ptr);
-// 			break;
-// 			  }
-// 		case HEX:
-// 			//TODO >> MAKE A HEX HELPER FUNCTION FOR HEXINFO
-// 			this->selected_hex = (HexSpace*)selection;
-// 			this->state = HEX_INFO;
-//
-// 			if(this->ui_elements.size() > 1) this->ui_elements.erase(ui_elements.begin() + 1);
-// 			ui_manager.createUiElem(UI_INFO);
-// 			break;
-// 		case BUILDING:{
-// 			Building* building_ptr = (Building*)selection;
-// 			//ifbuilding not owned pull up hex info
-// 			//Check building type to determine if a research or unit scroll menu should be made
-// 			this->state = this->SelectBuilding(building_ptr);
-// 			break;
-// 		      }
-// 		default:
-// 			return;
-// 	}
-// }
-
 void Game::transitionState(inputAlphabet input, void *selection){
 	std::cout << "CURRENT STATE: " << this->state <<  ", INPUT: " << input << std::endl;
 	switch(this->state){
@@ -458,33 +430,6 @@ void Game::handleCollision(HexSpace *collided_hex, Vector2 mouse_point){
 		if (IsMouseButtonReleased(0)) this->transitionState(HEX, collided_hex);
 	}
 }
-//TODO >> DESTROY THIS FUNCTION
-// void Game::scrollCollision(int index, scroll_type type){
-// 	switch(type){
-// 		case SCRLL_UNITS:
-// 			switch(index) {
-// 				case 0:{
-// 					//SPAWN INFANTRY
-// 					std::cout << "PLAYER INDEX: " << this->player_index << std::endl;
-// 					Slot key = this->units.Insert(Unit(this->selected_hex,INFANTRY,this->player_index));
-//
-// 					this->selected_hex->occupier_key = key;
-// 					this->players[player_index].units.push_back(key);
-// 					//WORKHERE SUBTRACT MONEY AFTER
-// 				       }
-// 				default:
-// 					return;
-// 			}
-// 		case SCRLL_UPGRADES:
-// 			switch (index) {
-// 				default:
-// 					return;
-//
-// 			}
-// 	}
-// }
-//
-
 //aidan optimize search (I THINK BINARY SEARCH WILL SHINE HERE)
 bool Game::collisionCheck(){
 	Vector2 mouse_point = GetScreenToWorld2D(GetMousePosition(), this->camera);
@@ -528,7 +473,7 @@ void Game::spawnUnit(ui::UiSignal signal){
 			this->selected_hex->occupier_key = key;
 			this->players[player_index].units.push_back(key);
 			break;
-			//workhere
+			//SUBTRACT MONEY
 			  }
 	}
 }
@@ -536,11 +481,7 @@ void Game::spawnUnit(ui::UiSignal signal){
 void Game::handleSignal(ui::UiSignal signal){
 	Vector2 mouse_point = GetMousePosition();
 	Vector2 wrld_point = GetScreenToWorld2D(GetMousePosition(), this->camera);
-	//0 endturn button, 1 Others(????), 
-	//may need to change the way this works to switch on states instead of ui elements
 	switch(signal){
-		//end turn
-		//this is for moving for now
 		case ui::UiSignal::kSigMove:
 			selected_unit->position.x = selected_hex2->x_position;
 			selected_unit->position.y = selected_hex2->y_position;
@@ -640,12 +581,11 @@ float Game::calcDamage(){
 	return dmg;
 }
 
-//Change this to slotmap
+//may not be neded anymore.
 void Game::eraseUnit(Slot key){
 	this->units.erase(key);
 }
 
-//this helper function might not be needed
 //the building key should have been checked before this function call so we know the key is not null
 void Game::transferBuilding(Slot &building_key, int current_owner, int new_owner){
 	std::vector<Slot> &owner_buildings = this->players[player_index].buildings;
@@ -660,6 +600,7 @@ void Game::transferBuilding(Slot &building_key, int current_owner, int new_owner
 	this->players[new_owner].buildings.push_back(building_key);
 }
 
+//TODO Move this to event system
 //moves units
 void Game::Move(){
 	Unit *unit_ptr = this->selected_unit;
@@ -685,6 +626,8 @@ void Game::Move(){
 	}
 }
 
+
+//this helper function may not be neccesary anymore
 void Game::Fire(){
 	if(this->selected_unit2->hp < 0){
 		this->eraseUnit(*this->selected_hex2->occupier_key); //URGENT CHECK OPTIONAL: this should invalidate the key on hex 2 

@@ -45,8 +45,6 @@ class Game{
 		int player_index;
 		int player_count;
 
-		//Temporary
-		float dmg_taken;
 		uint8_t dmg_txt_index;
 
 		Unit *selected_unit;
