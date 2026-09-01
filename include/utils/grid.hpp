@@ -36,6 +36,8 @@ class HexSpace {
 	HexSpace();
 };
 
+static Font default_font;
+
 namespace grid {
 
 enum cardinals {

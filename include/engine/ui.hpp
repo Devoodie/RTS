@@ -42,15 +42,13 @@ class Element {
 		Element(Rectangle rect, Texture2D *text, Color elem_color = RAYWHITE);
 };
 
-struct Text {
-	Rectangle position;
-	std::string content;
-	Color text_color;
-	float font_size;
-	std::optional<Slot> transformation = std::nullopt;
-	bool is_firing_text = false; // this is going to hurt me until i find a better solution
-	
-	Text(std::string message, Color color, Rectangle pos, float size) :  content(message), text_color(color), position(pos), font_size(size){};
+class Text : public Element {
+	public:
+		std::string content;
+		float font_size;
+		bool is_firing_text = false; // this is going to hurt me until i find a better solution
+		
+		Text(std::string message, Color color, Rectangle pos, float size);
 };
 
 class ScrollMenu {

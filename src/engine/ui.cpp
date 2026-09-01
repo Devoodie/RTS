@@ -9,6 +9,8 @@ namespace ui{
 Element::Element(Rectangle rect, Texture2D *text, Color elem_color) : render_rect(rect), texture(text), color(elem_color){
 }
 
+Text::Text(std::string message, Color color, Rectangle pos, float size) :  content(message), font_size(size), Element(pos, nullptr, color){};
+
 ScrollMenu::ScrollMenu(ScrollType menu_type, const Vector2 &mouse_position) : type(menu_type) {	
 	this->y_pos = 0;
 	switch(menu_type){
@@ -351,7 +353,7 @@ void UiManager::createUiElem(Vector2 position, ElemTypes type, CommandParams par
 			int text_ind = this->messages.size();
 			this->messages.push_back(firing_text);
 
-			Slot transf_key = this->transformations.Insert(Transformation(&this->messages[text_ind].position, desired_pos, 150));
+			Slot transf_key = this->transformations.Insert(Transformation(&this->messages[text_ind].render_rect, desired_pos, 150));
 			this->messages[text_ind].transformation = transf_key;
 			transformations[transf_key]->self_key = transf_key;
 			break;
@@ -508,14 +510,15 @@ void UiManager::renderUi(const engine::Game &engine_instance){
 
 void UiManager::renderText(){
 	BeginMode2D(this->camera);
+	Font penis;
 	for(Text message: this->messages){
 		DrawTextEx(
-			GetFontDefault(), 
+			default_font,	
 			message.content.c_str(), 
-			(Vector2){.x = message.position.x, .y = message.position.y}, 
+			(Vector2){.x = message.render_rect.x, .y = message.render_rect.y}, 
 			message.font_size,  //placeholder
 			5, 
-			message.text_color
+			message.color
 			);
 	}
 	EndMode2D();

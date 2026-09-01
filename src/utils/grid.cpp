@@ -315,6 +315,8 @@ void initAssets(){
 	const Texture2D hq = LoadTexture("../assets/HQ.png");
 	const Texture2D warehouse = LoadTexture("../assets/Warehouse.png");
 
+	default_font = LoadFont("../assets/Badloc_ICG.ttf");
+
 	texture_map[grid::kGrassHex] = hex_grass;
 	texture_map[grid::kGrassBorder] = grass_border;
 	texture_map[grid::kDarkSolider] = dark_solider;
