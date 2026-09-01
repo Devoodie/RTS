@@ -31,7 +31,7 @@ namespace engine {
 		MOVE,
 	};
 
-class Game{
+class Game {
 	public:	
 		std::vector<Player> players;
 		SlotMap<Unit> units;

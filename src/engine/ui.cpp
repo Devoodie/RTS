@@ -26,7 +26,7 @@ ScrollMenu::~ScrollMenu(){
 
 UnitScrollMenu::UnitScrollMenu(const Vector2 &mouse_position) : ScrollMenu(kScrollUnits, mouse_position){
 	float width = grid::inradius * 4.0;
-	for(int i = 0; i < 3; ++i){
+	for(int i = 0; i < 3; ++i) {
 		this->elements.emplace_back((Rectangle){
 			.x = 0,
 			.y = i * grid::radius / 2,

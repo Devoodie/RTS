@@ -40,7 +40,6 @@ class Element {
 		std::optional<Slot> transformation = std::nullopt;
 
 		Element(Rectangle rect, Texture2D *text, Color elem_color = RAYWHITE);
-
 };
 
 struct Text {

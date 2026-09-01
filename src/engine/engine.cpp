@@ -654,9 +654,6 @@ void Game::versus(){
 		case MOVING:
 			this->Move();
 			return;
-		case FIRING:
-			this->Fire();
-			return;
 		default:
 			break;
 	}
