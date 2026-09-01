@@ -35,11 +35,11 @@ enum UiSignal{
 class Element {
 	public:
 		Rectangle render_rect;
-		Texture2D &texture;
+		Texture2D *texture;
 		Color color;
 		std::optional<Slot> transformation = std::nullopt;
 
-		Element(Rectangle rect, Texture2D& text, Color elem_color = RAYWHITE);
+		Element(Rectangle rect, Texture2D *text, Color elem_color = RAYWHITE);
 
 };
 

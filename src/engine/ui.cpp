@@ -6,7 +6,7 @@
 #include <raymath.h>
 
 namespace ui{
-Element::Element(Rectangle rect, Texture2D &text, Color elem_color) : render_rect(rect), texture(text), color(elem_color){
+Element::Element(Rectangle rect, Texture2D *text, Color elem_color) : render_rect(rect), texture(text), color(elem_color){
 }
 
 ScrollMenu::ScrollMenu(ScrollType menu_type, const Vector2 &mouse_position) : type(menu_type) {	
@@ -33,7 +33,7 @@ UnitScrollMenu::UnitScrollMenu(const Vector2 &mouse_position) : ScrollMenu(kScro
 			.width  = width,
 			.height = grid::radius / 2,
 			},
-			grid::texture_map[grid::kMoveButton],
+			&grid::texture_map[grid::kMoveButton],
 			RAYWHITE
 			);
 	}
@@ -81,7 +81,7 @@ OptionScrollMenu::OptionScrollMenu(const Vector2 &mouse_position, CommandParams 
 					.width = (float)grid::inradius,
 					.height = grid::radius / 2
 					},
-					*selected_texture,
+					selected_texture,
 					selected_color
 					);
 				break;
@@ -101,7 +101,7 @@ OptionScrollMenu::OptionScrollMenu(const Vector2 &mouse_position, CommandParams 
 					.width = (float)grid::inradius,
 					.height = grid::radius / 2
 					},
-					*selected_texture,
+					selected_texture,
 					selected_color
 					);
 				break;
@@ -120,7 +120,7 @@ OptionScrollMenu::OptionScrollMenu(const Vector2 &mouse_position, CommandParams 
 					.width = (float)grid::inradius,
 					.height = grid::radius / 2
 					},
-					*selected_texture,
+					selected_texture,
 					selected_color
 					);
 				break;
@@ -177,6 +177,22 @@ InfoPanel::InfoPanel(){
 		.width = float(grid::ScreenWidth / 4.0),
 		.height = float(grid::ScreenHeight),
 	};
+
+	//size of an element in the info panel
+	Rectangle block = {
+		.x = 0,
+		.y = 0, 
+		.width = this->render_rect.width / 5,
+		.height = this->render_rect.height, 
+	};
+
+
+	//first element contains the sprite for hex or unit selected
+	block.x = block.width * 2;
+	block.y = block.height * 2;
+	// this->elements.emplace_back(
+	// 		Rectangle
+	// 		);
 }
 
 void InfoPanel::renderElements(const engine::Game &engine_instance){
@@ -219,7 +235,7 @@ UiManager::UiManager(Camera2D &camera): camera(camera), scrl_menu(new OptionScro
 		.width = (float)grid::inradius,
 		.height = (float)grid::radius / 2
 		},
-		grid::texture_map[grid::kEndButton], 
+		&grid::texture_map[grid::kEndButton], 
 		RAYWHITE
 		);
 }
@@ -403,12 +419,11 @@ void UiManager::renderUi(const engine::Game &engine_instance){
 		}
 		++i;
 	} 
-
 	//render scroll menu 
 
 //	assert(scrll_textures.size() == this->scrl_menu->elements.size() && "Invalid Texture amount to Elements (Scroll Menu)");
 
-	Texture2D elem_texture = this->scrl_menu->elements[0].texture;
+	Texture2D elem_texture = *this->scrl_menu->elements[0].texture;
 	//how the fuck does cpp do this shit  without auto? (need verbosity)
 	const auto &scrl_menu = this->scrl_menu.get();
 
@@ -445,7 +460,6 @@ void UiManager::renderUi(const engine::Game &engine_instance){
 		float draw_amount = (elem_rec.y + elem_rec.height) - current_y;
 
 		if(current_y + draw_amount > target_y){
-			std::cout << "TRUE" << std::endl;
 			draw_amount = target_y - current_y;
 		}
 
@@ -458,7 +472,7 @@ void UiManager::renderUi(const engine::Game &engine_instance){
 
 		// std::cout << "Source Rect Width: "<< elem_texture.width <<", Source Rect Height: " << elem_texture.height << std::endl;
 		DrawTexturePro(
-				element.texture,
+				*element.texture,
 				source_rect, 
 				dest_rect, 
 				(Vector2){.x = 0, .y = 0}, 
