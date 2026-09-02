@@ -11,8 +11,9 @@ Element::Element(Rectangle rect, Texture2D *text, Color elem_color) : render_rec
 
 Text::Text(std::string message, Color color, Rectangle pos, float size) :  content(message), font_size(size), Element(pos, nullptr, color){
 	float rectangle_font_ratio = pos.height / default_font.baseSize; //this language doesnt even warn on debug if you divide by 0 by the way. this is your peak. (lovely)
-	font_size = default_font.baseSize;
+	font_size = pos.height;
 	std::cout << "Font Size: " << default_font.baseSize << std::endl;
+	std::cout << "ID: " << default_font.texture.id << std::endl;
 };
 
 ScrollMenu::ScrollMenu(ScrollType menu_type, const Vector2 &mouse_position) : type(menu_type) {	
@@ -516,6 +517,7 @@ void UiManager::renderUi(const engine::Game &engine_instance){
 
 void UiManager::renderText(){
 	BeginMode2D(this->camera);
+	Font penis;
 	for(Text message: this->messages){
 		DrawTextEx(
 			default_font,	

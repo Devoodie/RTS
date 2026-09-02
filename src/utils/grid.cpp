@@ -13,8 +13,12 @@ HexSpace::HexSpace (){
 	env_defense = 0;
 };
 
+Font default_font = {0};
+
 namespace grid {
 
+float radius = ScreenWidth / 24.0;
+float inradius = (radius * std::sqrtf(3.0) / 2.0);
 std::unordered_map<int, Texture2D> texture_map = std::unordered_map<int, Texture2D>();
 
 void initGrid(const int row, const int col, std::vector<std::vector<HexSpace>> &grid_space){

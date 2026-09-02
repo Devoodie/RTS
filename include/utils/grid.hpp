@@ -36,7 +36,7 @@ class HexSpace {
 	HexSpace();
 };
 
-static Font default_font;
+extern Font default_font;
 
 namespace grid {
 
@@ -52,8 +52,8 @@ enum cardinals {
 constexpr int ScreenWidth = 1920;  
 constexpr int ScreenHeight = 1080;
 
-static float radius = ScreenWidth / 24.0;
-static float inradius = (radius * std::sqrtf(3.0) / 2.0);
+extern float radius; 
+extern float inradius; 
 extern std::unordered_map<int, Texture2D> texture_map;
 
 enum textures {
