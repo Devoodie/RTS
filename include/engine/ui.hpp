@@ -60,7 +60,6 @@ class ScrollMenu {
 
 		ScrollType type;
 
-
 		ScrollMenu(ScrollType menu_type, const Vector2 &mouse_position);
 		virtual ~ScrollMenu();
 
