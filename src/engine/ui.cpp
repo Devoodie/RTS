@@ -9,10 +9,9 @@ namespace ui{
 Element::Element(Rectangle rect, Texture2D *text, Color elem_color) : render_rect(rect), texture(text), color(elem_color){
 }
 
-Text::Text(std::string message, Color color, Rectangle pos, float size) : content(message), font_size(size), Element(pos, nullptr, color){
-	float rectangle_font_ratio = pos.height / default_font.baseSize; //this language doesnt even warn on debug if you divide by 0 by the way. this is your peak. (lovely)
+Text::Text(Rectangle pos, std::string message, Color color, float size = 0) : content(message), font_size(size), Element(pos, nullptr, color){
+	if(size == 0.0) float rectangle_font_ratio = pos.height / default_font.baseSize; //this language doesnt even warn on debug if you divide by 0 by the way. this is your peak. (lovely)
 	font_size = pos.height;
-	std::cout << "Font Size: " << default_font.baseSize << std::endl;
 };
 
 ScrollMenu::ScrollMenu(ScrollType menu_type, const Vector2 &mouse_position) : type(menu_type) {	
@@ -192,7 +191,6 @@ InfoPanel::InfoPanel(){
 		.height = this->render_rect.height / 9, 
 	};
 
-
 	//first element contains the sprite for hex or unit selected
 	block.x = block.width * 2;
 	block.y = block.height * 2;
@@ -203,17 +201,20 @@ InfoPanel::InfoPanel(){
 
 	block.x = block.width;
 	block.y = block.height * 3;
-	this->elements.emplace_back(
+
+	this->info.emplace_back(
 			block,
-			&grid::texture_map[grid::kGrassHex] //placeholder
+			std::string("HP: "),
+			BLACK
 			);
 
 	block.x = block.width * 3;
 	block.y = block.height * 3;
 
-	this->elements.emplace_back(
+	this->info.emplace_back(
 			block,
-			&grid::texture_map[grid::kGrassHex] //placeholder
+			std::string("DEF: "), 
+			BLACK
 			);
 }
 
@@ -247,6 +248,21 @@ void InfoPanel::renderElements(const engine::Game &engine_instance){
 
 			DrawRectangleLinesEx(adjusted_position, 5.0, BLACK);
 			DrawTexturePro(hex_texture, source, adjusted_position, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE); //WRONG FIXNOW 
+			this->info[0].content = "DEF: " + std::to_string(engine_instance.selected_hex->env_defense);  //this needs to happen when we create hex info instrad of every frame
+			this->info[1].content = "";
+			for(const Text &message : this->info){
+				adjusted_position.x = this->render_rect.x + message.render_rect.x;
+				adjusted_position.y = this->render_rect.y + message.render_rect.y;
+
+				DrawTextEx(
+					default_font,	
+					message.content.c_str(), 
+					(Vector2){.x = adjusted_position.x, .y = adjusted_position.y}, 
+					message.font_size,  //placeholder
+					5, 
+					message.color
+					);
+			}
 			break;
 		}
 	}
@@ -360,7 +376,7 @@ void UiManager::createUiElem(Vector2 position, ElemTypes type, CommandParams par
 			Rectangle desired_pos = text_pos;
 			desired_pos.y = desired_pos.y - grid::radius * 2.5;	
 
-			Text firing_text = Text(params.text_content, RED, text_pos, 15);
+			Text firing_text = Text(text_pos, params.text_content, RED);
 			firing_text.is_firing_text = true;
 			int text_ind = this->messages.size();
 			this->messages.push_back(firing_text);

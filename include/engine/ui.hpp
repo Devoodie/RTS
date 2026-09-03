@@ -48,7 +48,7 @@ class Text : public Element {
 		float font_size;
 		bool is_firing_text = false; // this is going to hurt me until i find a better solution
 		
-		Text(std::string message, Color color, Rectangle pos, float size);
+		Text(Rectangle pos, std::string message, Color color, float size);
 };
 
 class ScrollMenu {
@@ -98,6 +98,7 @@ class InfoPanel {
 	public:
 		Rectangle render_rect;
 		std::vector<Element> elements;
+		std::vector<Text> info;
 		std::optional<Slot> transformation = std::nullopt;
 
 		InfoPanel();
