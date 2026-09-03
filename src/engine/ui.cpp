@@ -9,11 +9,10 @@ namespace ui{
 Element::Element(Rectangle rect, Texture2D *text, Color elem_color) : render_rect(rect), texture(text), color(elem_color){
 }
 
-Text::Text(std::string message, Color color, Rectangle pos, float size) :  content(message), font_size(size), Element(pos, nullptr, color){
+Text::Text(std::string message, Color color, Rectangle pos, float size) : content(message), font_size(size), Element(pos, nullptr, color){
 	float rectangle_font_ratio = pos.height / default_font.baseSize; //this language doesnt even warn on debug if you divide by 0 by the way. this is your peak. (lovely)
 	font_size = pos.height;
 	std::cout << "Font Size: " << default_font.baseSize << std::endl;
-	std::cout << "ID: " << default_font.texture.id << std::endl;
 };
 
 ScrollMenu::ScrollMenu(ScrollType menu_type, const Vector2 &mouse_position) : type(menu_type) {	
@@ -190,7 +189,7 @@ InfoPanel::InfoPanel(){
 		.x = 0,
 		.y = 0, 
 		.width = this->render_rect.width / 5,
-		.height = this->render_rect.height, 
+		.height = this->render_rect.height / 9, 
 	};
 
 
@@ -233,7 +232,12 @@ void InfoPanel::renderElements(const engine::Game &engine_instance){
 	switch(engine_instance.state){
 		case engine::HEX_INFO: {
 			//draw the hex in the middle
-			Texture2D hex_texture = grid::texture_map[grid::kGrassHex];  //Change this to select the hex based on the type
+			const Texture2D &hex_texture = grid::texture_map[grid::kGrassHex];  //Change this to select the hex based on the type
+			Rectangle adjusted_position = this->elements[0].render_rect;
+			std::cout << adjusted_position.width << ", " << adjusted_position.height << std::endl;
+			adjusted_position.x = this->render_rect.x + this->elements[0].render_rect.x;
+			adjusted_position.y = this->render_rect.y + this->elements[0].render_rect.y;
+
 			Rectangle source = {
 				.x = 0,
 				.y = 0,
@@ -241,7 +245,8 @@ void InfoPanel::renderElements(const engine::Game &engine_instance){
 				.height = (float)hex_texture.height,
 			};
 
-			DrawTexturePro(hex_texture, source, this->elements[0].render_rect, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE); //WRONG FIXNOW 
+			DrawRectangleLinesEx(adjusted_position, 5.0, BLACK);
+			DrawTexturePro(hex_texture, source, adjusted_position, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE); //WRONG FIXNOW 
 			break;
 		}
 	}
@@ -349,8 +354,8 @@ void UiManager::createUiElem(Vector2 position, ElemTypes type, CommandParams par
 			Rectangle text_pos;
 			text_pos.x = position.x;
 			text_pos.y = position.y;
-			text_pos.height = grid::radius / 4 ;
-			text_pos.width = grid::inradius * 2;
+			text_pos.height = grid::radius / 2 ;
+			text_pos.width = grid::inradius * 2 ;
 
 			Rectangle desired_pos = text_pos;
 			desired_pos.y = desired_pos.y - grid::radius * 2.5;	
