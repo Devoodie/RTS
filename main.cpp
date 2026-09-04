@@ -90,7 +90,7 @@ int main(void){
 
 		//mixture of 2D and Screenspace mode
 		game.ui_manager.animate();
-		game.ui_manager.renderUi(game);
+		game.ui_manager.renderUi();
 		game.ui_manager.renderText();
 		game.ui_manager.cleanUp();
 		// DrawTexturePro(texture_map[grid::kEndButton], (Rectangle){.x = 0, .y = 0, .width = (float)texture_map[grid::kEndButton].width, .height = (float)texture_map[grid::kEndButton].height}, game.ui_manager.ui_elements[0].render_rect, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);

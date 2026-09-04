@@ -48,7 +48,7 @@ class Text : public Element {
 		float font_size;
 		bool is_firing_text = false; // this is going to hurt me until i find a better solution
 		
-		Text(Rectangle pos, std::string message, Color color, float size);
+		Text(Rectangle pos, std::string message, Color color, float size = 0);
 };
 
 class ScrollMenu {
@@ -98,7 +98,7 @@ class InfoPanel {
 	public:
 		Rectangle render_rect;
 		std::vector<Element> elements;
-		std::vector<Text> info;
+		std::vector<Text> text_elem;
 		std::optional<Slot> transformation = std::nullopt;
 
 		InfoPanel();
@@ -110,7 +110,8 @@ enum class ElemTypes {
 	kOptionScroll,
 	kTaskScroll,
 	kFiringText,
-	kInfo,
+	kHexInfo,
+	kUnitInfo,
 };
 
 
@@ -130,13 +131,14 @@ class Transformation {
 class UiManager {
 	public:
 		std::vector<Element> ui_elements;
-		Camera2D &camera;
-		std::unique_ptr<ScrollMenu> scrl_menu; // only one scroll menu
 		std::vector<Text> messages;
 		SlotMap<Transformation> transformations;
+		Camera2D &camera;
+		std::unique_ptr<ScrollMenu> scrl_menu; // only one scroll menu
 		InfoPanel info;
+		const engine::Game &engine_instance;
 
-		UiManager(Camera2D &camera);
+		UiManager(Camera2D &camera, const engine::Game &engine);
 		UiSignal CollisionCheck();
 
 		//modifies/overwrites scroll menus (Possibly info panels in the future)
@@ -147,7 +149,7 @@ class UiManager {
 		void animate();
 		void transform();
 		//renders options menu
-		void renderUi(const engine::Game &engine_instance);
+		void renderUi();
 		void renderText();
 
 		void cleanUp();

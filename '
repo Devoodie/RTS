@@ -9,7 +9,7 @@ namespace ui{
 Element::Element(Rectangle rect, Texture2D *text, Color elem_color) : render_rect(rect), texture(text), color(elem_color){
 }
 
-Text::Text(Rectangle pos, std::string message, Color color, float size) : content(message), font_size(size), Element(pos, nullptr, color){
+Text::Text(Rectangle pos, std::string message, Color color, float size = 0) : content(message), font_size(size), Element(pos, nullptr, color){
 	if(size == 0.0) float rectangle_font_ratio = pos.height / default_font.baseSize; //this language doesnt even warn on debug if you divide by 0 by the way. this is your peak. (lovely)
 	font_size = pos.height;
 };
@@ -205,8 +205,7 @@ InfoPanel::InfoPanel(){
 	this->text_elem.emplace_back(
 			block,
 			std::string("HP: "),
-			BLACK,
-			5.0
+			BLACK
 			);
 
 	block.x = block.width * 3;
@@ -215,8 +214,7 @@ InfoPanel::InfoPanel(){
 	this->text_elem.emplace_back(
 			block,
 			std::string("DEF: "), 
-			BLACK,
-			5.0
+			BLACK
 			);
 }
 
@@ -276,9 +274,9 @@ void InfoPanel::renderElements(const engine::Game &engine_instance){
 
 		for(int i = 0; i < 9; ++i){
 			adjusted_position.y = this->render_rect.y + adjusted_position.height * i;
-			for(int j = 0; j < 5; ++j){
+			for(int j = 0; i < 5; ++j){
 				adjusted_position.x = this->render_rect.x + adjusted_position.width * j;
-				DrawRectangleLines(adjusted_position.x, adjusted_position.y, adjusted_position.width, adjusted_position.height, RED);
+				// DrawRectangleLines(j * adjusted_position.width, i * adjusted_position.height, adjusted_position.width, adjusted_position.height, RED);
 			}
 		}
 	}

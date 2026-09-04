@@ -17,7 +17,7 @@ Player::Player(Slot hq_key) : units(50), buildings(50){
 
 namespace engine {
 
-Game::Game(Camera2D &camera) : camera(camera), units(50), buildings(10), ui_manager(camera){
+Game::Game(Camera2D &camera) : camera(camera), units(50), buildings(10), ui_manager(camera, *this){
 	players = std::vector<Player>();
 	player_count = 2;
 	player_index = 0;
@@ -76,7 +76,7 @@ engine::states Game::SelectBuilding(Building *building_ptr){
 	this->selected_hex = building_ptr->hex;
 
 	if(building_ptr->owner_index != this->player_index or building_ptr->type != FACTORY){
-		this->ui_manager.createUiElem(Vector2(), ui::ElemTypes::kInfo, ui::CommandParams());
+		this->ui_manager.createUiElem(Vector2(), ui::ElemTypes::kHexInfo, ui::CommandParams());
 		return HEX_INFO;
 
 	} else {
@@ -108,7 +108,7 @@ engine::states Game::SelectUnit(Unit* unit_ptr){
 	} else {
 		//SHOW COMPARISON
 		this->selected_unit = unit_ptr;
-		this->ui_manager.createUiElem(Vector2(), ui::ElemTypes::kInfo, ui::CommandParams());
+		this->ui_manager.createUiElem(Vector2(), ui::ElemTypes::kUnitInfo, ui::CommandParams());
 		return UNIT_INFO;
 	}
 }
@@ -144,7 +144,7 @@ void Game::hexInfoTransition(inputAlphabet input, void *selection){
 				this->selected_unit = unit_ptr;
 				this->selected_hex = unit_ptr->current_hex;
 
-				this->ui_manager.createUiElem(Vector2(), ui::ElemTypes::kInfo, ui::CommandParams());
+				this->ui_manager.createUiElem(Vector2(), ui::ElemTypes::kUnitInfo, ui::CommandParams());
 				this->state = UNIT_INFO;
 				return;
 			}
@@ -181,7 +181,7 @@ void Game::idleTransition(inputAlphabet input, void *selection){
 		case HEX:
 			this->selected_hex = (HexSpace*)selection;
 
-			this->ui_manager.createUiElem(Vector2(), ui::ElemTypes::kInfo, ui::CommandParams());
+			this->ui_manager.createUiElem(Vector2(), ui::ElemTypes::kHexInfo, ui::CommandParams());
 			this->state = HEX_INFO;
 			break;
 		case BUILDING:{
@@ -288,7 +288,7 @@ void Game::unitInfoTransition(inputAlphabet input, void *selection){
 				this->selected_unit = nullptr;
 				this->selected_hex = hex_ptr;
 
-				this->ui_manager.createUiElem(Vector2(), ui::ElemTypes::kInfo, ui::CommandParams());
+				this->ui_manager.createUiElem(Vector2(), ui::ElemTypes::kHexInfo, ui::CommandParams());
 				this->state = HEX_INFO;
 				return;
 			}
