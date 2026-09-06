@@ -174,7 +174,61 @@ UiSignal OptionScrollMenu::HandleScrollCollision(int collision_index){
 	return kSigNone;
 }
 
-TaskScrollMenu::TaskScrollMenu(const Vector2 &mouse_position, CommandParams params) : capturing(params.task_capturing), ScrollMenu(ScrollType::kScrollTasks, mouse_position){}
+TaskScrollMenu::TaskScrollMenu(const Vector2 &mouse_position, CommandParams params) : capture(params.task_capturing), ScrollMenu(ScrollType::kScrollTasks, mouse_position){
+	float width = grid::inradius;
+
+	Texture2D *selected_texture;
+	Color selected_color;
+
+	for(int i = 0; i < 1; ++i){
+		switch(i){
+			case 0 :
+				if(params.task_capturing){
+					selected_texture = &grid::texture_map[grid::kCaptureButton];
+					selected_color = RAYWHITE;
+				} else {
+					selected_texture = &grid::texture_map[grid::kCaptureButtonUnusable];
+					selected_color = GRAY;
+				}
+
+				this->elements.emplace_back((Rectangle){
+					.x = 0,
+					.y = i * grid::radius / 2,
+					.width = (float)grid::inradius,
+					.height = grid::radius / 2
+					},
+					selected_texture,
+					selected_color
+					);
+				break;
+		}
+	}
+
+	float height = 0.0;
+	if(elements.size() > 8){
+		height = grid::radius / 2 * 8;
+	} else {
+		height = grid::radius / 2 * elements.size();
+	}
+
+	std::cout << "Height: " << height << std::endl;
+	this->dimensions = {
+		.x = mouse_position.x + grid::inradius / 4,
+		.y = mouse_position.y,
+		.width = width,
+		.height = height,
+	};
+
+	this->internal_height = elements[0].render_rect.y + elements[0].render_rect.height;
+
+}
+
+TaskScrollMenu::~TaskScrollMenu(){}
+
+UiSignal TaskScrollMenu::HandleScrollCollision(int collision_index){
+	return (this->capture) ? UiSignal::kSigCapture : UiSignal::kSigInvalid;
+
+}
 
 InfoPanel::InfoPanel(){
 	this->render_rect = (Rectangle){
@@ -202,7 +256,18 @@ InfoPanel::InfoPanel(){
 			);
 
 	block.x = block.width;
+	block.y = block.height;
+
+	this->text_elem.emplace_back(
+			block,
+			std::string("Grass Hex"),
+			BLACK,
+			5.0
+			);
+
+	block.x = block.width;
 	block.y = block.height * 3;
+
 
 	this->text_elem.emplace_back(
 			block,
@@ -270,7 +335,7 @@ void InfoPanel::renderElements(const engine::Game &engine_instance){
 		}
 	}
 	
-	bool debug = true;
+	bool debug = false;
 	if(debug){
 		Rectangle adjusted_position = {0};
 		adjusted_position.width = this->render_rect.width / 5;
@@ -356,7 +421,7 @@ void UiManager::createUiElem(Vector2 position, ElemTypes type, CommandParams par
 			break;
 			}
 		case ElemTypes::kTaskScroll:{
-
+			this->scrl_menu = std::make_unique<TaskScrollMenu>(position, params);
 			break;
 		     	}
 		case ElemTypes::kUnitScroll:
@@ -384,11 +449,14 @@ void UiManager::createUiElem(Vector2 position, ElemTypes type, CommandParams par
 			this->transformations[transf_key]->self_key = transf_key;
 
 			if(type == ElemTypes::kHexInfo){
-				this->info.text_elem[0].content = "DEF: " + std::to_string(engine_instance.selected_hex->env_defense);  
-				this->info.text_elem[1].content = "";
+				this->info.text_elem[0].content = "Grasshex"; 
+				this->info.text_elem[1].content = "DEF: " + std::to_string(engine_instance.selected_hex->env_defense);  
+				this->info.text_elem[2].content = "";
 			} else {
-				this->info.text_elem[0].content = "HP: " + std::to_string(engine_instance.selected_unit->hp);  
-				this->info.text_elem[1].content = "";
+				//we need unit names
+				this->info.text_elem[0].content = "Dark Infantry";
+				this->info.text_elem[1].content = "HP: " + std::to_string(engine_instance.selected_unit->hp);  
+				this->info.text_elem[2].content = "";
 			}
 			break;
 		        }

@@ -98,7 +98,7 @@ class OptionScrollMenu: public ScrollMenu {
 
 class TaskScrollMenu : public ScrollMenu {
 	public:
-		bool capturing = false;
+		bool capture = false;
 
 		TaskScrollMenu(const Vector2 &mouse_position, CommandParams params);
 		~TaskScrollMenu();

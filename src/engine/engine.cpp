@@ -95,13 +95,16 @@ engine::states Game::SelectUnit(Unit* unit_ptr){
 		this->selected_hex = unit_ptr->current_hex;
 
 		std::optional<Slot> building_key = this->selected_hex->structure_key;
-		bool exists = this->buildings[building_key].has_value();
-		bool owned = (exists) ? this->buildings[*building_key]->owner_index == this->player_index : false;
+		bool building_exists = this->buildings[building_key].has_value();
+		bool owned = (building_exists) ? this->buildings[*building_key]->owner_index == this->player_index : false;
 
-		if(unit_ptr->task != NONE or (exists and !owned)) {
+		if(unit_ptr->task != NONE or (building_exists and !owned)) {
 			Vector2 button_position = unit_ptr->position;
 			this->MousePosition = GetScreenToWorld2D(GetMousePosition(), this->camera);
-			ui_manager.createUiElem(this->MousePosition, ui::ElemTypes::kTaskScroll, ui::CommandParams());
+			ui::CommandParams params;
+
+			params.task_capturing = true;
+			ui_manager.createUiElem(this->MousePosition, ui::ElemTypes::kTaskScroll, params); 
 		}
 		return UNIT1;
 
@@ -250,6 +253,34 @@ void Game::optionTransition(inputAlphabet input, void *selection){
 			this->ui_manager.createUiElem(this->MousePosition, ui::ElemTypes::kOptionScroll, params);
 			break;
 			 }
+		case BUILDING:{
+				//TODO >> CHANGE THIS 
+				Building *building_ptr = (Building*)selection;
+				std::optional<Unit&> unit_opt = this->units[building_ptr->hex->occupier_key];
+				if(unit_opt.has_value()){
+					this->state = HEX_INFO;
+
+					this->escape();
+
+					this->selected_hex = unit_opt->current_hex;
+					ui_manager.createUiElem(this->MousePosition, ui::ElemTypes::kHexInfo, ui::CommandParams());
+					return;
+				}
+
+				ui::CommandParams params;
+				if(building_ptr->owner_index != this->player_index){
+					params.option_capturable = true;
+				}
+
+				params.option_movable = true;
+
+				this->MousePosition = GetScreenToWorld2D(GetMousePosition(), this->camera);
+				this->selected_hex2 = building_ptr->hex;
+				this->state = OPTIONS;
+
+				ui_manager.createUiElem(this->MousePosition, ui::ElemTypes::kOptionScroll, params);
+				break;
+				 }
 		default:
 			return;
 	}
@@ -353,7 +384,29 @@ void Game::unitTransition(inputAlphabet input, void *selection){
 		case BUILDING:{
 		        //TODO >> CHANGE THIS 
 			Building *building_ptr = (Building*)selection;
-	//		if(building_ptr->owner_index == )
+			std::optional<Unit&> unit_opt = this->units[building_ptr->hex->occupier_key];
+			if(unit_opt.has_value()){
+				this->state = HEX_INFO;
+
+				this->escape();
+
+				this->selected_hex = unit_opt->current_hex;
+				ui_manager.createUiElem(this->MousePosition, ui::ElemTypes::kHexInfo, ui::CommandParams());
+				return;
+			}
+
+			ui::CommandParams params;
+			if(building_ptr->owner_index != this->player_index){
+				params.option_capturable = true;
+			}
+
+			params.option_movable = true;
+
+			this->MousePosition = GetScreenToWorld2D(GetMousePosition(), this->camera);
+			this->selected_hex2 = building_ptr->hex;
+			this->state = OPTIONS;
+
+			ui_manager.createUiElem(this->MousePosition, ui::ElemTypes::kOptionScroll, params);
 			break;
 		         }
 		default:
@@ -589,7 +642,7 @@ void Game::transferBuilding(Slot &building_key, int current_owner, int new_owner
 
 //TODO Move this to event system
 //moves units
-void Game::Move(){
+void Game::Move(){ // this needs some refactoring
 	Unit *unit_ptr = this->selected_unit;
 
 	Vector2 destRect = {
