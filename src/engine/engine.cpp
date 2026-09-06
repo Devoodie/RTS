@@ -370,8 +370,6 @@ void Game::unitTransition(inputAlphabet input, void *selection){
 			this->state = OPTIONS;
 			HexSpace *hex_ptr = (HexSpace*) selection;
 			
-			if(this->buildings[hex_ptr->occupier_key].has_value()) return;
-
 			this->MousePosition = GetScreenToWorld2D(GetMousePosition(), this->camera);
 			this->selected_hex2 = hex_ptr;
 
