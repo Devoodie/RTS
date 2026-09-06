@@ -1,22 +1,171 @@
 #ifndef RTS_UI_H
 #define RTS_UI_H
 
+#include <memory>
 #include <unordered_map>
-#include <cstdint>
 #include <raylib.h>
-#include <engine/engine.hpp>
+#include <utils/slotmap.hpp>
+#include <utils/grid.hpp>
 
+namespace engine {
+	class Game;
+}
 //contains ui rendering functions
 namespace ui {
-	//renders options menu
-	void renderOptions(const engine::Game &engine_instance, std::unordered_map<int, Texture2D> texture_map);
-	void renderText(const std::vector<Text> &messages);
 
-	class Element {
-		Rectangle renderRect;
+//will provide information to autofill menus on creation
+enum ScrollType{
+	kScrollUnits,
+	kScrollUpgrades,
+	kScrollOptions,
+	kScrollTasks,
+};
+
+//i would have to make a signal for each unit to spawn
+enum UiSignal{
+	kSigEndTurn,
+	kSigMove,
+	kSigFire,
+	kSigCapture,
+	kSigSpawnInfantry,
+	kSigInvalid,
+	kSigNone,
+};
+
+//element will likely have types in the future that change rendering behavior
+class Element {
+	public:
+		Rectangle render_rect;
+		Texture2D *texture;
+		Color color;
+		std::optional<Slot> transformation = std::nullopt;
+
+		Element(Rectangle rect, Texture2D *text, Color elem_color = RAYWHITE);
+};
+
+class Text : public Element {
+	public:
+		std::string content;
+		float font_size;
+		bool is_firing_text = false; // this is going to hurt me until i find a better solution
+		
+		Text(Rectangle pos, std::string message, Color color, float size = 0);
+};
+
+class ScrollMenu {
+	public:
+		std::vector<Element> elements;
+		Rectangle dimensions;
+		float y_pos;
+		float internal_height;
+
+		ScrollType type;
+
+		ScrollMenu(ScrollType menu_type, const Vector2 &mouse_position);
+		virtual ~ScrollMenu();
+
+		virtual UiSignal HandleScrollCollision(int collision_index) = 0;
+};
+
+class UnitScrollMenu : public ScrollMenu {
+	public: 
+		UnitScrollMenu(const Vector2 &mouse_position);
+		~UnitScrollMenu();
+
+		UiSignal HandleScrollCollision(int collision_index) override;
+};
+
+struct CommandParams {
+	bool option_fireable = false;
+	bool option_movable = false;
+	bool option_capturable = false;
+	bool task_capturing = false;
+
+	std::optional<std::string> text_content;
+};
+
+class OptionScrollMenu: public ScrollMenu {
+	public: 
+		bool fireable;
+		bool moveable;
+		bool captureable;
+
+		OptionScrollMenu(const Vector2 &mouse_position, CommandParams params);
+		~OptionScrollMenu();
+
+		UiSignal HandleScrollCollision(int collision_index) override;
+};
+
+class TaskScrollMenu : public ScrollMenu {
+	public:
+		bool capture = false;
+
+		TaskScrollMenu(const Vector2 &mouse_position, CommandParams params);
+		~TaskScrollMenu();
+
+		UiSignal HandleScrollCollision(int collision_index) override;
+};
+
+//shows when engine state is in UNIT_INFO or HEX_INFO 
+class InfoPanel {
+	public:
+		Rectangle render_rect;
+		std::vector<Element> elements;
+		std::vector<Text> text_elem;
+		std::optional<Slot> transformation = std::nullopt;
+
+		InfoPanel();
+		void renderElements(const engine::Game &engine_instance);
+};
+
+enum class ElemTypes {
+	kUnitScroll = 0,
+	kOptionScroll,
+	kTaskScroll,
+	kFiringText,
+	kHexInfo,
+	kUnitInfo,
+};
 
 
-		Element();
-	};
+// what if i want to cancel mid-animation I need a reference for which element has a trans
+// Transformations Are 1-1.
+// When an element is deleted the correlating transformation needs to be deleted.
+class Transformation {
+	public:
+		Slot self_key;
+		Rectangle target_pos;
+		Rectangle *position;
+		float speed;
+
+		Transformation(Rectangle *current_pos, Rectangle desired_pos, float anim_speed);
+};
+
+class UiManager {
+	public:
+		std::vector<Element> ui_elements;
+		std::vector<Text> messages;
+		SlotMap<Transformation> transformations;
+		Camera2D &camera;
+		std::unique_ptr<ScrollMenu> scrl_menu; // only one scroll menu
+		InfoPanel info;
+		const engine::Game &engine_instance;
+
+		UiManager(Camera2D &camera, const engine::Game &engine);
+		UiSignal CollisionCheck();
+
+		//modifies/overwrites scroll menus (Possibly info panels in the future)
+		//if the new concrete class is equal to the old one, no allocation is made
+		void createUiElem(Vector2 position, ElemTypes type, CommandParams params);
+		void hideElements();
+
+		void animate();
+		void transform();
+		//renders options menu
+		void renderUi();
+		void renderText();
+
+		void cleanUp();
+};
 }
 #endif

@@ -26,7 +26,7 @@ int main(void){
 
 	//ASSETS
 	std::unordered_map <int, Texture2D> texture_map;
-	grid::initAssets(texture_map);
+	grid::initAssets();
 
 	//init game class
 	engine::Game game(camera);
@@ -40,44 +40,32 @@ int main(void){
 	int player_index = 0;
 	game.playerInit(2);
 
+	//player1 unit
+	Slot plyr1_unit = game.units.Insert(Unit(&game.grid_space[0][0], INFANTRY, 0));
+	game.players[0].units.push_back(plyr1_unit);
+	game.grid_space[0][0].occupier_key = plyr1_unit;
 
-	game.players[0].units.push_back(game.units.size());
-	game.grid_space[0][0].occupier_index = game.units.size();
-	game.units.emplace_back(&game.grid_space[0][0], INFANTRY, 0);
-		//
-
-	game.players[1].units.push_back(game.units.size());
-	game.grid_space[0][5].occupier_index = game.units.size();
-	game.units.emplace_back(&game.grid_space[0][5], INFANTRY, 1);
+	//player2 unit
+	Slot plyr2_unit = game.units.Insert(Unit(&game.grid_space[0][5], INFANTRY, 1));
+	game.players[1].units.push_back(plyr2_unit);
+	game.grid_space[0][5].occupier_key = plyr2_unit;
 
 	//make warehouses
-	game.grid_space[1][1].structure_index = game.buildings.size();
-	game.players[0].buildings.push_back(game.buildings.size());
-	game.buildings.emplace_back(&game.grid_space[1][1], FACTORY, 0);
+	Slot plyr1_warehouse = game.buildings.Insert(Building(&game.grid_space[1][1], FACTORY, 0));
+	game.players[0].buildings.push_back(plyr1_warehouse);
+	game.grid_space[1][1].structure_key = plyr1_warehouse;
 
-	game.grid_space[1][5].structure_index = game.buildings.size();
-	game.players[1].buildings.push_back(game.buildings.size());
-	game.buildings.emplace_back(&game.grid_space[1][5], FACTORY, 1);
 
-	//endturn
-	//Should this be in the constructor?
-	Rectangle textRect = {
-		.x = screenWidth * 7 / 8,
-		.y = screenHeight / 5,
-		.width = screenHeight / 16,
-		.height = screenWidth / 10,
-	};
-
-	game.ui_elements.push_back(textRect);
+	Slot plyr2_warehouse = game.buildings.Insert(Building(&game.grid_space[1][5], FACTORY, 1));
+	game.players[1].buildings.push_back(plyr2_warehouse);
+	game.grid_space[1][5].structure_key = plyr2_warehouse;
 
 	SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
 
 	while (!WindowShouldClose())    // Detect window close button or ESC key
 	{
 		game.versus();
-		BeginDrawing();
 
-		//DO ZOOMING
 		if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT)){
 			Vector2 delta = GetMouseDelta();
 			delta = Vector2Scale(delta, -1.0f/ camera.zoom);
@@ -88,22 +76,24 @@ int main(void){
 			camera.target.x = Clamp(camera.target.x, -600, 600);
         	}
 
+		BeginDrawing();
+		//DO ZOOMING
 		ClearBackground(RAYWHITE);
 
 		BeginMode2D(camera);
 
-		grid::renderGrid(texture_map, game.grid_space, false);
-		grid::renderBuildings(texture_map, game.buildings, true);
-		grid::renderUnits(texture_map, game.units, true );
-		//render options
-		ui::renderText(game.messages);
+		grid::renderGrid(game.grid_space, false);
+		grid::renderBuildings(game.buildings, true);
+		grid::renderUnits(game.units, true );
 
 		EndMode2D();
 
 		//mixture of 2D and Screenspace mode
-		ui::renderOptions(game, texture_map);
-		DrawText("END TURN", textRect.x, textRect.y, 15, RED);
-
+		game.ui_manager.animate();
+		game.ui_manager.renderUi();
+		game.ui_manager.renderText();
+		game.ui_manager.cleanUp();
+		// DrawTexturePro(texture_map[grid::kEndButton], (Rectangle){.x = 0, .y = 0, .width = (float)texture_map[grid::kEndButton].width, .height = (float)texture_map[grid::kEndButton].height}, game.ui_manager.ui_elements[0].render_rect, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
 
 		EndDrawing();
 	}

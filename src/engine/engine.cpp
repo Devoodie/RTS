@@ -1,3 +1,4 @@
+#include "engine/ui.hpp"
 #include <algorithm>
 #include <cstdlib>
 #include <iostream>
@@ -6,86 +7,21 @@
 #include <raymath.h>
 #include <engine/engine.hpp>
 #include <engine/entities.hpp>
+#include <utils/slotmap.hpp>
 
 constexpr int unused = 65535;
 
-Player::Player(int hq_index){
-	units = std::vector<uint16_t>(12);
-	buildings = std::vector<uint8_t>(12);
-	buildings.emplace_back(hq_index);
-}
-
-ScrollMenu::ScrollMenu(scroll_type menu_type, const Vector2 &mouse_position) : type(menu_type) {	
-	switch(menu_type){
-		case SCRLL_UNITS:
-			this->y_pos = 0;
-			for(int i = 0; i < 3; ++i){
-				this->elements.emplace_back((Rectangle){
-					.x = 0,
-					.y = i * grid::radius / 2,
-					.width  = (float)grid::inradius * 4,
-					.height = grid::radius / 2,
-				});
-			}
-			this->internal_height = elements[2].y + elements[2].height;
-			break;
-		case SCRLL_UPGRADES:
-			break;
-	}
-	float height;
-	//max height is 2 Hex's or 8 elements
-	if(elements.size() > 8){
-		height = grid::radius / 2 * 8;
-	} else {
-		height = grid::radius / 2 * elements.size();
-	}
-
-	this->dimensions = {
-		.x = mouse_position.x + grid::inradius / 4,
-		.y = mouse_position.y,
-		.width = grid::inradius * 4,
-		.height = height,
-	};
-};
-
-ScrollMenu::~ScrollMenu(){
-}
-
-UnitScrollMenu::UnitScrollMenu(const Vector2 &mouse_position): ScrollMenu(SCRLL_UNITS, mouse_position){
-	this->y_pos = 0;
-		for(int i = 0; i < 3; ++i){
-			this->elements.emplace_back((Rectangle){
-				.x = 0,
-				.y = i * grid::radius / 2,
-				.width  = (float)grid::inradius * 4,
-				.height = grid::radius / 2,
-			});
-	}
-} 
-
-UnitScrollMenu::~UnitScrollMenu(){
-}
-
-void UnitScrollMenu::handleScrollCollision(){
-	// std::cout << "PLAYER INDEX: " << this->player_index << std::endl;
-	// this->selected_hex->occupier_index = this->units.size();
-	// this->players[player_index].units.push_back(this->units.size());
-	// this->units.emplace_back(
-	// 		this->selected_hex,
-	// 		INFANTRY,
-	// 		this->player_index
-	// 		);
-	//
+Player::Player(Slot hq_key) : units(50), buildings(50){
+	buildings.emplace_back(hq_key);
 }
 
 namespace engine {
 
-Game::Game(Camera2D &camera) : camera(camera), scrl_menu(nullptr) {
+Game::Game(Camera2D &camera) : camera(camera), units(50), buildings(10), ui_manager(camera, *this){
 	players = std::vector<Player>();
 	player_count = 2;
 	player_index = 0;
 	grid_space = std::vector<std::vector<HexSpace>>(8, std::vector<HexSpace>(8));
-	units.reserve(50);
 	state = IDLE;
 }
 
@@ -100,10 +36,10 @@ void Game::playerInit(int playerCount){
 	int iter = 0;
 	while(players.size() < playerCount) {
 		HexSpace *hex = &this->grid_space[0][players.size() * row];
-		this->buildings.emplace_back(hex, HQ, this->players.size());
-
-		hex->structure_index = iter;
-		players.emplace_back(Player(iter));
+		Building hq(hex, HQ, this->players.size());
+		
+		Slot hq_key = this->buildings.Insert(hq);
+		players.emplace_back(Player(hq_key));
 		iter++;
 	}
 }
@@ -114,9 +50,15 @@ void Game::endTurn(){
 
 	this->escape();
 
-	for (uint16_t unit_index : this->players[player_index].units){
-		Unit &unit = this->units[unit_index];
-		unit.atks_left = 1;
+	std::vector<Slot> &player_units = this->players[player_index].units;
+	for (size_t i = 0; Slot unit_key: player_units){
+		std::optional<Unit&> unit = this->units[unit_key];
+		if(unit){
+			unit->atks_left = 1; //change this to be its default value;
+		} else {
+			player_units.erase(player_units.begin() + i);
+		}
+		++i;
 	}
 
 	player_index = (player_index + 1) % player_count;
@@ -134,12 +76,12 @@ engine::states Game::SelectBuilding(Building *building_ptr){
 	this->selected_hex = building_ptr->hex;
 
 	if(building_ptr->owner_index != this->player_index or building_ptr->type != FACTORY){
-		this->createUiElem(UI_INFO);
+		this->ui_manager.createUiElem(Vector2(), ui::ElemTypes::kHexInfo, ui::CommandParams());
 		return HEX_INFO;
 
 	} else {
-		this->createUiElem(UNIT_SCRL);
-		return SCROLL;
+		this->ui_manager.createUiElem(this->MousePosition, ui::ElemTypes::kUnitScroll, ui::CommandParams());
+		return kBuildingOpt;
 	}
 }
 
@@ -152,21 +94,24 @@ engine::states Game::SelectUnit(Unit* unit_ptr){
 		this->selected_unit = unit_ptr;
 		this->selected_hex = unit_ptr->current_hex;
 
-		bool exists = this->selected_hex->structure_index != unused; 
-		std::cout << "BUILDING INDEX: " << this->selected_hex->structure_index << std::endl;
+		std::optional<Slot> building_key = this->selected_hex->structure_key;
+		bool building_exists = this->buildings[building_key].has_value();
+		bool owned = (building_exists) ? this->buildings[*building_key]->owner_index == this->player_index : false;
 
-		bool owned = (exists) ? this->buildings[this->selected_hex->structure_index].owner_index == this->player_index : false;
-		if(unit_ptr->task != NONE or (exists and !owned)) {
+		if(unit_ptr->task != NONE or (building_exists and !owned)) {
 			Vector2 button_position = unit_ptr->position;
 			this->MousePosition = GetScreenToWorld2D(GetMousePosition(), this->camera);
-			this->createUiElem(UI_OPTIONS_1);
+			ui::CommandParams params;
+
+			params.task_capturing = true;
+			ui_manager.createUiElem(this->MousePosition, ui::ElemTypes::kTaskScroll, params); 
 		}
 		return UNIT1;
 
 	} else {
 		//SHOW COMPARISON
-		this-> selected_unit = unit_ptr;
-		this->createUiElem(UI_INFO);
+		this->selected_unit = unit_ptr;
+		this->ui_manager.createUiElem(Vector2(), ui::ElemTypes::kUnitInfo, ui::CommandParams());
 		return UNIT_INFO;
 	}
 }
@@ -180,50 +125,7 @@ void Game::escape(){
 	this->selected_hex = nullptr;
 	this->selected_hex2 = nullptr;
 
-	if(this->ui_elements.size() > 1) this->ui_elements.erase(ui_elements.begin() + 1);
-}
-
-void Game::createUiElem(uiElem ui_type){
-	switch(ui_type){
-		case UI_OPTIONS_1:
-			this->ui_elements.emplace_back((Rectangle){
-				.x = this->MousePosition.x + grid::inradius / 4,
-				.y = this->MousePosition.y,
-				.width = grid::inradius,
-				.height = grid::radius / 2,
-				});
-			break;
-		case UI_INFO:
-			this->ui_elements.emplace_back((Rectangle){
-				.x = float((grid::ScreenWidth * 3) / 4.0 ),
-				.y = 0,
-				.width = float(grid::ScreenWidth / 4.0),
-				.height = float(grid::ScreenHeight),
-				});
-			break;
-			//temporary
-		case UI_FIRING_TEXT:
-			{
-			this->dmg_txt_index = this->messages.size();
-			Vector2 text_pos = {
-				.x = this->selected_unit2->position.x - grid::inradius / 2,
-				.y = this->selected_unit2->position.y - grid::radius,
-			};
-
-			this->messages.emplace_back((Text){
-					.content = TextFormat("-%.2f HP", this->dmg_taken),
-					.text_color = RED,
-					.position = text_pos,
-					.font_size = 15,
-					});
-			break;
-			}
-		case UNIT_SCRL:
-			// CREATE NEW SCROLL
-			this->scrl_menu = std::make_unique<UnitScrollMenu>(this->MousePosition);
-			this->ui_elements.push_back(scrl_menu->dimensions);
-			break;
-	}
+	this->ui_manager.hideElements();
 }
 
 void Game::hexInfoTransition(inputAlphabet input, void *selection){
@@ -240,25 +142,15 @@ void Game::hexInfoTransition(inputAlphabet input, void *selection){
 		case UNIT:{
 			std::cout << "Unit Selected" << std::endl;
 			Unit *unit_ptr = (Unit*)selection;
-
-			if(unit_ptr->owner_index != this->player_index){
-				this->selected_unit = unit_ptr;
-				this->selected_hex = unit_ptr->current_hex;
-				this->state = UNIT_INFO;
-				return;
-			}
-
-			this->selected_unit = unit_ptr;
-			this->selected_hex = unit_ptr->current_hex;
-			this->state = UNIT1;
-			if(this->ui_elements.size() > 1) this->ui_elements.erase(ui_elements.begin() + 1);
+			this->state = SelectUnit(unit_ptr);
 			break;
 			  }
-		case BUILDING:
+		case BUILDING:{
 			Building *building_ptr = (Building*)selection;
 			this->state = this->SelectBuilding(building_ptr);
 			break;
-		defaut:
+		        }
+		default:
 			std::cerr << "STATE " << input << " NOT HANDLED (hexInfoTransition)" << std::endl;
 			break;
 	}
@@ -278,8 +170,9 @@ void Game::idleTransition(inputAlphabet input, void *selection){
 			   }
 		case HEX:
 			this->selected_hex = (HexSpace*)selection;
+
+			this->ui_manager.createUiElem(Vector2(), ui::ElemTypes::kHexInfo, ui::CommandParams());
 			this->state = HEX_INFO;
-			this->createUiElem(UI_INFO);
 			break;
 		case BUILDING:{
 			Building *building_ptr = (Building*)selection;
@@ -304,7 +197,6 @@ void Game::optionTransition(inputAlphabet input, void *selection){
 				if(this->state == FIRE) this->selected_unit2 = nullptr;
 				this->selected_hex2 = nullptr;
 				this->state = UNIT1;
-				this->ui_elements.erase(ui_elements.begin() + 1);
 				this->escape();
 				return;
 			} else if (unit_ptr->owner_index == this->player_index){
@@ -314,7 +206,7 @@ void Game::optionTransition(inputAlphabet input, void *selection){
 				this->selected_unit = unit_ptr;
 				this->selected_hex = unit_ptr->current_hex;
 				this->state = UNIT1;
-				this->ui_elements.erase(ui_elements.begin() + 1);
+				this->ui_manager.hideElements();
 			} else {
 				HexSpace* hex_ptr = unit_ptr->current_hex;
 				if (std::abs(hex_ptr->indices.x - selected_hex->indices.x) <= selected_unit->attack_range and
@@ -322,8 +214,12 @@ void Game::optionTransition(inputAlphabet input, void *selection){
 					this->selected_unit2 = unit_ptr;
 					if(this->state != FIRE){
 						this->state = FIRE;
-						this->ui_elements[1].x = unit_ptr->position.x;
-						this->ui_elements[1].y = unit_ptr->position.y;
+
+						this->MousePosition = GetScreenToWorld2D(GetMousePosition(), this->camera);
+						ui::CommandParams params;
+						params.option_fireable = true;
+
+						this->ui_manager.createUiElem(this->MousePosition, ui::ElemTypes::kOptionScroll, params);
 					};
 				} 
 				//otherwise idk 
@@ -343,18 +239,48 @@ void Game::optionTransition(inputAlphabet input, void *selection){
 				this->selected_unit2 = nullptr;
 			}
 
-			if(hex_ptr->occupier_index != unused){ 
-				this->ui_elements[1].x = 16384;
-				this->ui_elements[1].y = 16384;
-				return;
-			};
+			//what purpose does this serve
+			// if(this->buildings[hex_ptr->structure_key].has_value()){ 
+			// 	this->ui_manager.hideElements();
+			// 	return;
+			// };
 			this->selected_hex2 = hex_ptr;
-			this->MousePosition =  GetScreenToWorld2D(GetMousePosition(), this->camera);
+			this->MousePosition = GetScreenToWorld2D(GetMousePosition(), this->camera);
 
-			this->ui_elements[1].x = MousePosition.x + grid::inradius / 4;
-			this->ui_elements[1].y = MousePosition.y;
+			ui::CommandParams params;
+			params.option_movable = true;
+
+			this->ui_manager.createUiElem(this->MousePosition, ui::ElemTypes::kOptionScroll, params);
 			break;
 			 }
+		case BUILDING:{
+				//TODO >> CHANGE THIS 
+				Building *building_ptr = (Building*)selection;
+				std::optional<Unit&> unit_opt = this->units[building_ptr->hex->occupier_key];
+				if(unit_opt.has_value()){
+					this->state = HEX_INFO;
+
+					this->escape();
+
+					this->selected_hex = unit_opt->current_hex;
+					ui_manager.createUiElem(this->MousePosition, ui::ElemTypes::kHexInfo, ui::CommandParams());
+					return;
+				}
+
+				ui::CommandParams params;
+				if(building_ptr->owner_index != this->player_index){
+					params.option_capturable = true;
+				}
+
+				params.option_movable = true;
+
+				this->MousePosition = GetScreenToWorld2D(GetMousePosition(), this->camera);
+				this->selected_hex2 = building_ptr->hex;
+				this->state = OPTIONS;
+
+				ui_manager.createUiElem(this->MousePosition, ui::ElemTypes::kOptionScroll, params);
+				break;
+				 }
 		default:
 			return;
 	}
@@ -379,18 +305,22 @@ void Game::unitInfoTransition(inputAlphabet input, void *selection){
 			if(this->selected_unit->owner_index != this->player_index){
 				this->selected_unit = nullptr;
 				this->selected_hex = hex_ptr;
+
+				this->ui_manager.createUiElem(Vector2(), ui::ElemTypes::kHexInfo, ui::CommandParams());
 				this->state = HEX_INFO;
 				return;
 			}
 
-			if(hex_ptr->occupier_index != unused) return; 
+			if(this->buildings[hex_ptr->structure_key].has_value()) return; 
 
 			this->selected_hex2 = hex_ptr;
 			this->MousePosition = GetScreenToWorld2D(GetMousePosition(), this->camera);
 			this->state = OPTIONS;
 
-			if(this->ui_elements.size() > 1) this->ui_elements.erase(ui_elements.begin() + 1);
-			this->createUiElem(UI_OPTIONS_1);
+			ui::CommandParams params;
+			params.option_movable = true;
+			
+			this->ui_manager.createUiElem(this->MousePosition, ui::ElemTypes::kOptionScroll, params);
 			break;
 			 }
 		case BUILDING:{
@@ -414,70 +344,71 @@ void Game::unitTransition(inputAlphabet input, void *selection){
 			if(unit_owned){
 			} else if(std::abs(hex_ptr->indices.x - selected_hex->indices.x) <= selected_unit->attack_range and
 				  std::abs(hex_ptr->indices.y - selected_hex->indices.y) <= selected_unit->attack_range) {
-
+				this->state = FIRE; //the fire state awaits another input from the handler or signal from uimanager to trigger firing
+				
 				this->selected_unit2 = unit_ptr;
 				this->selected_hex2 = hex_ptr;
 
-				Vector2 button_position = unit_ptr->position;
-				this->MousePosition = GetScreenToWorld2D(GetMousePosition(), this->camera);
-				this->createUiElem(UI_OPTIONS_1);
+				//WORKHRE
+				this->MousePosition = {
+					.x = selected_unit2->position.x + grid::inradius * 3 / 4,
+					.y = selected_unit2->position.y,
+				}; //unit position is already world 
+
+				ui::CommandParams params;
+				params.option_fireable = true;
+				this->ui_manager.createUiElem(this->MousePosition, ui::ElemTypes::kOptionScroll, params);
 				
 				//PROB DO FIRE ANIMATION
-				this->state = FIRE;
 
-				//i don't want to put this before every single append
-				//this->ui_elements.erase(ui_elements.begin() + 1);
 				std::cout << "FIREEEEEEE" <<std::endl;
 			}
 			break;
 			  }
 		case HEX:{
 			std::cout << "Hex 2 Selected" << std::endl;
+			this->state = OPTIONS;
 			HexSpace *hex_ptr = (HexSpace*) selection;
 			
-			if(hex_ptr->occupier_index != unused) return;
+			if(this->buildings[hex_ptr->occupier_key].has_value()) return;
 
 			this->MousePosition = GetScreenToWorld2D(GetMousePosition(), this->camera);
 			this->selected_hex2 = hex_ptr;
-			this->state = OPTIONS;
 
-			//create ui element for options
-			this->createUiElem(UI_OPTIONS_1);
+			ui::CommandParams params;
+
+			params.option_movable = true;
+			ui_manager.createUiElem(this->MousePosition, ui::ElemTypes::kOptionScroll, params);
 			break;
 			 }
 		case BUILDING:{
 		        //TODO >> CHANGE THIS 
 			Building *building_ptr = (Building*)selection;
-	//		if(building_ptr->owner_index == )
+			std::optional<Unit&> unit_opt = this->units[building_ptr->hex->occupier_key];
+			if(unit_opt.has_value()){
+				this->state = HEX_INFO;
+
+				this->escape();
+
+				this->selected_hex = unit_opt->current_hex;
+				ui_manager.createUiElem(this->MousePosition, ui::ElemTypes::kHexInfo, ui::CommandParams());
+				return;
+			}
+
+			ui::CommandParams params;
+			if(building_ptr->owner_index != this->player_index){
+				params.option_capturable = true;
+			}
+
+			params.option_movable = true;
+
+			this->MousePosition = GetScreenToWorld2D(GetMousePosition(), this->camera);
+			this->selected_hex2 = building_ptr->hex;
+			this->state = OPTIONS;
+
+			ui_manager.createUiElem(this->MousePosition, ui::ElemTypes::kOptionScroll, params);
 			break;
 		         }
-		default:
-			return;
-	}
-}
-
-void Game::scrollTransition(inputAlphabet input, void *selection){
-	switch(input){
-		case UNIT:{
-			Unit* unit_ptr = (Unit*)selection;
-			this->state = this->SelectUnit(unit_ptr);
-			break;
-			  }
-		case HEX:
-			//TODO >> MAKE A HEX HELPER FUNCTION FOR HEXINFO
-			this->selected_hex = (HexSpace*)selection;
-			this->state = HEX_INFO;
-
-			if(this->ui_elements.size() > 1) this->ui_elements.erase(ui_elements.begin() + 1);
-			this->createUiElem(UI_INFO);
-			break;
-		case BUILDING:{
-			Building* building_ptr = (Building*)selection;
-			//ifbuilding not owned pull up hex info
-			//Check building type to determine if a research or unit scroll menu should be made
-			this->state = this->SelectBuilding(building_ptr);
-			break;
-		      }
 		default:
 			return;
 	}
@@ -502,8 +433,8 @@ void Game::transitionState(inputAlphabet input, void *selection){
 		case UNIT_INFO:
 			unitInfoTransition(input, selection);
 			break;
-		case SCROLL:
-			scrollTransition(input, selection);
+		case kBuildingOpt:
+			//scrollTransition(input, selection);
 			break;
 		default:
 			std::cerr << "ERR STATE " << input << " NOT FOUND (transitionState)" << std::endl;
@@ -513,9 +444,9 @@ void Game::transitionState(inputAlphabet input, void *selection){
 
 void Game::handleCollision(HexSpace *collided_hex, Vector2 mouse_point){
 	//add hovering
-	if(collided_hex->occupier_index != unused){
+	if(this->units[collided_hex->occupier_key].has_value() ){
 		//CHANGE ALL TO RELEASED OR DOWN (THEY MUST ALL BE THE SAME)
-		Unit* unit_ptr = &this->units[collided_hex->occupier_index];
+		Unit* unit_ptr = &this->units[collided_hex->occupier_key].value();
 		
 		if (CheckCollisionPointRec(mouse_point, unit_ptr->render_rect) and IsMouseButtonReleased(0)) {
 			//do unit stuff
@@ -524,9 +455,9 @@ void Game::handleCollision(HexSpace *collided_hex, Vector2 mouse_point){
 		} else if(IsMouseButtonReleased(0)) {
 			this->transitionState(HEX, collided_hex);
 		}
-	} else if(collided_hex->structure_index != unused){
+	} else if(this->buildings[collided_hex->structure_key].has_value()){
 		//check for building collision
-		Building* building_ptr = &this->buildings[collided_hex->structure_index];
+		Building* building_ptr = &this->buildings[collided_hex->structure_key].value();
 
 		if(CheckCollisionPointRec(mouse_point, building_ptr->render_rect) and IsMouseButtonReleased(0)){
 			std::cout << "BUILDING DETECTED" << std::endl;
@@ -539,34 +470,6 @@ void Game::handleCollision(HexSpace *collided_hex, Vector2 mouse_point){
 		if (IsMouseButtonReleased(0)) this->transitionState(HEX, collided_hex);
 	}
 }
-
-void Game::scrollCollision(int index, scroll_type type){
-	switch(type){
-		case SCRLL_UNITS:
-			switch(index) {
-				case 0:
-					//SPAWN INFANTRY
-					std::cout << "PLAYER INDEX: " << this->player_index << std::endl;
-					this->selected_hex->occupier_index = this->units.size();
-					this->players[player_index].units.push_back(this->units.size());
-					this->units.emplace_back(
-							this->selected_hex,
-							INFANTRY,
-							this->player_index
-							);
-					//WORKHERE SUBTRACT MONEY AFTER
-				default:
-					return;
-			}
-		case SCRLL_UPGRADES:
-			switch (index) {
-				default:
-					return;
-				
-			}
-	}
-}
-
 //aidan optimize search (I THINK BINARY SEARCH WILL SHINE HERE)
 bool Game::collisionCheck(){
 	Vector2 mouse_point = GetScreenToWorld2D(GetMousePosition(), this->camera);
@@ -585,87 +488,102 @@ bool Game::collisionCheck(){
 	return false;
 }
 
-bool Game::uiCollisionCheck(){
+//ui_manaager FLAGS/SIGNALS:
+//endturn
+//move
+//fire
+//TASK (capture)
+//ScrollCollision flag (SPAWN UNIT, RESEARCH UPRADE)
+
+void Game::spawnUnit(ui::UiSignal signal){
+	switch(signal){
+		case ui::UiSignal::kSigSpawnInfantry:{
+			std::cout << "PLAYER INDEX: " << this->player_index << std::endl;
+			Slot key = this->units.Insert(Unit(this->selected_hex,INFANTRY,this->player_index));
+
+			this->selected_hex->occupier_key = key;
+			this->players[player_index].units.push_back(key);
+			//WORKHERE SUBTRACT MONEY AFTER
+			break;
+		           }
+		default:{
+			std::cout << "PLAYER INDEX: " << this->player_index << std::endl;
+			Slot key = this->units.Insert(Unit(this->selected_hex,INFANTRY,this->player_index));
+
+			this->selected_hex->occupier_key = key;
+			this->players[player_index].units.push_back(key);
+			break;
+			//SUBTRACT MONEY
+			  }
+	}
+}
+
+void Game::handleSignal(ui::UiSignal signal){
 	Vector2 mouse_point = GetMousePosition();
 	Vector2 wrld_point = GetScreenToWorld2D(GetMousePosition(), this->camera);
-	//0 endturn button, 1 Others(????), 
-	//may need to change the way this works to switch on states instead of ui elements
-	
-	if(CheckCollisionPointRec(mouse_point, ui_elements[0]) and IsMouseButtonReleased(0)){
-		std::cout << "ENDTURN" << std::endl;
-		this->endTurn();
-		return true;
+	switch(signal){
+		case ui::UiSignal::kSigMove:
+			selected_unit->position.x = selected_hex2->x_position;
+			selected_unit->position.y = selected_hex2->y_position;
+			selected_unit->current_hex = selected_hex2;
+
+			this->selected_hex2->occupier_key = selected_hex->occupier_key;
+			this->selected_hex->occupier_key = std::nullopt;
+
+			this->ui_manager.hideElements();
+			this->state = MOVING;
+			break;
+		case ui::UiSignal::kSigFire:{
+			assert("Number of atks Greater than 0" && this->selected_unit->atks_left > 0);
+			this->selected_unit->atks_left -= 1;
+
+			float dmg_taken = calcDamage();
+			this->selected_unit2->hp -= dmg_taken;
+			std::cout << "DAMAGE: " << dmg_taken << std::endl;
+
+			ui::CommandParams params;
+			params.text_content = TextFormat("-%.2f HP", dmg_taken);
+
+			Vector2 text_position = {
+				.x = this->selected_unit2->position.x - grid::inradius / 2,
+				.y = this->selected_unit2->position.y -	grid::radius
+			};
+
+			this->ui_manager.createUiElem(text_position,ui::ElemTypes::kFiringText, params);
+			this->Fire();
+			break;
+		    	    }
+		case ui::UiSignal::kSigCapture :{
+			//a task is being performed or is available we can do this with a scroll bar right now the only task is capture
+			this->selected_unit->task = CAPTURING;
+			std::optional<Building&> enemy_building = this->buildings[selected_hex->structure_key]; //URGENT check for nullopt
+
+			std::cout << "CAPTURING" << std::endl;
+			enemy_building->hp -= 40.0;
+
+			if(enemy_building->hp <= 0){
+				this->selected_unit->task = NONE;
+				this->transferBuilding(*this->selected_hex->structure_key, enemy_building->owner_index, this->selected_unit->owner_index);
+				enemy_building->hp = 100.0;
+				enemy_building->owner_index = this->player_index;
+			}
+			this->escape();
+			break;
+			   }	
+		case ui::UiSignal::kSigSpawnInfantry :{
+		        //spawn unit
+			this->spawnUnit(signal);
+			this->escape();
+			break;
+		    }
+		case ui::UiSignal::kSigEndTurn :{
+			this->endTurn();
+			break;
+						}
+		default:
+			break;
+			//std::cerr << "UI element " << i << " Not Recognized" << std::endl;
 	}
-	if(this->ui_elements.size() < 2) return false;
-	if(CheckCollisionPointRec(wrld_point, ui_elements[1]) and IsMouseButtonReleased(0)){
-		switch(this->state){
-			//end turn
-			//this is for moving for now
-			case OPTIONS:
-				selected_unit->position.x = selected_hex2->x_position;
-				selected_unit->position.y = selected_hex2->y_position;
-				selected_unit->current_hex = selected_hex2;
-
-				this->selected_hex2->occupier_index = selected_hex->occupier_index;
-				this->selected_hex->occupier_index = unused;
-
-				this->state = MOVING;
-				break;
-			case FIRE:
-				assert("Number of atks Greater than 0" && this->selected_unit->atks_left > 0);
-				this->selected_unit->atks_left -= 1;
-
-				this->dmg_taken = calcDamage();
-				this->selected_unit2->hp -= this->dmg_taken;
-
-				this->createUiElem(UI_FIRING_TEXT);
-				this->state = FIRING;
-				break;
-			case UNIT1:{
-				//a task is being performed or is available we can do this with a scroll bar right now the only task is capture
-				this->selected_unit->task = CAPTURING;
-				Building& enemy_building = this->buildings[selected_hex->structure_index];
-
-				std::cout << "CAPTURING" << std::endl;
-				std::cout << this->ui_elements.size() << std::endl;
-				enemy_building.hp -= 40.0;
-
-				if(enemy_building.hp <= 0){
-					this->selected_unit->task = NONE;
-					this->transferBuilding(this->selected_hex->structure_index, enemy_building.owner_index, this->selected_unit->owner_index);
-					enemy_building.hp = 100.0;
-					enemy_building.owner_index = this->player_index;
-				}
-				this->escape();
-				break;
-				   }	
-			case SCROLL:{
-				//do linear search for mouse position within scroll menu
-				assert(this->scrl_menu != nullptr && "SCROLL MENU REFERENCED BEFORE ALLOCATED");
-
-				float target = wrld_point.y - this->scrl_menu->dimensions.y + this->scrl_menu->y_pos;
-				int collision_index = 0;
-				const std::vector<Rectangle> &elements = this->scrl_menu->elements;
-				for(int i = 0; i < elements.size(); ++i){	
-					Rectangle collision_rect = elements[i];
-					if(target >= collision_rect.y and target <= collision_rect.y + collision_rect.height){
-						collision_index = i;
-						break;
-					}
-
-				}
-				std::cout << "COLLISION INDEX: " << collision_index << std::endl;
-				this->scrollCollision(collision_index, SCRLL_UNITS);
-				this->escape();
-				break;
-			    }
-			default:
-				//std::cerr << "UI element " << i << " Not Recognized" << std::endl;
-				return false;
-		}
-		return true;
-	}
-	return false;
 }
 
 //can't decide if this belongs in engine or unit
@@ -703,31 +621,28 @@ float Game::calcDamage(){
 	return dmg;
 }
 
-//Change this to slotmap
-void Game::popUnit(uint16_t rm_index){
-	//pop
-	this->units.erase(units.begin() + rm_index);
-	for(uint16_t &unit_index : this->players[player_index].units){
-		if(unit_index >= rm_index) unit_index -= 1;
-	}
+//may not be neded anymore.
+void Game::eraseUnit(Slot key){
+	this->units.erase(key);
+}
 
-	for(auto &hex_row: this->grid_space){
-		for(HexSpace &hex : hex_row){
-			if(hex.occupier_index != unused and hex.occupier_index >= rm_index) hex.occupier_index -= 1;
+//the building key should have been checked before this function call so we know the key is not null
+void Game::transferBuilding(Slot &building_key, int current_owner, int new_owner){
+	std::vector<Slot> &owner_buildings = this->players[player_index].buildings;
+	this->buildings[building_key]->owner_index = new_owner;
+
+	for(size_t i = 0; Slot building : owner_buildings){
+		if(building_key == building){
+			owner_buildings.erase(owner_buildings.begin() + i);
 		}
+		++i;
 	}
+	this->players[new_owner].buildings.push_back(building_key);
 }
 
-void Game::transferBuilding(uint8_t building_index,int current_owner, int new_owner){
-	std::vector<uint8_t> &enemy_buildings = this->players[current_owner].buildings;
-	auto iterator = std::find(enemy_buildings.begin(), enemy_buildings.end(), building_index);
-
-	enemy_buildings.erase(iterator);
-	this->players[new_owner].buildings.push_back(building_index);
-}
-
+//TODO Move this to event system
 //moves units
-void Game::Move(){
+void Game::Move(){ // this needs some refactoring
 	Unit *unit_ptr = this->selected_unit;
 
 	Vector2 destRect = {
@@ -751,36 +666,14 @@ void Game::Move(){
 	}
 }
 
+
+//this helper function may not be neccesary anymore
 void Game::Fire(){
-	float y_dest = this->selected_unit2->position.y - grid::radius * 2.5;
-	Text *firing_text = &this->messages[dmg_txt_index];
-
-	if(firing_text->position.y == y_dest) {
-		messages.erase(messages.begin() + dmg_txt_index);
-		if(this->selected_unit2->hp < 0){
-		// free the unit
-			this->selected_unit2 = nullptr;
-			this->popUnit(this->selected_hex2->occupier_index);
-
-			this->selected_hex2->occupier_index = unused;
-			this->selected_hex2 = nullptr;
-		};
-		this->escape();
-	}
-	
-	Color &fire_text = firing_text->text_color;
-
-	Vector2 destination = {
-		.x = firing_text->position.x,
-		.y = y_dest,
+	if(this->selected_unit2->hp < 0){
+		this->eraseUnit(*this->selected_hex2->occupier_key); //URGENT CHECK OPTIONAL: this should invalidate the key on hex 2 
 	};
-
+	this->escape();
 	//edit color according to closeness to the y destination
-
-	//NEEDS CHANGES
-	float max_dist = GetFrameTime() * 40;
-	Vector2 new_coords = Vector2MoveTowards(firing_text->position, destination, max_dist);
-	firing_text->position = new_coords;
 }
 
 void Game::versus(){
@@ -801,19 +694,18 @@ void Game::versus(){
 		case MOVING:
 			this->Move();
 			return;
-		case FIRING:
-			this->Fire();
-			return;
 		default:
 			break;
 	}
 
-	bool ui_collision = this->uiCollisionCheck();
-	
-	if(!ui_collision) {
-		bool chng_state = this->collisionCheck();
-	}
+	ui::UiSignal ui_signal = this->ui_manager.CollisionCheck();
 
+	// std::cout << "UI SIGNAL:" << ui_signal << std::endl;
+	if(ui_signal == ui::UiSignal::kSigNone) {
+		bool chng_state = this->collisionCheck();
+	} else {
+		this->handleSignal(ui_signal);
+	}
 	//check_hexagon
 }
 

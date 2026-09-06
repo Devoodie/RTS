@@ -2,7 +2,10 @@
 #define RTS_ENGINE_H
 
 #include "utils/grid.hpp"
+#include <utils/slotmap.hpp>
 #include "entities.hpp"
+#include "states.hpp"
+#include "ui.hpp"
 #include <string>
 #include <vector>
 #include <cstdint>
@@ -10,49 +13,14 @@
 
 class Player {
 	public:
-		std::vector<uint16_t> units;
-		std::vector<uint8_t> buildings;
+		std::vector<Slot>units;
+		std::vector<Slot> buildings;
 
 		//creates a player with an index to its HQ
-		Player(int hq_index);
-};
-
-struct Text {
-	std::string content;
-	Color text_color;
-	Vector2 position;
-	float font_size;
+		Player(Slot hq_key);
 };
 
 //will provide information to autofill menus on creation
-enum scroll_type {
-	SCRLL_UNITS,
-	SCRLL_UPGRADES,
-};
-
-class ScrollMenu {
-	public:
-		std::vector<Rectangle> elements;
-		Rectangle dimensions;
-		float y_pos;
-		float internal_height;
-
-		scroll_type type;
-
-
-		ScrollMenu(scroll_type menu_type, const Vector2 &mouse_position);
-		virtual ~ScrollMenu();
-
-		virtual void handleScrollCollision() = 0;
-};
-
-class UnitScrollMenu : public ScrollMenu {
-	public: 
-
-		UnitScrollMenu(const Vector2 &mouse_position);
-		~UnitScrollMenu();
-		void handleScrollCollision() override;
-};
 
 namespace engine {
 	enum inputAlphabet {
@@ -63,41 +31,20 @@ namespace engine {
 		MOVE,
 	};
 
-	enum states {
-		IDLE,
-		UNIT1,
-		OPTIONS,
-		FIRE,
-		FIRING,
-		HEX_INFO,
-		UNIT_INFO,
-		MOVING,
-		SCROLL,
-	};
-
-	enum uiElem {
-		UI_OPTIONS_1,
-		UI_INFO,
-		UI_FIRING_TEXT,
-		UNIT_SCRL,
-	};
-
-class Game{
+class Game {
 	public:	
 		std::vector<Player> players;
-		std::vector<Unit> units;
-		std::vector<Building> buildings;
+		SlotMap<Unit> units;
+		SlotMap<Building> buildings;
 
 		std::vector<std::vector<HexSpace>> grid_space;
-		std::vector<Rectangle> ui_elements;
-		std::vector<Text> messages;
-		std::unique_ptr<ScrollMenu> scrl_menu;
+		ui::UiManager ui_manager;
+
+		Slot state_element; //this is a state related element within ui_manager there should only be one at a time
 
 		int player_index;
 		int player_count;
 
-		//Temporary
-		float dmg_taken;
 		uint8_t dmg_txt_index;
 
 		Unit *selected_unit;
@@ -138,7 +85,7 @@ class Game{
 
 		void unitInfoTransition(inputAlphabet input, void *selection);
 
-		void scrollTransition(inputAlphabet input, void *selection);
+		// void scrollTransition(inputAlphabet input, void *selection);
 
 		//handles state transition calls 
 		void transitionState(inputAlphabet input, void *selection);
@@ -146,27 +93,23 @@ class Game{
 		//transitions to idle state or calls menu
 		void escape();
 
-		void scrollCollision(int index, scroll_type type);
-
-		//ui creation helper function
-		//May create options or scroll menus
-		//Mouse position must be set to adjust element position
-		void createUiElem(uiElem ui_type);
-
 		//searches for collisions with properties of a hexagon and potentially transitions state
 		void handleCollision(HexSpace *collided_hex, Vector2 mouse_point);
 
 		//checks for collisions with hexagons then calls handle collision
 		bool collisionCheck();
 
-		bool uiCollisionCheck();
+		//spawn unit depending on signal
+		void spawnUnit(ui::UiSignal signal);
+
+		void handleSignal(ui::UiSignal signal);
 
 		float calcDamage();
 
 		//removes unit at index and decrement all indexes 
-		void popUnit(uint16_t rm_index);
+		void eraseUnit(Slot key);
 
-		void transferBuilding(uint8_t building_index, int current_owner, int new_owner);
+		void transferBuilding(Slot &building_index, int current_owner, int new_owner);
 
 		void Move();
 		

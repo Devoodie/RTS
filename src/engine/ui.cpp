@@ -1,137 +1,667 @@
+#include "utils/grid.hpp"
 #include <engine/ui.hpp> 
 #include <raylib.h>
 #include <iostream>
+#include <engine/engine.hpp>
+#include <raymath.h>
 
 namespace ui{
-	//THIS SHOULD BE CHANGED FROM RENDER OPTIONS TO RENDER UI
-void renderOptions(const engine::Game &engine_instance, std::unordered_map<int, Texture2D> texture_map){
+Element::Element(Rectangle rect, Texture2D *text, Color elem_color) : render_rect(rect), texture(text), color(elem_color){
+}
+
+Text::Text(Rectangle pos, std::string message, Color color, float size) : content(message), font_size(size), Element(pos, nullptr, color){
+	if(size == 0.0) float rectangle_font_ratio = pos.height / default_font.baseSize; //this language doesnt even warn on debug if you divide by 0 by the way. this is your peak. (lovely)
+	font_size = pos.height;
+};
+
+ScrollMenu::ScrollMenu(ScrollType menu_type, const Vector2 &mouse_position) : type(menu_type) {	
+	this->y_pos = 0;
+	switch(menu_type){
+		case ui::kScrollUnits:
+			break;
+		case ScrollType::kScrollUpgrades:
+			break;
+		case ScrollType::kScrollOptions:
+			break;
+	}
+};
+
+ScrollMenu::~ScrollMenu(){
+}
+
+UnitScrollMenu::UnitScrollMenu(const Vector2 &mouse_position) : ScrollMenu(kScrollUnits, mouse_position){
+	float width = grid::inradius * 4.0;
+	for(int i = 0; i < 3; ++i) {
+		this->elements.emplace_back((Rectangle){
+			.x = 0,
+			.y = i * grid::radius / 2,
+			.width  = width,
+			.height = grid::radius / 2,
+			},
+			&grid::texture_map[grid::kMoveButton],
+			RAYWHITE
+			);
+	}
+
+	float height = 0.0;
+	if(elements.size() > 8){
+		height = grid::radius / 2 * 8;
+	} else {
+		height = grid::radius / 2 * elements.size();
+	}
+
+	std::cout << "Height: " << height << std::endl;
+	this->dimensions = {
+		.x = mouse_position.x + grid::inradius / 4,
+		.y = mouse_position.y,
+		.width = width,
+		.height = height,
+	};
+
+	this->internal_height = elements[2].render_rect.y + elements[2].render_rect.height;
+} 
+
+UnitScrollMenu::~UnitScrollMenu(){}
+
+UiSignal UnitScrollMenu::HandleScrollCollision(int collision_index){
+	switch(collision_index){
+		case 0:
+			return kSigSpawnInfantry;
+		default:
+			return kSigSpawnInfantry;
+
+	}
+}
+
+OptionScrollMenu::OptionScrollMenu(const Vector2 &mouse_position, CommandParams params): ScrollMenu(ui::ScrollType::kScrollOptions, mouse_position) {
+	float width = grid::inradius;
+
+	Texture2D *selected_texture;
+	Color selected_color;
+
+	for(int i = 0; i < 3; ++i){
+		switch(i){
+			case 0:
+				if(params.option_movable){
+					selected_texture = &grid::texture_map[grid::kMoveButton];
+					selected_color = RAYWHITE;
+				} else {
+					selected_texture = &grid::texture_map[grid::kMoveButtonUnusable];
+					selected_color = GRAY;
+				}
+
+				this->elements.emplace_back((Rectangle){
+					.x = 0,
+					.y = i * grid::radius / 2,
+					.width = (float)grid::inradius,
+					.height = grid::radius / 2
+					},
+					selected_texture,
+					selected_color
+					);
+				break;
+			case 1:
+				if(params.option_fireable) {
+					selected_texture = &grid::texture_map[grid::kFireButton];
+					selected_color = RAYWHITE;
+				
+				} else {
+					selected_texture = &grid::texture_map[grid::kFireButtonUnusable];
+					selected_color = GRAY;
+				 }
+
+				this->elements.emplace_back((Rectangle){
+					.x = 0,
+					.y = i * grid::radius / 2,
+					.width = (float)grid::inradius,
+					.height = grid::radius / 2
+					},
+					selected_texture,
+					selected_color
+					);
+				break;
+			case 2:
+				if(params.option_capturable){
+					selected_texture = &grid::texture_map[grid::kCaptureButton];
+					selected_color = RAYWHITE;
+				} else {
+					selected_texture = &grid::texture_map[grid::kCaptureButtonUnusable];
+					selected_color = GRAY;
+				}
+
+				this->elements.emplace_back((Rectangle){
+					.x = 0,
+					.y = i * grid::radius / 2,
+					.width = (float)grid::inradius,
+					.height = grid::radius / 2
+					},
+					selected_texture,
+					selected_color
+					);
+				break;
+		}
+	}
+
+	float height = 0.0;
+	if(elements.size() > 8){
+		height = grid::radius / 2 * 8;
+	} else {
+		height = grid::radius / 2 * elements.size();
+	}
+
+	std::cout << "Height: " << height << std::endl;
+	this->dimensions = {
+		.x = mouse_position.x + grid::inradius / 4,
+		.y = mouse_position.y,
+		.width = width,
+		.height = height,
+	};
+
+	this->internal_height = elements[2].render_rect.y + elements[2].render_rect.height;
+}
+
+OptionScrollMenu::~OptionScrollMenu(){}
+
+UiSignal OptionScrollMenu::HandleScrollCollision(int collision_index){
+	switch(collision_index){
+		case 0:
+			return (moveable) ? kSigMove : kSigInvalid;
+		case 1:
+			return (fireable) ? kSigFire : kSigInvalid;
+		case 2:
+			return (captureable) ? kSigCapture : kSigInvalid;
+	}
+	return kSigNone;
+}
+
+TaskScrollMenu::TaskScrollMenu(const Vector2 &mouse_position, CommandParams params) : capture(params.task_capturing), ScrollMenu(ScrollType::kScrollTasks, mouse_position){
+	float width = grid::inradius;
+
+	Texture2D *selected_texture;
+	Color selected_color;
+
+	for(int i = 0; i < 1; ++i){
+		switch(i){
+			case 0 :
+				if(params.task_capturing){
+					selected_texture = &grid::texture_map[grid::kCaptureButton];
+					selected_color = RAYWHITE;
+				} else {
+					selected_texture = &grid::texture_map[grid::kCaptureButtonUnusable];
+					selected_color = GRAY;
+				}
+
+				this->elements.emplace_back((Rectangle){
+					.x = 0,
+					.y = i * grid::radius / 2,
+					.width = (float)grid::inradius,
+					.height = grid::radius / 2
+					},
+					selected_texture,
+					selected_color
+					);
+				break;
+		}
+	}
+
+	float height = 0.0;
+	if(elements.size() > 8){
+		height = grid::radius / 2 * 8;
+	} else {
+		height = grid::radius / 2 * elements.size();
+	}
+
+	std::cout << "Height: " << height << std::endl;
+	this->dimensions = {
+		.x = mouse_position.x + grid::inradius / 4,
+		.y = mouse_position.y,
+		.width = width,
+		.height = height,
+	};
+
+	this->internal_height = elements[0].render_rect.y + elements[0].render_rect.height;
+
+}
+
+TaskScrollMenu::~TaskScrollMenu(){}
+
+UiSignal TaskScrollMenu::HandleScrollCollision(int collision_index){
+	return (this->capture) ? UiSignal::kSigCapture : UiSignal::kSigInvalid;
+
+}
+
+InfoPanel::InfoPanel(){
+	this->render_rect = (Rectangle){
+//		.x = float((grid::ScreenWidth * 3) / 4.0 ),
+		.x = float(grid::ScreenWidth + 1),
+		.y = 0,
+		.width = float(grid::ScreenWidth / 4.0),
+		.height = float(grid::ScreenHeight),
+	};
+
+	//size of an element in the info panel
+	Rectangle block = {
+		.x = 0,
+		.y = 0, 
+		.width = this->render_rect.width / 5,
+		.height = this->render_rect.height / 9, 
+	};
+
+	//first element contains the sprite for hex or unit selected
+	block.x = block.width * 2;
+	block.y = block.height * 2;
+	this->elements.emplace_back(
+			block,
+			&grid::texture_map[grid::kGrassHex] //placholder
+			);
+
+	block.x = block.width;
+	block.y = block.height;
+
+	this->text_elem.emplace_back(
+			block,
+			std::string("Grass Hex"),
+			BLACK,
+			5.0
+			);
+
+	block.x = block.width;
+	block.y = block.height * 3;
+
+
+	this->text_elem.emplace_back(
+			block,
+			std::string("HP: "),
+			BLACK,
+			5.0
+			);
+
+	block.x = block.width * 3;
+	block.y = block.height * 3;
+
+	this->text_elem.emplace_back(
+			block,
+			std::string("DEF: "), 
+			BLACK,
+			5.0
+			);
+}
+
+void InfoPanel::renderElements(const engine::Game &engine_instance){
+	//prob switch on info panel information
+	Texture2D &info_texture = grid::texture_map[grid::kInfoRect];
+
+	Rectangle texture_rect = {
+	     .x = 0,
+	     .y = 0,
+	     .width = (float)info_texture.width,
+	     .height = (float)info_texture.height,
+	};
+	DrawTexturePro(info_texture, texture_rect, this->render_rect, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
+
 	switch(engine_instance.state){
-		case engine::UNIT1:
-		case engine::FIRE:
-		case engine::OPTIONS:{
-			if(engine_instance.ui_elements.size() <= 1) return;
-
-			BeginMode2D(engine_instance.camera);
-			Texture2D opt_texture;
-			if(engine_instance.state == engine::FIRE){
-				opt_texture = texture_map[grid::FIRE_BUTTON];
-			} else {
-				opt_texture = texture_map[grid::MOVE_BUTTON];
-			}
-
-			Rectangle texture_rect = {
-			     .x = 0,
-			     .y = 0,
-			     .width = (float)opt_texture.width,
-			     .height = (float)opt_texture.height,
-			};
-
-			Rectangle options = engine_instance.ui_elements[1];
-			DrawTexturePro(opt_texture, texture_rect, options, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
-			EndMode2D();
-
-			break;
-			}
-		case engine::FIRING:
-//					  DrawText(const char *text, int posX, int posY, int fontSize, Color color);
-				  break;
 		case engine::UNIT_INFO:
-		case engine::HEX_INFO:{
-			Texture2D &info_rect = texture_map[grid::INFO_RECT];
+		case engine::HEX_INFO: {
+			//draw the hex in the middle
+			const Texture2D &hex_texture = (engine_instance.state == engine::HEX_INFO) ? grid::texture_map[grid::kGrassHex] : grid::texture_map[grid::kDarkSolider];  //Change this to select the hex based on the type
+			Rectangle adjusted_position = this->elements[0].render_rect;
+			adjusted_position.x = this->render_rect.x + this->elements[0].render_rect.x;
+			adjusted_position.y = this->render_rect.y + this->elements[0].render_rect.y;
 
-			Rectangle texture_rect = {
-			     .x = 0,
-			     .y = 0,
-			     .width = (float)info_rect.width,
-			     .height = (float)info_rect.height,
-			};
-
-			Rectangle options = engine_instance.ui_elements[1];
-			DrawTexturePro(info_rect, texture_rect, options, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
-			break;
-			}
-		case engine::SCROLL:
-			{
-				//TODO>> CHANGE THIS SHIT NEOW
-			BeginMode2D(engine_instance.camera);
-			Texture2D &elem_texture = texture_map[grid::MOVE_BUTTON];
-			//how the fuck does cpp do this shit  without auto? (need verbosity)
-			const auto &scrl_menu = *engine_instance.scrl_menu.get();
-
-			Rectangle dest_rect = {
-			     .x = scrl_menu.dimensions.x,
-			     .y = scrl_menu.dimensions.y,
-			     .width = (float)elem_texture.width,
-			     .height = (float)elem_texture.height,
-			};
-
-			Rectangle source_rect = {
+			Rectangle source = {
 				.x = 0,
 				.y = 0,
-				.width = (float)elem_texture.width,
-				.height = (float)elem_texture.height,
+				.width = (float)hex_texture.width,
+				.height = (float)hex_texture.height,
 			};
 
-			float target_y = scrl_menu.y_pos + scrl_menu.dimensions.height;
-			if(target_y > scrl_menu.internal_height) target_y = scrl_menu.internal_height;
+			DrawRectangleLinesEx(adjusted_position, 5.0, BLACK);
+			DrawTexturePro(hex_texture, source, adjusted_position, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE); //WRONG FIXNOW 
+															//
+			for(const Text &message : this->text_elem){
+				adjusted_position.x = this->render_rect.x + message.render_rect.x;
+				adjusted_position.y = this->render_rect.y + message.render_rect.y;
 
-			float current_y = scrl_menu.y_pos;
-			int elem_index = 0;
-
-			const std::vector<Rectangle> &elements = scrl_menu.elements;
-
-			while(current_y < target_y){
-				const Rectangle &element = elements[elem_index];
-
-				if(current_y > element.y + element.height){
-					elem_index += 1;
-					continue;
-				}
-
-				//ratio of how much texture to draw according to how much of the rectangle is showing
-				float draw_amount = (element.y + element.height) - current_y;
-
-				if(current_y + draw_amount > target_y){
-					draw_amount = target_y - current_y;
-				}
-
-				dest_rect.y = current_y + scrl_menu.dimensions.y;
-				dest_rect.height = draw_amount;
-
-				source_rect.y = elem_texture.height = draw_amount;
-				source_rect.height = draw_amount;
-
-				DrawTexturePro(
-						elem_texture,
-						source_rect, 
-						dest_rect, 
-						(Vector2){.x = 0, .y = 0}, 
-						0, 
-						RAYWHITE
-						);
-
-				current_y += draw_amount;
-				elem_index += 1;
+				DrawTextEx(
+					default_font,	
+					message.content.c_str(), 
+					(Vector2){.x = adjusted_position.x, .y = adjusted_position.y}, 
+					message.font_size,  //placeholder
+					5, 
+					message.color
+					);
 			}
-			EndMode2D();
-				      //Get a bunch of shit
+			break;
+		}
+	}
+	
+	bool debug = false;
+	if(debug){
+		Rectangle adjusted_position = {0};
+		adjusted_position.width = this->render_rect.width / 5;
+		adjusted_position.height = this->render_rect.height / 9;
+
+		for(int i = 0; i < 9; ++i){
+			adjusted_position.y = this->render_rect.y + adjusted_position.height * i;
+			for(int j = 0; j < 5; ++j){
+				adjusted_position.x = this->render_rect.x + adjusted_position.width * j;
+				DrawRectangleLines(adjusted_position.x, adjusted_position.y, adjusted_position.width, adjusted_position.height, RED);
+			}
+		}
+	}
+}
+
+Transformation::Transformation(Rectangle *current_pos, Rectangle desired_pos, float anim_speed) : position(current_pos), target_pos(desired_pos) ,speed(anim_speed) {};
+
+UiManager::UiManager(Camera2D &camera, const engine::Game &engine): camera(camera), engine_instance(engine), scrl_menu(new OptionScrollMenu(Vector2{.x = 65535, .y = 65535}, CommandParams())), transformations(10) {
+	//endturn button
+	this->ui_elements.emplace_back(
+		(Rectangle){
+		.x = (float)grid::ScreenWidth * 7 / 8,
+		.y = (float)grid::ScreenHeight / 5,
+		.width = (float)grid::inradius,
+		.height = (float)grid::radius / 2
+		},
+		&grid::texture_map[grid::kEndButton], 
+		RAYWHITE
+		);
+}
+
+UiSignal UiManager::CollisionCheck(){
+	Vector2 mouse_point = GetMousePosition();
+	Vector2 wrld_point = GetScreenToWorld2D(GetMousePosition(), this->camera);
+	//0 endturn button, 1 Others(????), 
+	
+	if(CheckCollisionPointRec(mouse_point, ui_elements[0].render_rect) and IsMouseButtonReleased(0)){
+		std::cout << "ENDTURN" << std::endl;
+		return kSigEndTurn;
+	}
+//	assert(this->scrl_menu != nullptr && "SCROLL MENU REFERENCED BEFORE ALLOCATED");
+	if(this->scrl_menu == nullptr) {
+		return kSigNone;
+	}
+
+	if(CheckCollisionPointRec(wrld_point, scrl_menu->dimensions) and IsMouseButtonReleased(0)){
+		float target = wrld_point.y - this->scrl_menu->dimensions.y + this->scrl_menu->y_pos;
+		int collision_index = 0;
+		const std::vector<Element> &elements = this->scrl_menu->elements;
+		for(int i = 0; i < elements.size(); ++i){	
+			Rectangle collision_rect = elements[i].render_rect;
+			if(target >= collision_rect.y and target <= collision_rect.y + collision_rect.height){
+				collision_index = i;
+				break;
+			}
+
+		}
+		std::cout << "COLLISION INDEX: " << collision_index << "\nRectangle WIDTH: " << elements[collision_index].render_rect.width << ", Rectangle Height: " << elements[collision_index].render_rect.height <<std::endl;
+		return this->scrl_menu->HandleScrollCollision(collision_index);
+	}
+
+	return kSigNone;
+}
+
+void UiManager::createUiElem(Vector2 position, ElemTypes type, CommandParams params){
+	switch(type){
+		case ElemTypes::kOptionScroll:
+			{
+			// if(typeid(*this->scrl_menu) != typeid(OptionScrollMenu)){
+			// 	this->scrl_menu = std::make_unique<OptionScrollMenu>(position);
+			// } else {
+			// 	this->scrl_menu->dimensions.x = position.x;
+			// 	this->scrl_menu->dimensions.y = position.y;
+			// }
+			this->scrl_menu = std::make_unique<OptionScrollMenu>(position, params);
+			std::cout << "SCROLL POSITION: " << position.x << ", " << position.y << std::endl;
+
+			OptionScrollMenu &options = *static_cast<OptionScrollMenu*>(this->scrl_menu.get());
+
+			options.fireable = params.option_fireable;
+			options.moveable = params.option_movable;
+			options.captureable = params.option_capturable;
 			break;
 			}
-		default:
+		case ElemTypes::kTaskScroll:{
+			this->scrl_menu = std::make_unique<TaskScrollMenu>(position, params);
+			break;
+		     	}
+		case ElemTypes::kUnitScroll:
+			this->scrl_menu = std::make_unique<UnitScrollMenu>(position);
+			break;
+		case ui::ElemTypes::kUnitInfo:
+		case ElemTypes::kHexInfo: {
+			Rectangle info_desired_pos = this->info.render_rect;
+			info_desired_pos.x = float((grid::ScreenWidth * 3) / 4.0 );
+
+			Element &end_turn = this->ui_elements[0];
+			Rectangle end_desired_pos = end_turn.render_rect;
+			end_desired_pos.x = info_desired_pos.x - (grid::ScreenWidth - grid::ScreenWidth * 7.0 / 8.0);
+
+			if(this->info.transformation.has_value()) this->transformations.erase(this->info.transformation.value());
+
+			Slot transf_key = this->transformations.Insert(Transformation(&this->info.render_rect, info_desired_pos, 1500));
+			this->info.transformation = transf_key;
+			this->transformations[transf_key]->self_key = transf_key;
+
+			if(end_turn.transformation.has_value()) this->transformations.erase(end_turn.transformation.value());
+
+			transf_key = this->transformations.Insert(Transformation(&end_turn.render_rect, end_desired_pos, 1500));
+			end_turn.transformation = transf_key;
+			this->transformations[transf_key]->self_key = transf_key;
+
+			if(type == ElemTypes::kHexInfo){
+				this->info.text_elem[0].content = "Grasshex"; 
+				this->info.text_elem[1].content = "DEF: " + std::to_string(engine_instance.selected_hex->env_defense);  
+				this->info.text_elem[2].content = "";
+			} else {
+				//we need unit names
+				this->info.text_elem[0].content = "Dark Infantry";
+				this->info.text_elem[1].content = "HP: " + std::to_string(engine_instance.selected_unit->hp);  
+				this->info.text_elem[2].content = "";
+			}
+			break;
+		        }
+		case ui::ElemTypes::kFiringText:
+			// can add logic to fit text into rectangle width
+			Rectangle text_pos;
+			text_pos.x = position.x;
+			text_pos.y = position.y;
+			text_pos.height = grid::radius / 2 ;
+			text_pos.width = grid::inradius * 2 ;
+
+			Rectangle desired_pos = text_pos;
+			desired_pos.y = desired_pos.y - grid::radius * 2.5;	
+
+
+			assert(params.text_content.has_value() && "Text Created With null text_content value");
+
+			Text firing_text = Text(text_pos, params.text_content.value(), RED);
+			firing_text.is_firing_text = true;
+			int text_ind = this->messages.size();
+			this->messages.push_back(firing_text);
+
+			Slot transf_key = this->transformations.Insert(Transformation(&this->messages[text_ind].render_rect, desired_pos, 150));
+			this->messages[text_ind].transformation = transf_key;
+			transformations[transf_key]->self_key = transf_key;
 			break;
 	}
 }
 
-void renderText(const std::vector<Text> &messages){
-	for(Text message: messages){
+void UiManager::hideElements(){
+	this->scrl_menu->dimensions.x = 65535;
+
+	Rectangle info_desired_pos = this->info.render_rect;
+	info_desired_pos.x = (float)grid::ScreenWidth + 1.0;
+
+	if(this->info.transformation.has_value()) this->transformations.erase(this->info.transformation.value()); 
+	Slot transf_key = this->transformations.Insert(Transformation(&this->info.render_rect, info_desired_pos, 1500));
+	this->info.transformation = transf_key;
+	this->transformations[transf_key]->self_key = transf_key;
+
+	Element &end_turn = this->ui_elements[0];
+
+	if(end_turn.transformation.has_value()) this->transformations.erase(end_turn.transformation.value());
+
+	Rectangle end_desired_pos = end_turn.render_rect;
+	end_desired_pos.x = (float) grid::ScreenWidth * 7 / 8;
+	transf_key = this->transformations.Insert(Transformation(&end_turn.render_rect, end_desired_pos, 1500));
+	end_turn.transformation = transf_key;
+	this->transformations[transf_key]->self_key = transf_key;
+
+};
+
+void UiManager::animate(){
+	this->transform();
+	//other things like color will take place in this
+}
+
+void UiManager::transform(){
+	std::vector<Slot> del_list;
+	for(Transformation &trans: this->transformations.values){
+		Vector2 target_pos = {.x = trans.target_pos.x, .y = trans.target_pos.y };
+		Vector2 new_pos = Vector2MoveTowards(
+				(Vector2){ .x = trans.position->x, .y = trans.position->y }, 
+				target_pos,
+				trans.speed * GetFrameTime()
+				);
+
+		trans.position->x = new_pos.x;
+		trans.position->y = new_pos.y;
+
+		if(new_pos.x == target_pos.x and new_pos.y == target_pos.y){
+			del_list.push_back(trans.self_key);
+		}
+	}
+
+	for(Slot key : del_list){
+		this->transformations.erase(key);
+	}
+}
+
+//MAKE THIS RENDER EVERYTHING
+void UiManager::renderUi(){
+	Texture2D selected_texture;
+
+	Rectangle texture_rect = {
+	     .x = 0,
+	     .y = 0,
+	     .width = 0,
+	     .height = 0,
+	};
+
+	//render static elements
+	for(int i = 0; const Element &elem : this->ui_elements){
+		switch(i){
+			case 0: 
+				selected_texture = grid::texture_map[grid::kEndButton];
+				texture_rect.width = selected_texture.width;
+				texture_rect.height = selected_texture.height;
+				// std::cout << "Texture Width: " << elem.render_rect.width << ", Texture Height: " << elem.render_rect.height << std::endl;
+				DrawTexturePro(selected_texture, texture_rect, elem.render_rect, (Vector2){.x = 0, .y = 0}, 0, RAYWHITE);
+				break;
+			default:
+				break;
+		}
+		++i;
+	} 
+	//render scroll menu 
+
+//	assert(scrll_textures.size() == this->scrl_menu->elements.size() && "Invalid Texture amount to Elements (Scroll Menu)");
+
+	Texture2D elem_texture = *this->scrl_menu->elements[0].texture;
+	//how the fuck does cpp do this shit  without auto? (need verbosity)
+	const auto &scrl_menu = this->scrl_menu.get();
+
+	Rectangle dest_rect = this->scrl_menu->dimensions;
+	dest_rect.height = grid::radius / 2;
+
+	Rectangle source_rect = {
+		.x = 0,
+		.y = 0,
+		.width = (float)elem_texture.width,
+		.height = (float)elem_texture.height,
+	};
+
+	float target_y = scrl_menu->y_pos + scrl_menu->dimensions.height;
+	if(target_y >= scrl_menu->internal_height) target_y = scrl_menu->internal_height;
+
+	float current_y = scrl_menu->y_pos;
+	int elem_index = 0;
+
+	const std::vector<Element> &elements = scrl_menu->elements;
+
+	BeginMode2D(camera);
+	// std::cout << "Current Y: " << current_y << ", " <<  "Target Y: " << target_y << std::endl;
+	while(current_y < target_y){
+		const Element &element = elements[elem_index];
+		const Rectangle &elem_rec = element.render_rect;
+
+		if(current_y > elem_rec.y + elem_rec.height){
+			elem_index += 1;
+			continue;
+		}
+
+		//ratio of how much texture to draw according to how much of the rectangle is showing
+		float draw_amount = (elem_rec.y + elem_rec.height) - current_y;
+
+		if(current_y + draw_amount > target_y){
+			draw_amount = target_y - current_y;
+		}
+
+		float texture_height_ratio = draw_amount / elem_rec.height;
+
+		dest_rect.y = current_y + scrl_menu->dimensions.y;
+		dest_rect.height = draw_amount;
+
+		source_rect.height = elem_texture.height * texture_height_ratio;
+
+		// std::cout << "Source Rect Width: "<< elem_texture.width <<", Source Rect Height: " << elem_texture.height << std::endl;
+		DrawTexturePro(
+				*element.texture,
+				source_rect, 
+				dest_rect, 
+				(Vector2){.x = 0, .y = 0}, 
+				0, 
+				element.color
+				);
+
+		DrawRectangleLines(dest_rect.x, dest_rect.y, dest_rect.width, dest_rect.height, RED);
+
+		current_y += draw_amount;
+		elem_index += 1;
+	}
+	EndMode2D();
+
+	this->info.renderElements(engine_instance);
+}
+
+void UiManager::renderText(){
+	BeginMode2D(this->camera);
+	Font penis;
+	for(Text message: this->messages){
 		DrawTextEx(
-			GetFontDefault(), 
+			default_font,	
 			message.content.c_str(), 
-			message.position, 
+			(Vector2){.x = message.render_rect.x, .y = message.render_rect.y}, 
 			message.font_size,  //placeholder
 			5, 
-			message.text_color
+			message.color
 			);
+		DrawRectangleLines(message.render_rect.x, message.render_rect.y, message.render_rect.width, message.render_rect.height, BLACK);
+	}
+	EndMode2D();
+}
+
+void UiManager::cleanUp(){
+	std::vector<int> del_ind;
+	for(int i = 0; i < this->messages.size(); ++i){
+		Text &message = this->messages[i];
+		if(message.is_firing_text and this->transformations[message.transformation.value()] == std::nullopt){
+			del_ind.push_back(i);
+		}
+	}
+
+	for(const int &i : del_ind){
+		this->messages.erase( this->messages.begin() + i);
 	}
 }
 }

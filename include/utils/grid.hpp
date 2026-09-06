@@ -4,6 +4,8 @@
 #include <unordered_map>
 #include <vector>
 #include <cstdint>
+#include <utils/slotmap.hpp>
+#include <cmath>
 
 extern "C" {
 #include"raylib.h"
@@ -19,8 +21,8 @@ class HexSpace {
 
 		Vector2 indices;
 		// 16 may not be necessary 
-		uint16_t occupier_index;
-		uint16_t structure_index;
+		std::optional<Slot> occupier_key;
+		std::optional<Slot> structure_key;
 
 		float x_position;
 		float y_position;
@@ -34,6 +36,8 @@ class HexSpace {
 	HexSpace();
 };
 
+extern Font default_font;
+
 namespace grid {
 
 enum cardinals {
@@ -45,31 +49,38 @@ enum cardinals {
 	NORTH_WEST = 5,
 };
 
-extern int ScreenWidth;
-extern int ScreenHeight;
-extern float radius;
-extern float inradius;
+constexpr int ScreenWidth = 1920;  
+constexpr int ScreenHeight = 1080;
+
+extern float radius; 
+extern float inradius; 
+extern std::unordered_map<int, Texture2D> texture_map;
 
 enum textures {
-	GRASS_HEX = 0,
-	GRASS_BORDER,
-	DARK_SOLIDER,
-	FIRE_BUTTON,
-	MOVE_BUTTON,
-	INFO_RECT,
-	HQ,
-	WAREHOUSE,
+	kGrassHex = 0,
+	kGrassBorder,
+	kDarkSolider,
+	kFireButton,
+	kFireButtonUnusable,
+	kMoveButton,
+	kMoveButtonUnusable,
+	kCaptureButton,
+	kCaptureButtonUnusable,
+	kEndButton,
+	kInfoRect,
+	kHQ,
+	kWarehouse,
 };
 
 void initGrid(const int row, const int col, std::vector<std::vector<HexSpace>> &grid);
 
-void renderBuildings(std::unordered_map<int, Texture2D> texture_map, const std::vector<Building> &buildings, const bool debug);
+void renderBuildings(const SlotMap<Building> &buildings, const bool debug);
 
-void renderUnits(std::unordered_map<int, Texture2D> texture_map, const std::vector<Unit> &units, const bool debug);
+void renderUnits(const SlotMap<Unit> &units, const bool debug);
 
-void renderGrid(std::unordered_map<int, Texture2D> textures, std::vector<std::vector<HexSpace>> grid, const bool debug);
+void renderGrid(std::vector<std::vector<HexSpace>> grid, const bool debug);
 
-void initAssets(std::unordered_map<int , Texture2D> &texture_map);
+void initAssets();
 
 }
 #endif
