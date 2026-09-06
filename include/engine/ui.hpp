@@ -18,6 +18,7 @@ enum ScrollType{
 	kScrollUnits,
 	kScrollUpgrades,
 	kScrollOptions,
+	kScrollTasks,
 };
 
 //i would have to make a signal for each unit to spawn
@@ -75,11 +76,12 @@ class UnitScrollMenu : public ScrollMenu {
 };
 
 struct CommandParams {
-	bool fireable = false;
-	bool movable = false;
-	bool capturable = false;
+	bool option_fireable = false;
+	bool option_movable = false;
+	bool option_capturable = false;
+	bool task_capturing = false;
 
-	std::string text_content;
+	std::optional<std::string> text_content;
 };
 
 class OptionScrollMenu: public ScrollMenu {
@@ -93,6 +95,17 @@ class OptionScrollMenu: public ScrollMenu {
 
 		UiSignal HandleScrollCollision(int collision_index) override;
 };
+
+class TaskScrollMenu : public ScrollMenu {
+	public:
+		bool capturing = false;
+
+		TaskScrollMenu(const Vector2 &mouse_position, CommandParams params);
+		~TaskScrollMenu();
+
+		UiSignal HandleScrollCollision(int collision_index) override;
+};
+
 //shows when engine state is in UNIT_INFO or HEX_INFO 
 class InfoPanel {
 	public:

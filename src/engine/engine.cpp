@@ -139,20 +139,7 @@ void Game::hexInfoTransition(inputAlphabet input, void *selection){
 		case UNIT:{
 			std::cout << "Unit Selected" << std::endl;
 			Unit *unit_ptr = (Unit*)selection;
-
-			if(unit_ptr->owner_index != this->player_index){
-				this->selected_unit = unit_ptr;
-				this->selected_hex = unit_ptr->current_hex;
-
-				this->ui_manager.createUiElem(Vector2(), ui::ElemTypes::kUnitInfo, ui::CommandParams());
-				this->state = UNIT_INFO;
-				return;
-			}
-
-			this->selected_unit = unit_ptr;
-			this->selected_hex = unit_ptr->current_hex;
-			this->state = UNIT1;
-			this->ui_manager.hideElements();
+			this->state = SelectUnit(unit_ptr);
 			break;
 			  }
 		case BUILDING:{
@@ -227,7 +214,7 @@ void Game::optionTransition(inputAlphabet input, void *selection){
 
 						this->MousePosition = GetScreenToWorld2D(GetMousePosition(), this->camera);
 						ui::CommandParams params;
-						params.fireable = true;
+						params.option_fireable = true;
 
 						this->ui_manager.createUiElem(this->MousePosition, ui::ElemTypes::kOptionScroll, params);
 					};
@@ -258,7 +245,7 @@ void Game::optionTransition(inputAlphabet input, void *selection){
 			this->MousePosition = GetScreenToWorld2D(GetMousePosition(), this->camera);
 
 			ui::CommandParams params;
-			params.movable = true;
+			params.option_movable = true;
 
 			this->ui_manager.createUiElem(this->MousePosition, ui::ElemTypes::kOptionScroll, params);
 			break;
@@ -300,7 +287,7 @@ void Game::unitInfoTransition(inputAlphabet input, void *selection){
 			this->state = OPTIONS;
 
 			ui::CommandParams params;
-			params.movable = true;
+			params.option_movable = true;
 			
 			this->ui_manager.createUiElem(this->MousePosition, ui::ElemTypes::kOptionScroll, params);
 			break;
@@ -338,7 +325,7 @@ void Game::unitTransition(inputAlphabet input, void *selection){
 				}; //unit position is already world 
 
 				ui::CommandParams params;
-				params.fireable = true;
+				params.option_fireable = true;
 				this->ui_manager.createUiElem(this->MousePosition, ui::ElemTypes::kOptionScroll, params);
 				
 				//PROB DO FIRE ANIMATION
@@ -359,7 +346,7 @@ void Game::unitTransition(inputAlphabet input, void *selection){
 
 			ui::CommandParams params;
 
-			params.movable = true;
+			params.option_movable = true;
 			ui_manager.createUiElem(this->MousePosition, ui::ElemTypes::kOptionScroll, params);
 			break;
 			 }

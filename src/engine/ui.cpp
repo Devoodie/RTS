@@ -63,6 +63,16 @@ UnitScrollMenu::UnitScrollMenu(const Vector2 &mouse_position) : ScrollMenu(kScro
 
 UnitScrollMenu::~UnitScrollMenu(){}
 
+UiSignal UnitScrollMenu::HandleScrollCollision(int collision_index){
+	switch(collision_index){
+		case 0:
+			return kSigSpawnInfantry;
+		default:
+			return kSigSpawnInfantry;
+
+	}
+}
+
 OptionScrollMenu::OptionScrollMenu(const Vector2 &mouse_position, CommandParams params): ScrollMenu(ui::ScrollType::kScrollOptions, mouse_position) {
 	float width = grid::inradius;
 
@@ -72,7 +82,7 @@ OptionScrollMenu::OptionScrollMenu(const Vector2 &mouse_position, CommandParams 
 	for(int i = 0; i < 3; ++i){
 		switch(i){
 			case 0:
-				if(params.movable){
+				if(params.option_movable){
 					selected_texture = &grid::texture_map[grid::kMoveButton];
 					selected_color = RAYWHITE;
 				} else {
@@ -91,7 +101,7 @@ OptionScrollMenu::OptionScrollMenu(const Vector2 &mouse_position, CommandParams 
 					);
 				break;
 			case 1:
-				if(params.fireable) {
+				if(params.option_fireable) {
 					selected_texture = &grid::texture_map[grid::kFireButton];
 					selected_color = RAYWHITE;
 				
@@ -111,7 +121,7 @@ OptionScrollMenu::OptionScrollMenu(const Vector2 &mouse_position, CommandParams 
 					);
 				break;
 			case 2:
-				if(params.capturable){
+				if(params.option_capturable){
 					selected_texture = &grid::texture_map[grid::kCaptureButton];
 					selected_color = RAYWHITE;
 				} else {
@@ -164,15 +174,7 @@ UiSignal OptionScrollMenu::HandleScrollCollision(int collision_index){
 	return kSigNone;
 }
 
-UiSignal UnitScrollMenu::HandleScrollCollision(int collision_index){
-	switch(collision_index){
-		case 0:
-			return kSigSpawnInfantry;
-		default:
-			return kSigSpawnInfantry;
-
-	}
-}
+TaskScrollMenu::TaskScrollMenu(const Vector2 &mouse_position, CommandParams params) : capturing(params.task_capturing), ScrollMenu(ScrollType::kScrollTasks, mouse_position){}
 
 InfoPanel::InfoPanel(){
 	this->render_rect = (Rectangle){
@@ -348,9 +350,9 @@ void UiManager::createUiElem(Vector2 position, ElemTypes type, CommandParams par
 
 			OptionScrollMenu &options = *static_cast<OptionScrollMenu*>(this->scrl_menu.get());
 
-			options.fireable = params.fireable;
-			options.moveable = params.movable;
-			options.captureable = params.capturable;
+			options.fireable = params.option_fireable;
+			options.moveable = params.option_movable;
+			options.captureable = params.option_capturable;
 			break;
 			}
 		case ElemTypes::kTaskScroll:{
@@ -401,7 +403,10 @@ void UiManager::createUiElem(Vector2 position, ElemTypes type, CommandParams par
 			Rectangle desired_pos = text_pos;
 			desired_pos.y = desired_pos.y - grid::radius * 2.5;	
 
-			Text firing_text = Text(text_pos, params.text_content, RED);
+
+			assert(params.text_content.has_value() && "Text Created With null text_content value");
+
+			Text firing_text = Text(text_pos, params.text_content.value(), RED);
 			firing_text.is_firing_text = true;
 			int text_ind = this->messages.size();
 			this->messages.push_back(firing_text);
